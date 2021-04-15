@@ -1,0 +1,41 @@
+@mixin flex-align-items {
+  &-flex-start {
+    align-items: flex-start;
+  }
+
+  &-flex-end {
+    align-items: flex-end;
+  }
+
+  &-start {
+    align-items: start;
+  }
+
+  &-end {
+    align-items: end;
+  }
+
+  &-stretch {
+    align-items: stretch;
+  }
+
+  &-first-baseline {
+    align-items: first baseline;
+  }
+
+  &-baseline {
+    align-items: baseline;
+  }
+
+  &-last-baseline {
+    align-items: last baseline;
+  }
+
+  &-center {
+    align-items: center;
+  }
+
+  &-self-start {
+    align-items: self-start;
+  }
+}
