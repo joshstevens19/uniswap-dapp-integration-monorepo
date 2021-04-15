@@ -1,0 +1,13 @@
+@mixin flex-wrap {
+  &-wrap {
+    flex-wrap: nowrap;
+  }
+
+  &-wrap-reverse {
+    flex-wrap: wrap-reverse;
+  }
+
+  &-nowrap {
+    flex-wrap: nowrap;
+  }
+}
