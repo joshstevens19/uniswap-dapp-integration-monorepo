@@ -1,0 +1,6 @@
+// item only
+@mixin flex-item {
+  &-item {
+    flex: 1 1 100%;
+  }
+}
