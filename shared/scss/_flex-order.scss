@@ -4,6 +4,10 @@
     $i: 1;
     @while $i <= 10000 {
       &-#{$i} {
+        -webkit-box-ordinal-group: $i;
+        -moz-box-ordinal-group: $i;
+        -ms-flex-order: $i;
+        -webkit-order: $i;
         order: $i;
       }
       $i: $i + 1;
