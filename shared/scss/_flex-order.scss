@@ -1,0 +1,12 @@
+// item only
+@mixin flex-order {
+  &-order {
+    $i: 1;
+    @while $i <= 10000 {
+      &-#{$i} {
+        order: $i;
+      }
+      $i: $i + 1;
+    }
+  }
+}
