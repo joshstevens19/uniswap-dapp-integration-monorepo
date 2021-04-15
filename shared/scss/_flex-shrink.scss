@@ -1,0 +1,12 @@
+// item only
+@mixin flex-shrink {
+  &-shrink {
+    $i: 1;
+    @while $i <= 10000 {
+      &-#{$i} {
+        flex-shrink: $i;
+      }
+      $i: $i + 1;
+    }
+  }
+}
