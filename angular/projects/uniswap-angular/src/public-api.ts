@@ -1,7 +1,5 @@
 /*
- * Public API Surface of uniswap-angular
+ * Public API Surface of uniswap
  */
 
-export * from './lib/uniswap-angular.service';
-export * from './lib/uniswap-angular.component';
-export * from './lib/uniswap-angular.module';
+export * from './lib/uniswap.module';
