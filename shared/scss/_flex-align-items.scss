@@ -1,41 +1,45 @@
 @mixin flex-align-items {
-  &-flex-start {
-    align-items: flex-start;
-  }
+  &-item {
+    flex: 1 1 100%;
 
-  &-flex-end {
-    align-items: flex-end;
-  }
+    &-flex-start {
+      align-items: flex-start;
+    }
 
-  &-start {
-    align-items: start;
-  }
+    &-flex-end {
+      align-items: flex-end;
+    }
 
-  &-end {
-    align-items: end;
-  }
+    &-start {
+      align-items: start;
+    }
 
-  &-stretch {
-    align-items: stretch;
-  }
+    &-end {
+      align-items: end;
+    }
 
-  &-first-baseline {
-    align-items: first baseline;
-  }
+    &-stretch {
+      align-items: stretch;
+    }
 
-  &-baseline {
-    align-items: baseline;
-  }
+    &-first-baseline {
+      align-items: first baseline;
+    }
 
-  &-last-baseline {
-    align-items: last baseline;
-  }
+    &-baseline {
+      align-items: baseline;
+    }
 
-  &-center {
-    align-items: center;
-  }
+    &-last-baseline {
+      align-items: last baseline;
+    }
 
-  &-self-start {
-    align-items: self-start;
+    &-center {
+      align-items: center;
+    }
+
+    &-self-start {
+      align-items: self-start;
+    }
   }
 }
