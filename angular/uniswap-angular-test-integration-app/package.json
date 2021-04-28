@@ -19,7 +19,10 @@
     "@angular/platform-browser": "~11.2.11",
     "@angular/platform-browser-dynamic": "~11.2.11",
     "@angular/router": "~11.2.11",
+    "bignumber.js": "^9.0.1",
+    "ethers": "^5.1.4",
     "rxjs": "~6.6.0",
+    "simple-uniswap-sdk": "^1.0.5",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"
   },
