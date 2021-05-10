@@ -398,6 +398,101 @@
         font-weight: 500;
       }
     }
+
+    &-quote {
+      width: 100%;
+      padding: 0.25rem 0.75rem 0px;
+      border-radius: 20px;
+
+      &-container {
+        display: grid;
+        grid-auto-rows: auto;
+        row-gap: 4px;
+      }
+
+      &-price {
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        width: 100%;
+        display: flex;
+        padding: 0px;
+        -webkit-box-align: center;
+        align-items: center;
+        box-sizing: border-box;
+        margin: 0px;
+        min-width: 0px;
+
+        &-text {
+          color: rgb(69, 42, 122);
+          font-weight: 400;
+          line-height: 1.5;
+          font-size: 14px;
+        }
+      }
+
+      &-slippage {
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        width: 100%;
+        display: flex;
+        padding: 0px;
+        -webkit-box-align: center;
+        align-items: center;
+        box-sizing: border-box;
+        margin: 0px;
+        min-width: 0px;
+
+        &-text {
+          color: rgb(69, 42, 122);
+          font-weight: 400;
+          line-height: 1.5;
+          font-size: 14px;
+        }
+      }
+    }
+
+    &-allow {
+      padding: 16px;
+      width: 100%;
+      font-weight: 500;
+      text-align: center;
+      border-radius: 20px;
+      outline: none;
+      border: 1px solid transparent;
+      text-decoration: none;
+      display: flex;
+      -webkit-box-pack: center;
+      justify-content: center;
+      flex-wrap: nowrap;
+      -webkit-box-align: center;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      will-change: transform;
+      transition: transform 450ms ease 0s;
+      transform: perspective(1px) translateZ(0px);
+      background-color: rgb(255, 0, 122);
+      color: white;
+
+      &-container {
+        box-sizing: border-box;
+        margin: 0px;
+        min-width: 0px;
+        width: 100%;
+        display: flex;
+        padding: 0px;
+        -webkit-box-align: center;
+        align-items: center;
+        flex-wrap: wrap;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+      }
+
+      &-info {
+        display: inline-block;
+      }
+    }
   }
 
   &__settings {
@@ -734,4 +829,46 @@
       }
     }
   }
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  max-width: 420px;
+  max-height: 80vh;
+  min-height: 80vh;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
 }
