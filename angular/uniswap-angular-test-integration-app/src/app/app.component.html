@@ -6,6 +6,7 @@
       )
     "
   /> -->
+
   <div class="uni-ic__header-container">
     <div class="uni-ic__header-content">
       <div class="uni-ic__header-content-title">Swap</div>
@@ -211,11 +212,13 @@
               minlength="1"
               maxlength="79"
               spellcheck="false"
-              value=""
+              [ngModel]="inputValue"
+              (ngModelChange)="changeInputTradePrice($event)"
             />
             <button class="uni-ic__swap-input-content-main-from-max">MAX</button
             ><button
               class="uni-ic__swap-input-content-main-from-currency-container"
+              (click)="openTokenSelectorFrom()"
             >
               <span class="uni-ic__swap-input-content-main-from-currency"
                 ><img
@@ -276,7 +279,12 @@
                 class="uni-ic__swap-output-content-header-balance"
                 style="display: inline; cursor: pointer"
               >
-                Balance: 0
+                Balance:
+                <span *ngIf="uniswapDappSharedLogic.outputToken">{{
+                  uniswapDappSharedLogic.outputToken.balance
+                }}</span>
+
+                <span *ngIf="!uniswapDappSharedLogic.outputToken">0</span>
               </div>
             </div>
           </div>
@@ -293,9 +301,14 @@
               minlength="1"
               maxlength="79"
               spellcheck="false"
-              value=""
-            /><button class="uni-ic__swap-output-content-main-select">
-              <span class="uni-ic__swap-output-content-main-select-content"
+              [(ngModel)]="outputValue"
+            /><button
+              class="uni-ic__swap-output-content-main-select"
+              (click)="openTokenSelectorTo()"
+            >
+              <span
+                class="uni-ic__swap-output-content-main-select-content"
+                *ngIf="!uniswapDappSharedLogic.outputToken"
                 ><span
                   class="uni-ic__swap-output-content-main-select-content-title"
                   >Select a token</span
@@ -312,15 +325,132 @@
                   ></path>
                 </svg>
               </span>
+
+              <span
+                class="uni-ic__swap-input-content-main-from-currency"
+                *ngIf="uniswapDappSharedLogic.outputToken"
+                ><img
+                  [src]="
+                    uniswapDappSharedLogic.getTokenImageUrl(
+                      uniswapDappSharedLogic.outputToken.contractAddress
+                    )
+                  "
+                  class="uni-ic__swap-input-content-main-from-currency-icon"
+                /><span
+                  class="uni-ic__swap-input-content-main-from-currency-symbol"
+                  >{{ uniswapDappSharedLogic.outputToken.symbol }}</span
+                ><svg
+                  width="12"
+                  height="7"
+                  viewBox="0 0 12 7"
+                  fill="none"
+                  class="uni-ic__swap-input-content-main-from-currency-choose"
+                >
+                  <path
+                    d="M0.97168 1L6.20532 6L11.439 1"
+                    stroke="#AEAEAE"
+                  ></path>
+                </svg>
+              </span>
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="uni-ic__swap-quote" *ngIf="uniswapDappSharedLogic.tradeContext">
+      <div class="uni-ic__swap-quote-container">
+        <div class="uni-ic__swap-quote-price">
+          <div
+            font-size="14px"
+            color="text"
+            class="uni-ic__swap-quote-price-text"
+          >
+            Price
+          </div>
+          <div
+            font-size="14px"
+            color="text"
+            class="uni-ic__swap-quote-price-text"
+            style="justify-content: center; align-items: center; display: flex"
+          >
+            1
+            {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }} =
+            {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}
+          </div>
+        </div>
+        <div class="uni-ic__swap-quote-slippage">
+          <div
+            font-size="14px"
+            color="text"
+            class="uni-ic__swap-quote-slippage-text"
+          >
+            Slippage Tolerance
+          </div>
+          <div
+            font-size="14px"
+            color="text"
+            class="uni-ic__swap-quote-slippage-text"
+          >
+            {{ uniswapDappSharedLogic.slippage }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button
+      width="100%"
+      class="uni-ic__swap-allow"
+      *ngIf="uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false"
+    >
+      <div class="uni-ic__swap-allow-container">
+        <span style="display: flex; align-items: center"
+          >Allow the Uniswap Protocol to use your
+          {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}</span
+        >
+        <div class="uni-ic__swap-allow-info">
+          <div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </button>
+
     <div class="uni-ic__swap-button-container">
-      <button disabled="" class="uni-ic__swap-button">
-        <div class="uni-ic__swap-button-text">Enter an amount</div>
+      <button
+        class="uni-ic__swap-button"
+        [disabled]="
+          outputValue === '0' ||
+          uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false
+        "
+      >
+        <div class="uni-ic__swap-button-text">
+          <span *ngIf="outputValue === '0'">Enter an amount</span>
+          <span *ngIf="outputValue !== '0'">Swap</span>
+        </div>
       </button>
     </div>
+  </div>
+</div>
+
+<div id="uni-ic__model-token" class="modal">
+  <div class="modal-content">
+    <span class="close" (click)="hideTokenSelector()">&times;</span>
+    <p>Select a token</p>
+    <div class="uni-ic__selector">*ngIf</div>
   </div>
 </div>
