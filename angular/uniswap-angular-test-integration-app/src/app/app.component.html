@@ -490,9 +490,61 @@
 </div>
 
 <div id="uni-ic__model-token" class="modal">
-  <div class="modal-content">
+  <div class="modal-content uni-ic__model-tokens">
     <span class="close" (click)="hideTokenSelector()">&times;</span>
     <p>Select a token</p>
-    <div class="uni-ic__selector">*ngIf</div>
+    <div style="flex: 1 1 0%; position: relative">
+      <div style="overflow: visible; height: 0px">
+        <div
+          style="
+            position: relative;
+            height: 210px;
+            width: 100%;
+            overflow: auto;
+            will-change: transform;
+            direction: ltr;
+          "
+        >
+          <div style="height: 100%; width: 100%">
+            <div
+              class="uni-ic__model-tokens-item"
+              *ngFor="
+                let token of uniswapDappSharedLogic.supportedTokenBalances
+              "
+            >
+              <img
+                [src]="
+                  uniswapDappSharedLogic.getTokenImageUrl(token.contractAddress)
+                "
+                class="uni-ic__model-tokens-item-icon"
+              />
+              <div class="uni-ic__model-tokens-item-content">
+                <div class="uni-ic__model-tokens-item-content-symbol">
+                  {{ token.symbol }}
+                </div>
+                <div class="uni-ic__model-tokens-item-content-name">
+                  {{ token.name }}
+                </div>
+              </div>
+              <span></span>
+              <div
+                class="uni-ic__model-tokens-item-balance-content"
+                style="justify-self: flex-end"
+              >
+                <div class="uni-ic__model-tokens-item-balance-content-value">
+                  {{ token.balance.toFixed() }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="resize-triggers">
+        <div class="expand-trigger">
+          <div style="width: 419px; height: 211px"></div>
+        </div>
+        <div class="contract-trigger"></div>
+      </div>
+    </div>
   </div>
 </div>

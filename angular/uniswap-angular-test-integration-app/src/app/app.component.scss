@@ -833,6 +833,80 @@
       }
     }
   }
+
+  &__model {
+    &-tokens {
+      &-item {
+        box-sizing: border-box;
+        margin: 0px;
+        min-width: 0px;
+        width: 100%;
+        -webkit-box-align: center;
+        align-items: center;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        padding: 4px 20px;
+        height: 56px;
+        display: grid;
+        grid-template-columns: auto minmax(auto, 1fr) auto minmax(0px, 72px);
+        gap: 16px;
+        pointer-events: none;
+        // opacity: 0.5;
+
+        &-icon {
+          width: 24px;
+          height: 24px;
+          box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
+          border-radius: 24px;
+        }
+
+        &-content {
+          display: flex;
+          flex-direction: column;
+          -webkit-box-pack: start;
+          justify-content: flex-start;
+
+          &-symbol {
+            box-sizing: border-box;
+            margin: 0px;
+            min-width: 0px;
+            font-weight: 500;
+          }
+
+          &-name {
+            box-sizing: border-box;
+            margin: 0px;
+            min-width: 0px;
+            font-weight: 300;
+            font-size: 12px;
+          }
+        }
+
+        &-balance-content {
+          box-sizing: border-box;
+          margin: 0px;
+          min-width: 0px;
+          display: flex;
+          padding: 0px;
+          -webkit-box-align: center;
+          align-items: center;
+          -webkit-box-pack: start;
+          justify-content: flex-start;
+          width: fit-content;
+
+          &-value {
+            box-sizing: border-box;
+            margin: 0px;
+            min-width: 0px;
+            white-space: nowrap;
+            overflow: hidden;
+            max-width: 5rem;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+  }
 }
 
 /* The Modal (background) */

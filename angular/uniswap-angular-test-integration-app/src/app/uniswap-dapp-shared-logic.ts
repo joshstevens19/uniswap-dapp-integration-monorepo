@@ -28,13 +28,17 @@ export interface SupportedToken {
   contractAddress: string;
 }
 
+export interface SupportedTokenResult {
+  token: ExtendedToken;
+}
+
 export class UniswapDappSharedLogic {
   public inputToken!: ExtendedToken;
   public outputToken: ExtendedToken | undefined;
   public factory: UniswapPairFactory | undefined;
   public tradeContext: TradeContext | undefined;
   public slippage = 0.05;
-  public contractBalances!: { balance: string; contractAddress: string }[];
+  public supportedTokenBalances!: ExtendedToken[];
 
   private _inputAmount = new BigNumber(1);
 
@@ -91,7 +95,7 @@ export class UniswapDappSharedLogic {
    * Hide the token selector
    */
   public hideTokenSelector(): void {
-    const modal = document.getElementById('uni-ic__model')!;
+    const modal = document.getElementById('uni-ic__model-token')!;
     modal.style.display = 'none';
   }
 
@@ -289,11 +293,11 @@ export class UniswapDappSharedLogic {
         true
       );
 
-      this.contractBalances = results.map((c) => {
-        return {
-          balance: c.allowanceAndBalanceOf.balanceOf,
-          contractAddress: c.contractAddress,
-        };
+      this.supportedTokenBalances = results.map((c) => {
+        return this.buildExtendedToken(
+          c.token,
+          c.allowanceAndBalanceOf.balanceOf
+        );
       });
 
       if (this.inputToken.symbol.toLowerCase() === 'weth') {
@@ -301,7 +305,7 @@ export class UniswapDappSharedLogic {
           await this.factory!.getFromTokenBalance()
         );
       } else {
-        const newInputBalance = this.contractBalances.find(
+        const newInputBalance = this.supportedTokenBalances.find(
           (c) => c.contractAddress === this.inputToken.contractAddress
         )?.balance;
         if (newInputBalance) {
@@ -315,7 +319,7 @@ export class UniswapDappSharedLogic {
             await this.factory!.getToTokenBalance()
           );
         } else {
-          const newOutputBalance = this.contractBalances.find(
+          const newOutputBalance = this.supportedTokenBalances.find(
             (c) => c.contractAddress === this.outputToken!.contractAddress
           )?.balance;
 
