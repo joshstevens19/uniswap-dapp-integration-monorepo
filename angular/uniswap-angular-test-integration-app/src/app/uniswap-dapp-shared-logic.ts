@@ -5,7 +5,9 @@ import {
   ChainId,
   Token,
   TokenFactoryPublic,
+  TokensFactoryPublic,
   TradeContext,
+  Transaction,
   UniswapPair,
   UniswapPairFactory,
 } from 'simple-uniswap-sdk';
@@ -18,7 +20,7 @@ export interface UniswapDappSharedLogicContext {
 }
 
 export interface ExtendedToken extends Token {
-  balance?: BigNumber | undefined;
+  balance: BigNumber;
 }
 
 export interface SupportedToken {
@@ -32,26 +34,28 @@ export class UniswapDappSharedLogic {
   public factory: UniswapPairFactory | undefined;
   public tradeContext: TradeContext | undefined;
   public slippage = 0.05;
+  public contractBalances!: { balance: string; contractAddress: string }[];
 
   private _inputAmount = new BigNumber(1);
 
-  constructor(private _context: UniswapDappSharedLogicContext) {}
+  private _tokensFactoryPublic = new TokensFactoryPublic(ChainId.MAINNET);
+
+  constructor(private _context: UniswapDappSharedLogicContext) {
+    this.syncBalances();
+  }
 
   /**
    * Init the shared logic
    */
   public async init(): Promise<void> {
-    this.inputToken = await this.getTokenInformation(
+    const inputToken =
       this._context?.inputCurrency ||
-        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-    );
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 
     if (this._context.outputCurrency) {
-      this.outputToken = await this.getTokenInformation(
-        this._context.outputCurrency
-      );
-
-      await this.buildFactory();
+      await this.buildFactory(inputToken, this._context.outputCurrency);
+    } else {
+      this.inputToken = await this.getTokenInformation(inputToken);
     }
   }
 
@@ -96,8 +100,7 @@ export class UniswapDappSharedLogic {
    * @param contractAddress The contract address
    */
   public async changeInputToken(contractAddress: string): Promise<void> {
-    this.inputToken = await this.getTokenInformation(contractAddress);
-    await this.buildFactory();
+    await this.buildFactory(contractAddress, this.outputToken!.contractAddress);
   }
 
   /**
@@ -105,8 +108,7 @@ export class UniswapDappSharedLogic {
    * @param contractAddress The contract address
    */
   public async changeOutputToken(contractAddress: string): Promise<void> {
-    this.outputToken = await this.getTokenInformation(contractAddress);
-    await this.buildFactory();
+    await this.buildFactory(this.inputToken.contractAddress, contractAddress);
   }
 
   /**
@@ -115,9 +117,29 @@ export class UniswapDappSharedLogic {
   public async changeInputTradePrice(amount: string): Promise<void> {
     this._inputAmount = new BigNumber(amount);
     if (!this.factory) {
-      await this.buildFactory();
+      await this.buildFactory(
+        this.inputToken.contractAddress,
+        this.outputToken!.contractAddress
+      );
     }
     await this.trade(this._inputAmount);
+  }
+
+  /**
+   * Set max input
+   */
+  public async setMaxInput(): Promise<string> {
+    const maxBalance = this.inputToken.balance.toFixed();
+    await this.changeInputTradePrice(maxBalance);
+
+    return maxBalance;
+  }
+
+  /**
+   * Generate approve max allowance
+   */
+  public async generateApproveMaxAllowanceData(): Promise<Transaction> {
+    return await this.factory!.generateApproveMaxAllowanceData();
   }
 
   /**
@@ -128,15 +150,6 @@ export class UniswapDappSharedLogic {
     // TODO CHECK SUPPORTED TOKENS LIST IF OVERRIDES
 
     return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contractAddress}/logo.png`;
-  }
-
-  /**
-   * Get the balance of the token
-   * @param contractAddress The contract address
-   */
-  public getBalance(contractAddress: string): BigNumber {
-    console.log(contractAddress);
-    return new BigNumber('10');
   }
 
   /**
@@ -152,28 +165,89 @@ export class UniswapDappSharedLogic {
     );
 
     const token = (await tokenFactoryPublic.getToken()) as ExtendedToken;
-    token.balance = this.getBalance(contractAddress);
-    if (token.symbol.toLowerCase() === 'weth') {
-      token.symbol = 'ETH';
-    }
+    // to do fix
+    token.balance = new BigNumber(
+      await tokenFactoryPublic.balanceOf(contractAddress)
+    );
 
     return token;
   }
 
   /**
+   * Deep clone a object
+   * @param object The object
+   */
+  public deepClone<T>(object: T): T {
+    return JSON.parse(JSON.stringify(object)) as T;
+  }
+
+  /**
+   * Swap switch
+   */
+  public async swapSwitch(): Promise<void> {
+    const clonedOutput = this.deepClone(this.outputToken!);
+    const clonedInput = this.deepClone(this.inputToken);
+
+    this._inputAmount = new BigNumber(this.tradeContext!.expectedConvertQuote!);
+
+    await this.buildFactory(
+      clonedOutput.contractAddress,
+      clonedInput.contractAddress
+    );
+  }
+
+  // MOVE INTO SDK
+  /**
+   * work out what 1 is equal to
+   */
+  public workOutOneEqualTo(): string {
+    return new BigNumber(
+      +this.tradeContext!.expectedConvertQuote /
+        +this.tradeContext!.baseConvertRequest
+    ).toFixed();
+  }
+
+  /**
    * Build factory
    */
-  private async buildFactory(): Promise<void> {
+  private async buildFactory(
+    inputToken: string,
+    outputToken: string
+  ): Promise<void> {
     const uniswapPair = new UniswapPair({
-      fromTokenContractAddress: this.inputToken.contractAddress,
-      toTokenContractAddress: this.outputToken!.contractAddress,
+      fromTokenContractAddress: inputToken,
+      toTokenContractAddress: outputToken,
       // the ethereum address of the user using this part of the dApp
-      ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
+      ethereumAddress: '0x37c81284caA97131339415687d192BF7D18F0f2a',
       chainId: ChainId.MAINNET,
     });
 
     this.factory = await uniswapPair.createFactory();
+    this.inputToken = this.buildExtendedToken(
+      this.factory.fromToken,
+      await this.factory.getFromTokenBalance()
+    );
+    this.outputToken = this.buildExtendedToken(
+      this.factory.toToken,
+      await this.factory.getToTokenBalance()
+    );
     await this.trade(this._inputAmount);
+  }
+
+  /**
+   * Build extended token
+   * @param token The token
+   * @param balance The balance
+   */
+  private buildExtendedToken(token: Token, balance: string): ExtendedToken {
+    return {
+      chainId: token.chainId,
+      contractAddress: token.contractAddress,
+      decimals: token.decimals,
+      symbol: token.symbol,
+      name: token.name,
+      balance: new BigNumber(balance),
+    };
   }
 
   /**
@@ -194,13 +268,62 @@ export class UniswapDappSharedLogic {
         this._inputAmount.toFixed()
       );
 
-      console.log(this.tradeContext);
-
       this.tradeContext?.quoteChanged$.subscribe((quote) => {
         this.tradeContext = quote;
       });
+
+      console.log(this.tradeContext);
     } else {
       this.factory = undefined;
     }
+  }
+
+  /**
+   * Keep the balances in balances
+   */
+  private async syncBalances(): Promise<void> {
+    setInterval(async () => {
+      const results = await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
+        '0x37c81284caA97131339415687d192BF7D18F0f2a',
+        this._context.supportedContracts.map((c) => c.contractAddress),
+        true
+      );
+
+      this.contractBalances = results.map((c) => {
+        return {
+          balance: c.allowanceAndBalanceOf.balanceOf,
+          contractAddress: c.contractAddress,
+        };
+      });
+
+      if (this.inputToken.symbol.toLowerCase() === 'weth') {
+        this.inputToken.balance = new BigNumber(
+          await this.factory!.getFromTokenBalance()
+        );
+      } else {
+        const newInputBalance = this.contractBalances.find(
+          (c) => c.contractAddress === this.inputToken.contractAddress
+        )?.balance;
+        if (newInputBalance) {
+          this.inputToken.balance = new BigNumber(newInputBalance);
+        }
+      }
+
+      if (this.outputToken) {
+        if (this.outputToken.symbol.toLowerCase() === 'weth') {
+          this.outputToken.balance = new BigNumber(
+            await this.factory!.getToTokenBalance()
+          );
+        } else {
+          const newOutputBalance = this.contractBalances.find(
+            (c) => c.contractAddress === this.outputToken!.contractAddress
+          )?.balance;
+
+          if (newOutputBalance) {
+            this.outputToken.balance = new BigNumber(newOutputBalance);
+          }
+        }
+      }
+    }, 5000);
   }
 }

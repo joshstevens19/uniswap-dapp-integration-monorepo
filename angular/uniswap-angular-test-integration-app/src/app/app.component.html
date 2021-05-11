@@ -215,7 +215,11 @@
               [ngModel]="inputValue"
               (ngModelChange)="changeInputTradePrice($event)"
             />
-            <button class="uni-ic__swap-input-content-main-from-max">MAX</button
+            <button
+              class="uni-ic__swap-input-content-main-from-max"
+              (click)="maxSwap()"
+            >
+              MAX</button
             ><button
               class="uni-ic__swap-input-content-main-from-currency-container"
               (click)="openTokenSelectorFrom()"
@@ -251,7 +255,7 @@
 
       <div class="uni-ic__swap-divider-container">
         <div class="uni-ic__swap-divider" style="padding: 0px 1rem">
-          <div class="sc-cbkKFq frFBhV">
+          <div class="uni-ic__swap-divider-action" (click)="switchSwap()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -376,6 +380,7 @@
           >
             1
             {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }} =
+            {{ uniswapDappSharedLogic.workOutOneEqualTo() }}
             {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}
           </div>
         </div>
@@ -401,10 +406,15 @@
     <button
       width="100%"
       class="uni-ic__swap-allow"
-      *ngIf="uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false"
+      *ngIf="
+        uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false &&
+        !notEnoughLiquidity
+      "
     >
       <div class="uni-ic__swap-allow-container">
-        <span style="display: flex; align-items: center"
+        <span
+          style="display: flex; align-items: center"
+          (click)="generateApproveMaxAllowanceData()"
           >Allow the Uniswap Protocol to use your
           {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}</span
         >
@@ -435,12 +445,44 @@
         class="uni-ic__swap-button"
         [disabled]="
           outputValue === '0' ||
-          uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false
+          uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false ||
+          uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough ===
+            false ||
+          notEnoughLiquidity
         "
       >
         <div class="uni-ic__swap-button-text">
-          <span *ngIf="outputValue === '0'">Enter an amount</span>
-          <span *ngIf="outputValue !== '0'">Swap</span>
+          <span
+            *ngIf="
+              outputValue === '0' &&
+              uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough &&
+              !notEnoughLiquidity
+            "
+            >Enter an amount</span
+          >
+          <span
+            *ngIf="
+              outputValue !== '0' &&
+              uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough &&
+              !notEnoughLiquidity
+            "
+            >Swap</span
+          >
+          <span
+            *ngIf="
+              !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough &&
+              !notEnoughLiquidity
+            "
+            >Insufficient
+            {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }}
+            balance</span
+          >
+
+          <span *ngIf="notEnoughLiquidity"
+            >Insufficient
+            {{ uniswapDappSharedLogic.tradeContext?.toToken?.symbol }}
+            liquidity</span
+          >
         </div>
       </button>
     </div>

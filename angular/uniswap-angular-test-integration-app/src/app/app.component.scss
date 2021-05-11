@@ -230,6 +230,10 @@
         display: grid;
         grid-auto-rows: auto;
       }
+
+      &-action {
+        cursor: pointer;
+      }
     }
 
     &-output {
