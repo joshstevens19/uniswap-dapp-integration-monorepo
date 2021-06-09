@@ -1,0 +1,4 @@
+# Add files here to ignore them from prettier formatting
+wallet-app/src/libs/**
+wallet-app/src/json/**
+wallet-app/ABI/*.json

@@ -1,15 +1,19 @@
 /// TODO MOVE TO NPM PACKAGE ONCE HAPPY
 
 import BigNumber from 'bignumber.js';
+import { ethers } from 'ethers';
+import { Subject } from 'rxjs';
 import {
   ChainId,
   Token,
   TokenFactoryPublic,
   TokensFactoryPublic,
   TradeContext,
-  Transaction,
   UniswapPair,
   UniswapPairFactory,
+  UniswapPairSettings,
+  UniswapVersion,
+  WETH,
 } from 'simple-uniswap-sdk';
 
 export interface UniswapDappSharedLogicContext {
@@ -17,10 +21,12 @@ export interface UniswapDappSharedLogicContext {
   inputCurrency?: string | undefined;
   outputCurrency?: string | undefined;
   supportedContracts: SupportedToken[];
+  settings?: UniswapPairSettings | undefined;
 }
 
 export interface ExtendedToken extends Token {
   balance: BigNumber;
+  fiatPrice: string | undefined;
 }
 
 export interface SupportedToken {
@@ -37,15 +43,30 @@ export class UniswapDappSharedLogic {
   public outputToken: ExtendedToken | undefined;
   public factory: UniswapPairFactory | undefined;
   public tradeContext: TradeContext | undefined;
-  public slippage = 0.05;
+  public newPriceTradeContext: TradeContext | undefined;
+  // this is used to alert the UI to change the framework
+  // binded values
+  public newPriceTradeContextAvailable = new Subject<TradeContext>();
   public supportedTokenBalances!: ExtendedToken[];
+  public userAcceptedPriceChange = true;
+  public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
 
-  private _inputAmount = new BigNumber(1);
+  private _confirmSwapOpened = false;
+
+  private _inputAmount = new BigNumber(0.00004);
 
   private _tokensFactoryPublic = new TokensFactoryPublic(ChainId.MAINNET);
 
+  private _formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  });
+
   constructor(private _context: UniswapDappSharedLogicContext) {
-    this.syncBalances();
+    this._context.supportedContracts.push(WETH.MAINNET());
+    if (this._context.settings) {
+      this.uniswapPairSettings = this._context.settings;
+    }
   }
 
   /**
@@ -61,6 +82,9 @@ export class UniswapDappSharedLogic {
     } else {
       this.inputToken = await this.getTokenInformation(inputToken);
     }
+
+    this.getBalances();
+    this.syncBalancesInternal();
   }
 
   /**
@@ -68,7 +92,7 @@ export class UniswapDappSharedLogic {
    */
   public toggleSettings(): void {
     const settingsElement = document.getElementsByClassName(
-      'uni-ic__settings-container'
+      'uni-ic__settings-container',
     )[0];
     if (settingsElement.classList.contains('uni-ic-hidden')) {
       settingsElement.classList.remove('uni-ic-hidden');
@@ -100,10 +124,32 @@ export class UniswapDappSharedLogic {
   }
 
   /**
+   * Show the confirm swap modal
+   */
+  public showConfirmSwap(): void {
+    const modal = document.getElementById('uni-ic__model-confirm-swap')!;
+    modal.style.display = 'block';
+    this._confirmSwapOpened = true;
+  }
+
+  /**
+   * Hide the confirm swap modal
+   */
+  public hideConfirmSwap(): void {
+    const modal = document.getElementById('uni-ic__model-confirm-swap')!;
+    modal.style.display = 'none';
+    this._confirmSwapOpened = false;
+    this.acceptPriceChange();
+  }
+
+  /**
    * Change input token
    * @param contractAddress The contract address
    */
   public async changeInputToken(contractAddress: string): Promise<void> {
+    this.hideTokenSelector();
+    contractAddress = ethers.utils.getAddress(contractAddress);
+
     await this.buildFactory(contractAddress, this.outputToken!.contractAddress);
   }
 
@@ -112,6 +158,8 @@ export class UniswapDappSharedLogic {
    * @param contractAddress The contract address
    */
   public async changeOutputToken(contractAddress: string): Promise<void> {
+    this.hideTokenSelector();
+    contractAddress = ethers.utils.getAddress(contractAddress);
     await this.buildFactory(this.inputToken.contractAddress, contractAddress);
   }
 
@@ -123,7 +171,7 @@ export class UniswapDappSharedLogic {
     if (!this.factory) {
       await this.buildFactory(
         this.inputToken.contractAddress,
-        this.outputToken!.contractAddress
+        this.outputToken!.contractAddress,
       );
     }
     await this.trade(this._inputAmount);
@@ -140,19 +188,11 @@ export class UniswapDappSharedLogic {
   }
 
   /**
-   * Generate approve max allowance
-   */
-  public async generateApproveMaxAllowanceData(): Promise<Transaction> {
-    return await this.factory!.generateApproveMaxAllowanceData();
-  }
-
-  /**
    * Get the token image url
    * @param contractAddress The contract address
    */
   public getTokenImageUrl(contractAddress: string): string {
-    // TODO CHECK SUPPORTED TOKENS LIST IF OVERRIDES
-
+    contractAddress = ethers.utils.getAddress(contractAddress);
     return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contractAddress}/logo.png`;
   }
 
@@ -161,17 +201,18 @@ export class UniswapDappSharedLogic {
    * @param contractAddress The contract address
    */
   public async getTokenInformation(
-    contractAddress: string
+    contractAddress: string,
   ): Promise<ExtendedToken> {
+    contractAddress = ethers.utils.getAddress(contractAddress);
     const tokenFactoryPublic = new TokenFactoryPublic(
       contractAddress,
-      ChainId.MAINNET
+      ChainId.MAINNET,
     );
 
     const token = (await tokenFactoryPublic.getToken()) as ExtendedToken;
     // to do fix
     token.balance = new BigNumber(
-      await tokenFactoryPublic.balanceOf(contractAddress)
+      await tokenFactoryPublic.balanceOf(contractAddress),
     );
 
     return token;
@@ -196,8 +237,19 @@ export class UniswapDappSharedLogic {
 
     await this.buildFactory(
       clonedOutput.contractAddress,
-      clonedInput.contractAddress
+      clonedInput.contractAddress,
     );
+  }
+
+  /**
+   * Accept the price change
+   */
+  public acceptPriceChange(): void {
+    if (this.newPriceTradeContext) {
+      this.tradeContext = this.newPriceTradeContext;
+    }
+    this.newPriceTradeContext = undefined;
+    this.userAcceptedPriceChange = true;
   }
 
   // MOVE INTO SDK
@@ -207,8 +259,57 @@ export class UniswapDappSharedLogic {
   public workOutOneEqualTo(): string {
     return new BigNumber(
       +this.tradeContext!.expectedConvertQuote /
-        +this.tradeContext!.baseConvertRequest
+        +this.tradeContext!.baseConvertRequest,
     ).toFixed();
+  }
+
+  /**
+   * Set multihops
+   * @param disableMultihops The status of disable multihops
+   */
+  public async setDisableMultihops(disableMultihops: boolean): Promise<void> {
+    this.uniswapPairSettings.disableMultihops = disableMultihops;
+    await this.buildFactory(
+      this.inputToken.contractAddress,
+      this.outputToken!.contractAddress,
+      this.uniswapPairSettings,
+    );
+  }
+
+  /**
+   * Set transaction deadline
+   * @param deadlineMinutes The deadline minutes the tx has to be mined before it fails
+   */
+  public async setTransactionDeadline(
+    deadlineMinutes: string | number,
+  ): Promise<void> {
+    if (deadlineMinutes === '') {
+      this.uniswapPairSettings.deadlineMinutes = 20;
+    } else {
+      this.uniswapPairSettings.deadlineMinutes = Number(deadlineMinutes);
+    }
+    await this.buildFactory(
+      this.inputToken.contractAddress,
+      this.outputToken!.contractAddress,
+      this.uniswapPairSettings,
+    );
+  }
+
+  /**
+   * Set transaction slippage
+   * @param slippage The slippage the route can take
+   */
+  public async setSlippage(slippage: string | number): Promise<void> {
+    if (slippage === '') {
+      this.uniswapPairSettings.slippage = 0.005;
+    } else {
+      this.uniswapPairSettings.slippage = Number(slippage) / 100;
+    }
+    await this.buildFactory(
+      this.inputToken.contractAddress,
+      this.outputToken!.contractAddress,
+      this.uniswapPairSettings,
+    );
   }
 
   /**
@@ -216,24 +317,35 @@ export class UniswapDappSharedLogic {
    */
   private async buildFactory(
     inputToken: string,
-    outputToken: string
+    outputToken: string,
+    settings?: UniswapPairSettings | undefined,
   ): Promise<void> {
+    inputToken = ethers.utils.getAddress(inputToken);
+    outputToken = ethers.utils.getAddress(outputToken);
     const uniswapPair = new UniswapPair({
       fromTokenContractAddress: inputToken,
       toTokenContractAddress: outputToken,
       // the ethereum address of the user using this part of the dApp
       ethereumAddress: '0x37c81284caA97131339415687d192BF7D18F0f2a',
       chainId: ChainId.MAINNET,
+      settings,
     });
 
     this.factory = await uniswapPair.createFactory();
+    const fiatPrices = await this.getCoinGeckoFiatPrices([
+      this.factory.fromToken.contractAddress,
+      this.factory.toToken.contractAddress,
+    ]);
+
     this.inputToken = this.buildExtendedToken(
       this.factory.fromToken,
-      await this.factory.getFromTokenBalance()
+      await this.factory.getFromTokenBalance(),
+      fiatPrices,
     );
     this.outputToken = this.buildExtendedToken(
       this.factory.toToken,
-      await this.factory.getToTokenBalance()
+      await this.factory.getToTokenBalance(),
+      fiatPrices,
     );
     await this.trade(this._inputAmount);
   }
@@ -243,15 +355,55 @@ export class UniswapDappSharedLogic {
    * @param token The token
    * @param balance The balance
    */
-  private buildExtendedToken(token: Token, balance: string): ExtendedToken {
+  private buildExtendedToken(
+    token: Token,
+    balance: string,
+    // tslint:disable-next-line: ban-types
+    fiatPriceResults: Object,
+  ): ExtendedToken {
+    // const results = await (
+    //   await fetch(
+    //     `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${token.contractAddress}&vs_currencies=usd`,
+    //   )
+    // ).json();
+
+    let fiatPrice: number | undefined;
+
+    for (const [key, value] of Object.entries(fiatPriceResults)) {
+      if (key.toLowerCase() === token.contractAddress.toLowerCase()) {
+        // @ts-ignore
+        // tslint:disable-next-line: no-string-literal
+        fiatPrice = Number(value['usd']);
+        break;
+      }
+    }
+
     return {
       chainId: token.chainId,
       contractAddress: token.contractAddress,
       decimals: token.decimals,
       symbol: token.symbol,
       name: token.name,
+      fiatPrice:
+        fiatPrice !== undefined
+          ? this._formatter.format(fiatPrice).replace('$', '')
+          : undefined,
       balance: new BigNumber(balance),
     };
+  }
+
+  /**
+   * Get coin gecko fiat prices
+   * @param contractAddresses The contract addresses
+   */
+  private async getCoinGeckoFiatPrices(
+    contractAddresses: string[],
+  ): Promise<any> {
+    return await (
+      await fetch(
+        `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAddresses.join()}&vs_currencies=usd`,
+      )
+    ).json();
   }
 
   /**
@@ -269,65 +421,108 @@ export class UniswapDappSharedLogic {
   private async trade(amount: BigNumber): Promise<void> {
     if (amount.isGreaterThan(0)) {
       this.tradeContext = await this.factory!.trade(
-        this._inputAmount.toFixed()
+        this._inputAmount.toFixed(),
       );
 
       this.tradeContext?.quoteChanged$.subscribe((quote) => {
-        this.tradeContext = quote;
+        console.log('price change', quote);
+        if (this._confirmSwapOpened) {
+          this.newPriceTradeContext = quote;
+        } else {
+          this.tradeContext = quote;
+          this.newPriceTradeContextAvailable.next(quote);
+        }
       });
 
-      console.log(this.tradeContext);
+      console.log('first quote', this.tradeContext);
     } else {
       this.factory = undefined;
     }
   }
 
   /**
-   * Keep the balances in balances
+   * Sync balances interval
    */
-  private async syncBalances(): Promise<void> {
-    setInterval(async () => {
-      const results = await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
+  private async syncBalancesInternal(): Promise<void> {
+    setInterval(() => this.getBalances(), 5000);
+  }
+
+  /**
+   * Get the balances of the supported contracts
+   */
+  private async getBalances(): Promise<void> {
+    const tokenWithAllowanceInfo =
+      await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
+        UniswapVersion.v3,
         '0x37c81284caA97131339415687d192BF7D18F0f2a',
-        this._context.supportedContracts.map((c) => c.contractAddress),
-        true
+        this._context.supportedContracts.map((c) =>
+          ethers.utils.getAddress(c.contractAddress),
+        ),
+        true,
       );
 
-      this.supportedTokenBalances = results.map((c) => {
-        return this.buildExtendedToken(
-          c.token,
-          c.allowanceAndBalanceOf.balanceOf
-        );
+    // look at caching this we still want to fetch the balances every 5 seconds but
+    // fiat prices can be cached
+    const fiatPrices = await this.getCoinGeckoFiatPrices(
+      tokenWithAllowanceInfo.map((c) => c.token.contractAddress),
+    );
+
+    this.supportedTokenBalances = tokenWithAllowanceInfo
+      .map((item) =>
+        this.buildExtendedToken(
+          item.token,
+          item.allowanceAndBalanceOf.balanceOf,
+          fiatPrices,
+        ),
+      )
+      .sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        }
+        if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      })
+      .sort((a, b) => {
+        if (a.contractAddress === this.inputToken.contractAddress) {
+          return -1;
+        }
+
+        if (a.contractAddress === this.outputToken?.contractAddress) {
+          return -1;
+        }
+
+        return 0;
       });
 
-      if (this.inputToken.symbol.toLowerCase() === 'weth') {
-        this.inputToken.balance = new BigNumber(
-          await this.factory!.getFromTokenBalance()
+    if (this.inputToken.symbol.toLowerCase() === 'weth') {
+      this.inputToken.balance = new BigNumber(
+        await this.factory!.getFromTokenBalance(),
+      );
+    } else {
+      const newInputBalance = this.supportedTokenBalances.find(
+        (c) => c.contractAddress === this.inputToken.contractAddress,
+      )?.balance;
+      if (newInputBalance) {
+        this.inputToken.balance = new BigNumber(newInputBalance);
+      }
+    }
+
+    if (this.outputToken) {
+      if (this.outputToken.symbol.toLowerCase() === 'weth') {
+        this.outputToken.balance = new BigNumber(
+          await this.factory!.getToTokenBalance(),
         );
       } else {
-        const newInputBalance = this.supportedTokenBalances.find(
-          (c) => c.contractAddress === this.inputToken.contractAddress
+        const newOutputBalance = this.supportedTokenBalances.find(
+          (c) => c.contractAddress === this.outputToken!.contractAddress,
         )?.balance;
-        if (newInputBalance) {
-          this.inputToken.balance = new BigNumber(newInputBalance);
+
+        if (newOutputBalance) {
+          this.outputToken.balance = new BigNumber(newOutputBalance);
         }
       }
-
-      if (this.outputToken) {
-        if (this.outputToken.symbol.toLowerCase() === 'weth') {
-          this.outputToken.balance = new BigNumber(
-            await this.factory!.getToTokenBalance()
-          );
-        } else {
-          const newOutputBalance = this.supportedTokenBalances.find(
-            (c) => c.contractAddress === this.outputToken!.contractAddress
-          )?.balance;
-
-          if (newOutputBalance) {
-            this.outputToken.balance = new BigNumber(newOutputBalance);
-          }
-        }
-      }
-    }, 5000);
+    }
   }
 }

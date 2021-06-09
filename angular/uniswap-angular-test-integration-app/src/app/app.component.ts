@@ -1,14 +1,26 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import BigNumber from 'bignumber.js';
+import { Subscription } from 'rxjs';
 import { Transaction } from 'simple-uniswap-sdk';
 import { UniswapDappSharedLogic } from './uniswap-dapp-shared-logic';
+
+enum SelectTokenActionFrom {
+  input = 'input',
+  output = 'output',
+}
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   @Output()
   public generatedApproveTransaction: EventEmitter<Transaction> = new EventEmitter();
 
@@ -16,30 +28,52 @@ export class AppComponent implements OnInit {
 
   public uniswapDappSharedLogic = new UniswapDappSharedLogic({
     inputCurrency: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
-    outputCurrency: '0x419d0d8bdd9af5e606ae2232ed285aff190e711b', // 0x1985365e9f78359a9B6AD760e32412f4a445E862
+    outputCurrency: '0xdac17f958d2ee523a2206206994597c13d831ec7', // 0x1985365e9f78359a9B6AD760e32412f4a445E862
     supportedContracts: [
       { contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b' },
+      { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
       { contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862' },
     ],
   });
+
+  public selectorOpenFrom: SelectTokenActionFrom | undefined;
   public loading = true;
 
-  public inputValue = '1';
+  public inputValue = '0.00004';
   public outputValue = '0';
 
+  public transactionDeadline: number | undefined;
+  public slippageCustom: number | undefined;
+
+  public newPriceTradeContextAvailableSubscription = Subscription.EMPTY;
+
   constructor() {
-    (<any>window).ethereum.request({ method: 'eth_requestAccounts' });
+    // (<any>window).ethereum.request({ method: 'eth_requestAccounts' });
+  }
+
+  /**
+   * On destroy
+   */
+  public ngOnDestroy(): void {
+    this.newPriceTradeContextAvailableSubscription.unsubscribe();
   }
 
   /**
    * On load
    */
   public async ngOnInit(): Promise<void> {
+    this.newPriceTradeContextAvailableSubscription =
+      this.uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
+        (tradeContext) => {
+          this.outputValue = tradeContext.expectedConvertQuote;
+        },
+      );
     try {
       await this.uniswapDappSharedLogic.init();
 
       if (this.uniswapDappSharedLogic.tradeContext?.expectedConvertQuote) {
-        this.outputValue = this.uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
+        this.outputValue =
+          this.uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
       }
     } catch (error) {
       this.notEnoughLiquidity = true;
@@ -59,6 +93,7 @@ export class AppComponent implements OnInit {
    * Open token selector from
    */
   public openTokenSelectorFrom(): void {
+    this.selectorOpenFrom = SelectTokenActionFrom.input;
     this.uniswapDappSharedLogic.openTokenSelectorFrom();
   }
 
@@ -66,6 +101,7 @@ export class AppComponent implements OnInit {
    * Open token selector
    */
   public openTokenSelectorTo(): void {
+    this.selectorOpenFrom = SelectTokenActionFrom.output;
     this.uniswapDappSharedLogic.openTokenSelectorTo();
   }
 
@@ -73,6 +109,7 @@ export class AppComponent implements OnInit {
    * Hide token selector
    */
   public hideTokenSelector(): void {
+    this.selectorOpenFrom = undefined;
     this.uniswapDappSharedLogic.hideTokenSelector();
   }
 
@@ -90,7 +127,8 @@ export class AppComponent implements OnInit {
       }
 
       await this.uniswapDappSharedLogic.changeInputTradePrice(amount);
-      this.outputValue = this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+      this.outputValue =
+        this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
     } catch (error) {
       this.notEnoughLiquidity = true;
     }
@@ -103,15 +141,16 @@ export class AppComponent implements OnInit {
     this.inputValue = this.outputValue;
     await this.uniswapDappSharedLogic.swapSwitch();
 
-    this.outputValue = this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    this.outputValue =
+      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
   }
 
   /**
-   * Generate approve max allowance data
+   * approve allowance data
    */
-  public async generateApproveMaxAllowanceData(): Promise<void> {
+  public approveAllowance(): void {
     this.generatedApproveTransaction.emit(
-      await this.uniswapDappSharedLogic.generateApproveMaxAllowanceData()
+      this.uniswapDappSharedLogic.tradeContext!.approvalTransaction!,
     );
   }
 
@@ -120,6 +159,21 @@ export class AppComponent implements OnInit {
    */
   public async maxSwap(): Promise<void> {
     this.inputValue = await this.uniswapDappSharedLogic.setMaxInput();
-    this.outputValue = this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    this.outputValue =
+      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+  }
+
+  /**
+   * Change select token
+   * @param contractAddress The contractAddress
+   */
+  public async changeSelectToken(contractAddress: string): Promise<void> {
+    switch (this.selectorOpenFrom) {
+      case SelectTokenActionFrom.input:
+        await this.uniswapDappSharedLogic.changeInputToken(contractAddress);
+        return;
+      case SelectTokenActionFrom.output:
+        await this.uniswapDappSharedLogic.changeOutputToken(contractAddress);
+    }
   }
 }
