@@ -40,7 +40,7 @@ export interface UniswapTheming {
 
 export interface ExtendedToken extends Token {
   balance: BigNumber;
-  fiatPrice: string | undefined;
+  fiatPrice: BigNumber | undefined;
 }
 
 export interface SupportedToken {
@@ -76,11 +76,6 @@ export class UniswapDappSharedLogic {
   private _inputAmount = new BigNumber(0.00004);
 
   private _tokensFactoryPublic = new TokensFactoryPublic(ChainId.MAINNET);
-
-  private _formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  });
 
   constructor(private _context: UniswapDappSharedLogicContext) {
     this._context.supportedContracts.push(WETH.MAINNET());
@@ -468,10 +463,7 @@ export class UniswapDappSharedLogic {
       decimals: token.decimals,
       symbol: token.symbol,
       name: token.name,
-      fiatPrice:
-        fiatPrice !== undefined
-          ? this._formatter.format(fiatPrice).replace('$', '')
-          : undefined,
+      fiatPrice: fiatPrice !== undefined ? new BigNumber(fiatPrice) : undefined,
       balance: new BigNumber(balance),
     };
   }
@@ -591,6 +583,15 @@ export class UniswapDappSharedLogic {
         }
         if (a.name > b.name) {
           return 1;
+        }
+        return 0;
+      })
+      .sort((a, b) => {
+        if (a.balance.isLessThan(b.balance)) {
+          return 1;
+        }
+        if (a.balance.isGreaterThan(b.balance)) {
+          return -1;
         }
         return 0;
       })

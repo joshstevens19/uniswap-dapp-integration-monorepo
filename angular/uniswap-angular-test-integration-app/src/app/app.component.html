@@ -268,6 +268,7 @@
                       uniswapDappSharedLogic.inputToken.contractAddress
                     )
                   "
+                  onError="this.src='assets/unknown.svg'"
                   class="uni-ic__swap-input-content-main-from-currency-icon"
                 /><span
                   class="uni-ic__swap-input-content-main-from-currency-symbol"
@@ -312,7 +313,12 @@
                   class="uni-ic__swap-content-balance-and-price__balance-text"
                   style="display: inline; cursor: pointer"
                 >
-                  Balance: {{ uniswapDappSharedLogic.inputToken.balance }}
+                  Balance:
+                  {{
+                    uniswapDappSharedLogic.toPrecision(
+                      uniswapDappSharedLogic.inputToken.balance
+                    )
+                  }}
                   {{ uniswapDappSharedLogic.inputToken.symbol }}
                 </div>
               </div>
@@ -323,7 +329,11 @@
                 ~$
                 <span
                   class="uni-ic__swap-content-balance-and-price__price-text"
-                  >{{ uniswapDappSharedLogic.inputToken!.fiatPrice }}</span
+                  >{{
+                    uniswapDappSharedLogic.inputToken!.fiatPrice.times(
+                      inputValue
+                    )
+                  }}</span
                 >
               </div>
             </div>
@@ -410,6 +420,7 @@
                       uniswapDappSharedLogic.outputToken.contractAddress
                     )
                   "
+                  onError="this.src='assets/unknown.svg'"
                   class="uni-ic__swap-input-content-main-from-currency-icon"
                 /><span
                   class="uni-ic__swap-input-content-main-from-currency-symbol"
@@ -454,7 +465,12 @@
                   class="uni-ic__swap-content-balance-and-price__balance-text"
                   style="display: inline; cursor: pointer"
                 >
-                  Balance: {{ uniswapDappSharedLogic.outputToken!.balance }}
+                  Balance:
+                  {{
+                    uniswapDappSharedLogic.toPrecision(
+                      uniswapDappSharedLogic.outputToken!.balance
+                    )
+                  }}
                   {{ uniswapDappSharedLogic.outputToken!.symbol }}
                 </div>
               </div>
@@ -465,7 +481,11 @@
                 ~$
                 <span
                   class="uni-ic__swap-content-balance-and-price__price-text"
-                  >{{ uniswapDappSharedLogic.outputToken!.fiatPrice }}</span
+                  >{{
+                    uniswapDappSharedLogic.outputToken!.fiatPrice.times(
+                      outputValue
+                    )
+                  }}</span
                 >
               </div>
             </div>
@@ -770,6 +790,7 @@
                       token.contractAddress
                     )
                   "
+                  onError="this.src='assets/unknown.svg'"
                   class="uni-ic__modal-tokens-item-icon"
                 />
                 <div class="uni-ic__modal-tokens-item-content">
@@ -786,7 +807,7 @@
                   style="justify-self: flex-end"
                 >
                   <div class="uni-ic__modal-tokens-item-balance-content-value">
-                    {{ token.balance.toFixed() }}
+                    {{ uniswapDappSharedLogic.toPrecision(token.balance) }}
                   </div>
                 </div>
               </div>
@@ -831,10 +852,11 @@
             </div>
             <div
               class="uni-ic__modal-confirm-swap__input-header__price-container"
+              *ngIf="uniswapDappSharedLogic.inputToken!.fiatPrice"
             >
               ~$
               <span class="uni-ic__modal-confirm-swap__input-header__price">{{
-                uniswapDappSharedLogic.inputToken!.fiatPrice
+                uniswapDappSharedLogic.inputToken!.fiatPrice.times(inputValue)
               }}</span>
             </div>
           </div>
@@ -846,6 +868,7 @@
                     uniswapDappSharedLogic.inputToken.contractAddress
                   )
                 "
+                onError="this.src='assets/unknown.svg'"
                 class="uni-ic__modal-confirm-swap__input-main__symbol__image"
                 style="margin-right: 12px"
               />
@@ -909,10 +932,11 @@
             </div>
             <div
               class="uni-ic__modal-confirm-swap__output-header__price-container"
+              *ngIf="uniswapDappSharedLogic.outputToken!.fiatPrice"
             >
               ~$
               <span class="uni-ic__modal-confirm-swap__output-header__price">{{
-                uniswapDappSharedLogic.outputToken!.fiatPrice
+                uniswapDappSharedLogic.outputToken!.fiatPrice.times(outputValue)
               }}</span>
             </div>
           </div>
@@ -925,6 +949,7 @@
                     uniswapDappSharedLogic.outputToken!.contractAddress
                   )
                 "
+                onError="this.src='assets/unknown.svg'"
                 style="margin-right: 12px"
               />
               <div
