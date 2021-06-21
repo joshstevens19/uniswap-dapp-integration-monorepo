@@ -9,6 +9,7 @@ import {
   TokenFactoryPublic,
   TokensFactoryPublic,
   TradeContext,
+  TradeDirection,
   UniswapPair,
   UniswapPairFactory,
   UniswapPairSettings,
@@ -22,6 +23,19 @@ export interface UniswapDappSharedLogicContext {
   outputCurrency?: string | undefined;
   supportedContracts: SupportedToken[];
   settings?: UniswapPairSettings | undefined;
+  theming?: UniswapTheming;
+}
+
+interface TextAndColor {
+  textColor?: string | undefined;
+  backgroundColor?: string | undefined;
+}
+
+export interface UniswapTheming {
+  backgroundColor?: string | undefined;
+  textColor?: string | undefined;
+  button?: TextAndColor;
+  panel?: TextAndColor;
 }
 
 export interface ExtendedToken extends Token {
@@ -38,6 +52,11 @@ export interface SupportedTokenResult {
   token: ExtendedToken;
 }
 
+export enum SelectTokenActionFrom {
+  input = 'input',
+  output = 'output',
+}
+
 export class UniswapDappSharedLogic {
   public inputToken!: ExtendedToken;
   public outputToken: ExtendedToken | undefined;
@@ -50,6 +69,7 @@ export class UniswapDappSharedLogic {
   public supportedTokenBalances!: ExtendedToken[];
   public userAcceptedPriceChange = true;
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
+  public selectorOpenFrom: SelectTokenActionFrom | undefined;
 
   private _confirmSwapOpened = false;
 
@@ -85,6 +105,7 @@ export class UniswapDappSharedLogic {
 
     this.getBalances();
     this.syncBalancesInternal();
+    this.themeComponent();
   }
 
   /**
@@ -98,6 +119,7 @@ export class UniswapDappSharedLogic {
       settingsElement.classList.remove('uni-ic-hidden');
     } else {
       settingsElement.classList.add('uni-ic-hidden');
+      this.themeComponent();
     }
   }
 
@@ -105,6 +127,7 @@ export class UniswapDappSharedLogic {
    * Open token selector from
    */
   public openTokenSelectorFrom(): void {
+    this.selectorOpenFrom = SelectTokenActionFrom.input;
     this.showTokenSelector();
   }
 
@@ -112,6 +135,7 @@ export class UniswapDappSharedLogic {
    * Open token selector to
    */
   public openTokenSelectorTo(): void {
+    this.selectorOpenFrom = SelectTokenActionFrom.output;
     this.showTokenSelector();
   }
 
@@ -119,7 +143,8 @@ export class UniswapDappSharedLogic {
    * Hide the token selector
    */
   public hideTokenSelector(): void {
-    const modal = document.getElementById('uni-ic__model-token')!;
+    this.selectorOpenFrom = undefined;
+    const modal = document.getElementById('uni-ic__modal-token')!;
     modal.style.display = 'none';
   }
 
@@ -127,7 +152,7 @@ export class UniswapDappSharedLogic {
    * Show the confirm swap modal
    */
   public showConfirmSwap(): void {
-    const modal = document.getElementById('uni-ic__model-confirm-swap')!;
+    const modal = document.getElementById('uni-ic__modal-confirm-swap')!;
     modal.style.display = 'block';
     this._confirmSwapOpened = true;
   }
@@ -136,45 +161,55 @@ export class UniswapDappSharedLogic {
    * Hide the confirm swap modal
    */
   public hideConfirmSwap(): void {
-    const modal = document.getElementById('uni-ic__model-confirm-swap')!;
+    const modal = document.getElementById('uni-ic__modal-confirm-swap')!;
     modal.style.display = 'none';
     this._confirmSwapOpened = false;
     this.acceptPriceChange();
   }
 
   /**
-   * Change input token
+   * Change token selected
    * @param contractAddress The contract address
    */
-  public async changeInputToken(contractAddress: string): Promise<void> {
-    this.hideTokenSelector();
-    contractAddress = ethers.utils.getAddress(contractAddress);
-
-    await this.buildFactory(contractAddress, this.outputToken!.contractAddress);
+  public async changeToken(contractAddress: string): Promise<void> {
+    switch (this.selectorOpenFrom) {
+      case SelectTokenActionFrom.input:
+        // if (
+        //   this.tradeContext?.toToken.contractAddress ===
+        //   contractAddress
+        // ) {
+        //   return await this.switchSwap();
+        // }
+        await this.changeInputToken(contractAddress);
+        return;
+      case SelectTokenActionFrom.output:
+        // if (
+        //   this.uniswapDappSharedLogic.tradeContext?.fromToken
+        //     .contractAddress === contractAddress
+        // ) {
+        //   return await this.switchSwap();
+        // }
+        await this.changeOutputToken(contractAddress);
+    }
   }
 
   /**
-   * Change output token
-   * @param contractAddress The contract address
+   * Change trade price
    */
-  public async changeOutputToken(contractAddress: string): Promise<void> {
-    this.hideTokenSelector();
-    contractAddress = ethers.utils.getAddress(contractAddress);
-    await this.buildFactory(this.inputToken.contractAddress, contractAddress);
-  }
-
-  /**
-   * Change input trade price
-   */
-  public async changeInputTradePrice(amount: string): Promise<void> {
-    this._inputAmount = new BigNumber(amount);
+  public async changeTradePrice(
+    amount: string,
+    directon: TradeDirection,
+  ): Promise<void> {
+    if (directon === TradeDirection.input) {
+      this._inputAmount = new BigNumber(amount);
+    }
     if (!this.factory) {
       await this.buildFactory(
         this.inputToken.contractAddress,
         this.outputToken!.contractAddress,
       );
     }
-    await this.trade(this._inputAmount);
+    await this.trade(new BigNumber(amount), directon);
   }
 
   /**
@@ -182,7 +217,7 @@ export class UniswapDappSharedLogic {
    */
   public async setMaxInput(): Promise<string> {
     const maxBalance = this.inputToken.balance.toFixed();
-    await this.changeInputTradePrice(maxBalance);
+    await this.changeTradePrice(maxBalance, TradeDirection.input);
 
     return maxBalance;
   }
@@ -257,10 +292,12 @@ export class UniswapDappSharedLogic {
    * work out what 1 is equal to
    */
   public workOutOneEqualTo(): string {
-    return new BigNumber(
-      +this.tradeContext!.expectedConvertQuote /
-        +this.tradeContext!.baseConvertRequest,
-    ).toFixed();
+    return this.toPrecision(
+      new BigNumber(
+        +this.tradeContext!.expectedConvertQuote /
+          +this.tradeContext!.baseConvertRequest,
+      ),
+    );
   }
 
   /**
@@ -313,6 +350,53 @@ export class UniswapDappSharedLogic {
   }
 
   /**
+   * To precision
+   * @param value The value
+   * @param significantDigits The significant digits
+   */
+  public toPrecision(
+    value: string | number | BigNumber,
+    significantDigits: number = 4,
+    significantDigitsForDecimalOnly: boolean = true,
+  ): string {
+    const parsedValue = new BigNumber(value);
+    if (significantDigitsForDecimalOnly) {
+      const beforeDecimalsCount = parsedValue.toString().split('.')[0].length;
+      return parsedValue
+        .precision(
+          beforeDecimalsCount + significantDigits,
+          BigNumber.ROUND_DOWN,
+        )
+        .toFixed();
+    } else {
+      return parsedValue
+        .precision(significantDigits, BigNumber.ROUND_DOWN)
+        .toFixed();
+    }
+  }
+
+  /**
+   * Change input token
+   * @param contractAddress The contract address
+   */
+  private async changeInputToken(contractAddress: string): Promise<void> {
+    this.hideTokenSelector();
+    contractAddress = ethers.utils.getAddress(contractAddress);
+
+    await this.buildFactory(contractAddress, this.outputToken!.contractAddress);
+  }
+
+  /**
+   * Change output token
+   * @param contractAddress The contract address
+   */
+  private async changeOutputToken(contractAddress: string): Promise<void> {
+    this.hideTokenSelector();
+    contractAddress = ethers.utils.getAddress(contractAddress);
+    await this.buildFactory(this.inputToken.contractAddress, contractAddress);
+  }
+
+  /**
    * Build factory
    */
   private async buildFactory(
@@ -347,7 +431,7 @@ export class UniswapDappSharedLogic {
       await this.factory.getToTokenBalance(),
       fiatPrices,
     );
-    await this.trade(this._inputAmount);
+    await this.trade(this._inputAmount, TradeDirection.input);
   }
 
   /**
@@ -410,7 +494,7 @@ export class UniswapDappSharedLogic {
    * Show the token selector
    */
   private showTokenSelector(): void {
-    const modal = document.getElementById('uni-ic__model-token')!;
+    const modal = document.getElementById('uni-ic__modal-token')!;
     modal.style.display = 'block';
   }
 
@@ -418,19 +502,22 @@ export class UniswapDappSharedLogic {
    * Execute the trade quote
    * @param amount The amount
    */
-  private async trade(amount: BigNumber): Promise<void> {
+  private async trade(
+    amount: BigNumber,
+    direction: TradeDirection,
+  ): Promise<void> {
     if (amount.isGreaterThan(0)) {
-      this.tradeContext = await this.factory!.trade(
-        this._inputAmount.toFixed(),
-      );
+      const context = await this.factory!.trade(amount.toFixed(), direction);
+      this.tradeContext = this.formatTradeContext(context);
 
       this.tradeContext?.quoteChanged$.subscribe((quote) => {
         console.log('price change', quote);
+        const formattedQuote = this.formatTradeContext(quote);
         if (this._confirmSwapOpened) {
-          this.newPriceTradeContext = quote;
+          this.newPriceTradeContext = formattedQuote;
         } else {
-          this.tradeContext = quote;
-          this.newPriceTradeContextAvailable.next(quote);
+          this.tradeContext = formattedQuote;
+          this.newPriceTradeContextAvailable.next(formattedQuote);
         }
       });
 
@@ -438,6 +525,29 @@ export class UniswapDappSharedLogic {
     } else {
       this.factory = undefined;
     }
+  }
+
+  /**
+   * Format trade context values
+   * @param context The context
+   */
+  private formatTradeContext(context: TradeContext): TradeContext {
+    context.liquidityProviderFee = this.toPrecision(
+      context.liquidityProviderFee,
+    );
+    if (context.minAmountConvertQuote) {
+      context.minAmountConvertQuote = this.toPrecision(
+        context.minAmountConvertQuote,
+      );
+    }
+    if (context.maximumSent) {
+      context.maximumSent = this.toPrecision(context.maximumSent);
+    }
+    context.expectedConvertQuote = this.toPrecision(
+      context.expectedConvertQuote,
+    );
+
+    return context;
   }
 
   /**
@@ -524,5 +634,88 @@ export class UniswapDappSharedLogic {
         }
       }
     }
+  }
+
+  /**
+   * Theme component
+   */
+  public themeComponent(): void {
+    let css = '<style>';
+    css += this.themeBackgroundColors();
+    css += this.themeTextColors();
+    css += this.themePanelColors();
+    css += this.themeButtonColors();
+    css += '<style>';
+
+    document.head.insertAdjacentHTML('beforeend', css);
+  }
+
+  /**
+   * Theme background colors
+   */
+  private themeBackgroundColors(): string {
+    if (this._context.theming?.backgroundColor) {
+      return `.uni-ic__theme-background {background: ${this._context.theming.backgroundColor} !important}`;
+    }
+
+    return '';
+  }
+
+  /**
+   * Theme text colours
+   */
+  private themeTextColors(): string {
+    if (this._context.theming?.textColor) {
+      return `.uni-ic,
+              .uni-ic__modal,
+              .uni-ic__modal button:not(.uni-ic__theme-background-button),
+              svg
+              {color: ${this._context.theming.textColor} !important}`;
+    }
+
+    return '';
+  }
+
+  /**
+   * Theme button colours
+   */
+  private themeButtonColors(): string {
+    let css = '';
+    if (this._context.theming?.button?.backgroundColor) {
+      css += `background: ${this._context.theming.button.backgroundColor} !important; `;
+    }
+
+    if (this._context.theming?.button?.textColor) {
+      css += `color: ${this._context.theming.button.textColor} !important`;
+    }
+
+    if (css.length > 0) {
+      return `.uni-ic__theme-background-button,
+              .uni-ic__settings-transaction-slippage-option.selected,
+              .uni-ic__settings-interface-multihops-actions-off.selected
+              {${css}}`;
+    }
+
+    return css;
+  }
+
+  /**
+   * Theme panel colours
+   */
+  private themePanelColors(): string {
+    let css = '';
+    if (this._context.theming?.panel?.backgroundColor) {
+      css += `background: ${this._context.theming.panel.backgroundColor} !important; border-color: ${this._context.theming.backgroundColor} !important; `;
+    }
+
+    if (this._context.theming?.panel?.textColor) {
+      css += `color: ${this._context.theming.panel.textColor} !important`;
+    }
+
+    if (css.length > 0) {
+      return `.uni-ic__theme-panel {${css}}`;
+    }
+
+    return css;
   }
 }

@@ -1,4 +1,4 @@
-<div class="uni-ic" *ngIf="!loading">
+<div class="uni-ic uni-ic__theme-background" *ngIf="!loading">
   <div class="uni-ic__header-container">
     <div class="uni-ic__header-content">
       <div class="uni-ic__header-content-title">Swap</div>
@@ -26,7 +26,8 @@
           </svg>
         </button>
 
-        <span class="uni-ic__settings-container uni-ic-hidden"
+        <span
+          class="uni-ic__settings-container uni-ic-hidden uni-ic__theme-panel"
           ><div class="uni-ic__settings" style="padding: 1rem">
             <div class="uni-ic__settings-transaction-title">
               Transaction Settings
@@ -246,7 +247,7 @@
   <div class="uni-ic__swap-container">
     <div class="uni-ic__swap-content">
       <div class="uni-ic__swap-input-container">
-        <div class="uni-ic__swap-input-content">
+        <div class="uni-ic__swap-input-content uni-ic__theme-panel">
           <div class="uni-ic__swap-input-content-main">
             <!-- <button
               class="uni-ic__swap-input-content-main-from-max"
@@ -254,7 +255,10 @@
             >
               MAX</button> -->
             <button
-              class="uni-ic__swap-input-content-main-from-currency-container"
+              class="
+                uni-ic__swap-input-content-main-from-currency-container
+                uni-ic__theme-panel
+              "
               (click)="openTokenSelectorFrom()"
             >
               <span class="uni-ic__swap-input-content-main-from-currency"
@@ -283,7 +287,7 @@
               </span>
             </button>
             <input
-              class="uni-ic__swap-input-content-main-from"
+              class="uni-ic__swap-input-content-main-from uni-ic__theme-panel"
               inputmode="decimal"
               title="Token Amount"
               autocomplete="off"
@@ -294,7 +298,7 @@
               minlength="1"
               maxlength="79"
               spellcheck="false"
-              [ngModel]="inputValue"
+              [(ngModel)]="inputValue"
               (ngModelChange)="changeInputTradePrice($event)"
             />
           </div>
@@ -327,7 +331,10 @@
         </div>
       </div>
 
-      <div class="uni-ic__swap-divider" (click)="switchSwap()">
+      <div
+        class="uni-ic__swap-divider uni-ic__theme-panel"
+        (click)="switchSwap()"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -366,10 +373,12 @@
       </div> -->
 
       <div class="uni-ic__swap-output-container">
-        <div class="uni-ic__swap-output-content">
+        <div class="uni-ic__swap-output-content uni-ic__theme-panel">
           <div class="uni-ic__swap-output-content-main">
             <button
-              class="uni-ic__swap-output-content-main-select"
+              class="
+                uni-ic__swap-output-content-main-select uni-ic__theme-panel
+              "
               (click)="openTokenSelectorTo()"
             >
               <span
@@ -420,7 +429,7 @@
               </span>
             </button>
             <input
-              class="uni-ic__swap-output-content-main-from"
+              class="uni-ic__swap-output-content-main-from uni-ic__theme-panel"
               inputmode="decimal"
               title="Token Amount"
               autocomplete="off"
@@ -432,6 +441,7 @@
               maxlength="79"
               spellcheck="false"
               [(ngModel)]="outputValue"
+              (ngModelChange)="changeOutputTradePrice($event)"
             />
           </div>
           <div class="uni-ic__swap-content-balance-and-price-container">
@@ -547,7 +557,13 @@
                         {{ uniswapDappSharedLogic.tradeContext.routeText }}
                       </div>
                     </div>
-                    <div class="uni-ic__tooltip__item">
+                    <div
+                      class="uni-ic__tooltip__item"
+                      *ngIf="
+                        uniswapDappSharedLogic.tradeContext
+                          .minAmountConvertQuote
+                      "
+                    >
                       <div class="uni-ic__tooltip__item__title">
                         <div class="uni-ic__tooltip__item__title__content">
                           Minimum received
@@ -559,6 +575,22 @@
                             .minAmountConvertQuote
                         }}
                         {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}
+                      </div>
+                    </div>
+                    <div
+                      class="uni-ic__tooltip__item"
+                      *ngIf="uniswapDappSharedLogic.tradeContext.maximumSent"
+                    >
+                      <div class="uni-ic__tooltip__item__title">
+                        <div class="uni-ic__tooltip__item__title__content">
+                          Maximum sent
+                        </div>
+                      </div>
+                      <div class="uni-ic__tooltip__item__value">
+                        {{ uniswapDappSharedLogic.tradeContext.maximumSent }}
+                        {{
+                          uniswapDappSharedLogic.tradeContext.fromToken.symbol
+                        }}
                       </div>
                     </div>
                     <div class="uni-ic__tooltip__item">
@@ -619,8 +651,11 @@
 
     <button
       width="100%"
-      class="uni-ic__swap-allow"
-      *ngIf="uniswapDappSharedLogic.tradeContext?.approvalTransaction"
+      class="uni-ic__swap-allow uni-ic__theme-background-button"
+      *ngIf="
+        uniswapDappSharedLogic.tradeContext?.approvalTransaction &&
+        uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
+      "
     >
       <div class="uni-ic__swap-allow-container">
         <span
@@ -653,7 +688,7 @@
 
     <div class="uni-ic__swap-button-container">
       <button
-        class="uni-ic__swap-button"
+        class="uni-ic__swap-button uni-ic__theme-background-button"
         (click)="uniswapDappSharedLogic.showConfirmSwap()"
         [disabled]="
           outputValue === '0' ||
@@ -701,9 +736,13 @@
   </div>
 </div>
 
-<div id="uni-ic__model-token" class="modal">
-  <div class="modal-content uni-ic__model-tokens">
-    <span class="close" (click)="hideTokenSelector()">&times;</span>
+<div id="uni-ic__modal-token" class="uni-ic__modal">
+  <div
+    class="uni-ic__modal__content uni-ic__modal-tokens uni-ic__theme-background"
+  >
+    <span class="uni-ic__modal__close" (click)="hideTokenSelector()"
+      >&times;</span
+    >
     <p>Select a token</p>
     <div style="flex: 1 1 0%; position: relative">
       <div style="overflow: visible; height: 0px">
@@ -724,29 +763,29 @@
               "
               (click)="changeSelectToken(token.contractAddress)"
             >
-              <div class="uni-ic__model-tokens-item">
+              <div class="uni-ic__modal-tokens-item">
                 <img
                   [src]="
                     uniswapDappSharedLogic.getTokenImageUrl(
                       token.contractAddress
                     )
                   "
-                  class="uni-ic__model-tokens-item-icon"
+                  class="uni-ic__modal-tokens-item-icon"
                 />
-                <div class="uni-ic__model-tokens-item-content">
-                  <div class="uni-ic__model-tokens-item-content-symbol">
+                <div class="uni-ic__modal-tokens-item-content">
+                  <div class="uni-ic__modal-tokens-item-content-symbol">
                     {{ token.symbol }}
                   </div>
-                  <div class="uni-ic__model-tokens-item-content-name">
+                  <div class="uni-ic__modal-tokens-item-content-name">
                     {{ token.name }}
                   </div>
                 </div>
                 <span></span>
                 <div
-                  class="uni-ic__model-tokens-item-balance-content"
+                  class="uni-ic__modal-tokens-item-balance-content"
                   style="justify-self: flex-end"
                 >
-                  <div class="uni-ic__model-tokens-item-balance-content-value">
+                  <div class="uni-ic__modal-tokens-item-balance-content-value">
                     {{ token.balance.toFixed() }}
                   </div>
                 </div>
@@ -765,59 +804,85 @@
   </div>
 </div>
 
-<div id="uni-ic__model-confirm-swap" class="modal">
-  <div class="modal-content uni-ic__model-confirm-swap">
-    <span class="close" (click)="uniswapDappSharedLogic.hideConfirmSwap()"
+<div id="uni-ic__modal-confirm-swap" class="uni-ic__modal">
+  <div
+    class="
+      uni-ic__modal__content uni-ic__modal-confirm-swap uni-ic__theme-background
+    "
+  >
+    <span
+      class="uni-ic__modal__close"
+      (click)="uniswapDappSharedLogic.hideConfirmSwap()"
       >&times;</span
     >
     <p>Confirm swap</p>
 
     <div
-      class="uni-ic__model-confirm-swap__content"
+      class="uni-ic__modal-confirm-swap__content"
       *ngIf="uniswapDappSharedLogic.tradeContext"
     >
-      <div class="uni-ic__model-confirm-swap__input-container">
-        <div class="uni-ic__model-confirm-swap__input">
-          <div class="uni-ic__model-confirm-swap__input-header">
-            <div class="uni-ic__model-confirm-swap__input-header__text">
+      <div
+        class="uni-ic__modal-confirm-swap__input-container uni-ic__theme-panel"
+      >
+        <div class="uni-ic__modal-confirm-swap__input">
+          <div class="uni-ic__modal-confirm-swap__input-header">
+            <div class="uni-ic__modal-confirm-swap__input-header__text">
               From
             </div>
             <div
-              class="uni-ic__model-confirm-swap__input-header__price-container"
+              class="uni-ic__modal-confirm-swap__input-header__price-container"
             >
               ~$
-              <span class="uni-ic__model-confirm-swap__input-header__price">{{
+              <span class="uni-ic__modal-confirm-swap__input-header__price">{{
                 uniswapDappSharedLogic.inputToken!.fiatPrice
               }}</span>
             </div>
           </div>
-          <div class="uni-ic__model-confirm-swap__input-main">
-            <div class="uni-ic__model-confirm-swap__input-main__symbol">
+          <div class="uni-ic__modal-confirm-swap__input-main">
+            <div class="uni-ic__modal-confirm-swap__input-main__symbol">
               <img
                 [src]="
                   uniswapDappSharedLogic.getTokenImageUrl(
                     uniswapDappSharedLogic.inputToken.contractAddress
                   )
                 "
-                class="uni-ic__model-confirm-swap__input-main__symbol__image"
+                class="uni-ic__modal-confirm-swap__input-main__symbol__image"
                 style="margin-right: 12px"
               />
               <div
-                class="uni-ic__model-confirm-swap__input-main__symbol__label"
+                class="uni-ic__modal-confirm-swap__input-main__symbol__label"
               >
                 {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }}
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__input-main__price">
-              <div class="uni-ic__model-confirm-swap__input-main__price-text">
-                {{ uniswapDappSharedLogic.tradeContext.baseConvertRequest }}
+            <div class="uni-ic__modal-confirm-swap__input-main__price">
+              <div class="uni-ic__modal-confirm-swap__input-main__price-text">
+                <span
+                  *ngIf="
+                    uniswapDappSharedLogic.tradeContext.quoteDirection ===
+                    'input'
+                  "
+                  >{{
+                    uniswapDappSharedLogic.tradeContext.baseConvertRequest
+                  }}</span
+                >
+
+                <span
+                  *ngIf="
+                    uniswapDappSharedLogic.tradeContext.quoteDirection ===
+                    'output'
+                  "
+                  >{{
+                    uniswapDappSharedLogic.tradeContext.expectedConvertQuote
+                  }}</span
+                >
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="uni-ic__model-confirm-swap__divider">
+      <div class="uni-ic__modal-confirm-swap__divider uni-ic__theme-panel">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -834,27 +899,27 @@
         </svg>
       </div>
       <div
-        class="uni-ic__model-confirm-swap__output-container"
+        class="uni-ic__modal-confirm-swap__output-container uni-ic__theme-panel"
         style="margin-bottom: 0.25rem"
       >
-        <div class="uni-ic__model-confirm-swap__output">
-          <div class="uni-ic__model-confirm-swap__output-header">
-            <div class="uni-ic__model-confirm-swap__output-header__text">
+        <div class="uni-ic__modal-confirm-swap__output">
+          <div class="uni-ic__modal-confirm-swap__output-header">
+            <div class="uni-ic__modal-confirm-swap__output-header__text">
               To
             </div>
             <div
-              class="uni-ic__model-confirm-swap__output-header__price-container"
+              class="uni-ic__modal-confirm-swap__output-header__price-container"
             >
               ~$
-              <span class="uni-ic__model-confirm-swap__output-header__price">{{
+              <span class="uni-ic__modal-confirm-swap__output-header__price">{{
                 uniswapDappSharedLogic.outputToken!.fiatPrice
               }}</span>
             </div>
           </div>
-          <div class="uni-ic__model-confirm-swap__output-main">
-            <div class="uni-ic__model-confirm-swap__output-main__symbol">
+          <div class="uni-ic__modal-confirm-swap__output-main">
+            <div class="uni-ic__modal-confirm-swap__output-main__symbol">
               <img
-                class="uni-ic__model-confirm-swap__output-main__symbol__image"
+                class="uni-ic__modal-confirm-swap__output-main__symbol__image"
                 [src]="
                   uniswapDappSharedLogic.getTokenImageUrl(
                     uniswapDappSharedLogic.outputToken!.contractAddress
@@ -863,30 +928,48 @@
                 style="margin-right: 12px"
               />
               <div
-                class="uni-ic__model-confirm-swap__output-main__symbol__label"
+                class="uni-ic__modal-confirm-swap__output-main__symbol__label"
               >
                 {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__output-main__price">
-              <div class="uni-ic__model-confirm-swap__output-main__price-text">
-                {{ uniswapDappSharedLogic.tradeContext.expectedConvertQuote }}
+            <div class="uni-ic__modal-confirm-swap__output-main__price">
+              <div class="uni-ic__modal-confirm-swap__output-main__price-text">
+                <span
+                  *ngIf="
+                    uniswapDappSharedLogic.tradeContext.quoteDirection ===
+                    'input'
+                  "
+                  >{{
+                    uniswapDappSharedLogic.tradeContext.expectedConvertQuote
+                  }}</span
+                >
+
+                <span
+                  *ngIf="
+                    uniswapDappSharedLogic.tradeContext.quoteDirection ===
+                    'output'
+                  "
+                  >{{
+                    uniswapDappSharedLogic.tradeContext.baseConvertRequest
+                  }}</span
+                >
               </div>
             </div>
           </div>
         </div>
       </div>
       <div
-        class="uni-ic__model-confirm-swap__price"
+        class="uni-ic__modal-confirm-swap__price"
         style="margin-top: 0.25rem; padding: 0px 1rem"
       >
-        <div class="uni-ic__model-confirm-swap__price__title">Price</div>
+        <div class="uni-ic__modal-confirm-swap__price__title">Price</div>
         <button
           title="1 DAI = 0.0003956 ETH "
-          class="uni-ic__model-confirm-swap__price__rate-button"
+          class="uni-ic__modal-confirm-swap__price__rate-button"
         >
           <div style="align-items: center; display: flex; width: fit-content">
-            <div class="uni-ic__model-confirm-swap__price__rate">
+            <div class="uni-ic__modal-confirm-swap__price__rate">
               1
               {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }} =
               {{ uniswapDappSharedLogic.workOutOneEqualTo() }}
@@ -896,92 +979,111 @@
         </button>
       </div>
       <div
-        class="uni-ic__model-confirm-swap__info-container"
+        class="uni-ic__modal-confirm-swap__info-container uni-ic__theme-panel"
         style="padding: 0.75rem; margin-top: 0.5rem"
       >
-        <div class="uni-ic__model-confirm-swap__info">
-          <div class="uni-ic__model-confirm-swap__info__item">
-            <div class="uni-ic__model-confirm-swap__info__item__title">
+        <div class="uni-ic__modal-confirm-swap__info">
+          <div class="uni-ic__modal-confirm-swap__info__item">
+            <div class="uni-ic__modal-confirm-swap__info__item__title">
               <div
-                class="uni-ic__model-confirm-swap__info__item__title-content"
+                class="uni-ic__modal-confirm-swap__info__item__title-content"
               >
                 Liquidity Provider Fee
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__info__item__value">
+            <div class="uni-ic__modal-confirm-swap__info__item__value">
               {{ uniswapDappSharedLogic.tradeContext.liquidityProviderFee }}
               {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }}
             </div>
           </div>
-          <div class="uni-ic__model-confirm-swap__info__item">
-            <div class="uni-ic__model-confirm-swap__info__item__title">
+          <div class="uni-ic__modal-confirm-swap__info__item">
+            <div class="uni-ic__modal-confirm-swap__info__item__title">
               <div
-                class="uni-ic__model-confirm-swap__info__item__title-content"
+                class="uni-ic__modal-confirm-swap__info__item__title-content"
               >
                 Route
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__info__item__value">
+            <div class="uni-ic__modal-confirm-swap__info__item__value">
               {{ uniswapDappSharedLogic.tradeContext.routeText }}
             </div>
           </div>
-          <!-- <div class="uni-ic__model-confirm-swap__info__item">
-            <div class="uni-ic__model-confirm-swap__info__item__title">
+          <!-- <div class="uni-ic__modal-confirm-swap__info__item">
+            <div class="uni-ic__modal-confirm-swap__info__item__title">
               <div
-                class="uni-ic__model-confirm-swap__info__item__title-content"
+                class="uni-ic__modal-confirm-swap__info__item__title-content"
               >
                 Price Impact
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__info__item__value">
+            <div class="uni-ic__modal-confirm-swap__info__item__value">
               -0.03%
             </div>
           </div> -->
-          <div class="uni-ic__model-confirm-swap__info__item">
-            <div class="uni-ic__model-confirm-swap__info__item__title">
+          <div
+            class="uni-ic__modal-confirm-swap__info__item"
+            *ngIf="uniswapDappSharedLogic.tradeContext.minAmountConvertQuote"
+          >
+            <div class="uni-ic__modal-confirm-swap__info__item__title">
               <div
-                class="uni-ic__model-confirm-swap__info__item__title-content"
+                class="uni-ic__modal-confirm-swap__info__item__title-content"
               >
                 Minimum received
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__info__item__value">
+            <div class="uni-ic__modal-confirm-swap__info__item__value">
               {{ uniswapDappSharedLogic.tradeContext.minAmountConvertQuote }}
               {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}
             </div>
           </div>
-          <div class="uni-ic__model-confirm-swap__info__item">
-            <div class="uni-ic__model-confirm-swap__info__item__title">
+          <div
+            class="uni-ic__modal-confirm-swap__info__item"
+            *ngIf="uniswapDappSharedLogic.tradeContext.maximumSent"
+          >
+            <div class="uni-ic__modal-confirm-swap__info__item__title">
               <div
-                class="uni-ic__model-confirm-swap__info__item__title-content"
+                class="uni-ic__modal-confirm-swap__info__item__title-content"
+              >
+                Maximum sent
+              </div>
+            </div>
+            <div class="uni-ic__modal-confirm-swap__info__item__value">
+              {{ uniswapDappSharedLogic.tradeContext.maximumSent }}
+              {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }}
+            </div>
+          </div>
+          <div class="uni-ic__modal-confirm-swap__info__item">
+            <div class="uni-ic__modal-confirm-swap__info__item__title">
+              <div
+                class="uni-ic__modal-confirm-swap__info__item__title-content"
               >
                 Slippage tolerance
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__info__item__value">
+            <div class="uni-ic__modal-confirm-swap__info__item__value">
               {{ uniswapDappSharedLogic.uniswapPairSettings.slippage * 100 }}%
             </div>
           </div>
-          <div class="uni-ic__model-confirm-swap__info__item">
-            <div class="uni-ic__model-confirm-swap__info__item__title">
+          <div class="uni-ic__modal-confirm-swap__info__item">
+            <div class="uni-ic__modal-confirm-swap__info__item__title">
               <div
-                class="uni-ic__model-confirm-swap__info__item__title-content"
+                class="uni-ic__modal-confirm-swap__info__item__title-content"
               >
                 Uniswap version
               </div>
             </div>
-            <div class="uni-ic__model-confirm-swap__info__item__value">
+            <div class="uni-ic__modal-confirm-swap__info__item__value">
               {{ uniswapDappSharedLogic.tradeContext.uniswapVersion }}
             </div>
           </div>
         </div>
       </div>
       <div
-        class="uni-ic__model-confirm-swap__price-updated-container"
+        class="uni-ic__modal-confirm-swap__price-updated-container"
         *ngIf="uniswapDappSharedLogic.newPriceTradeContext"
       >
-        <div class="uni-ic__model-confirm-swap__price-updated">
-          <div class="uni-ic__model-confirm-swap__price-updated__text">
+        <div class="uni-ic__modal-confirm-swap__price-updated">
+          <div class="uni-ic__modal-confirm-swap__price-updated__text">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -1001,13 +1103,16 @@
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
             <div
-              class="uni-ic__model-confirm-swap__price-updated__text-content"
+              class="uni-ic__modal-confirm-swap__price-updated__text-content"
             >
               Price Updated
             </div>
           </div>
           <button
-            class="uni-ic__model-confirm-swap__price-updated__action"
+            class="
+              uni-ic__modal-confirm-swap__price-updated__action
+              uni-ic__theme-background-button
+            "
             (click)="uniswapDappSharedLogic.acceptPriceChange()"
             style="
               padding: 0.5rem;
@@ -1021,32 +1126,47 @@
         </div>
       </div>
       <div
-        class="uni-ic__model-confirm-swap__output-info-container"
+        class="uni-ic__modal-confirm-swap__output-info-container"
         style="padding: 0.75rem 1rem"
       >
         <div
-          class="uni-ic__model-confirm-swap__output-info"
+          class="uni-ic__modal-confirm-swap__output-info"
           style="width: 100%"
         >
-          Output is estimated. You will receive at least
-          <b
-            >{{ uniswapDappSharedLogic.tradeContext.minAmountConvertQuote }}
-            {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}</b
+          <span
+            *ngIf="uniswapDappSharedLogic.tradeContext.minAmountConvertQuote"
           >
-          or the transaction will revert.
+            Output is estimated. You will receive at least
+            <b
+              >{{ uniswapDappSharedLogic.tradeContext.minAmountConvertQuote }}
+              {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}</b
+            >
+            or the transaction will revert.
+          </span>
+          <span *ngIf="uniswapDappSharedLogic.tradeContext.maximumSent">
+            Input is estimated. You will sell at most
+            <b
+              >{{ uniswapDappSharedLogic.tradeContext.maximumSent }}
+              {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }}</b
+            >
+            or the transaction will revert.
+          </span>
         </div>
       </div>
     </div>
 
-    <div class="uni-ic__model-confirm-swap__action-container">
-      <div class="uni-ic__model-confirm-swap__action">
+    <div class="uni-ic__modal-confirm-swap__action-container">
+      <div class="uni-ic__modal-confirm-swap__action">
         <button
           id="confirm-swap-or-send"
-          class="uni-ic__model-confirm-swap__action__button"
+          class="
+            uni-ic__modal-confirm-swap__action__button
+            uni-ic__theme-background-button
+          "
           style="margin: 10px 0px 0px"
           [disabled]="uniswapDappSharedLogic.newPriceTradeContext"
         >
-          <div class="uni-ic__model-confirm-swap__action__button-text">
+          <div class="uni-ic__modal-confirm-swap__action__button-text">
             Confirm Swap
           </div>
         </button>

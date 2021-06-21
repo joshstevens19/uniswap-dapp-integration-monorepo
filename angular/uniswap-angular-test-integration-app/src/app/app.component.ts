@@ -7,13 +7,11 @@ import {
 } from '@angular/core';
 import BigNumber from 'bignumber.js';
 import { Subscription } from 'rxjs';
-import { Transaction } from 'simple-uniswap-sdk';
-import { UniswapDappSharedLogic } from './uniswap-dapp-shared-logic';
-
-enum SelectTokenActionFrom {
-  input = 'input',
-  output = 'output',
-}
+import { TradeDirection, Transaction } from 'simple-uniswap-sdk';
+import {
+  SelectTokenActionFrom,
+  UniswapDappSharedLogic,
+} from './uniswap-dapp-shared-logic';
 
 @Component({
   selector: 'app-root',
@@ -34,9 +32,14 @@ export class AppComponent implements OnInit, OnDestroy {
       { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
       { contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862' },
     ],
+    theming: {
+      backgroundColor: 'red',
+      button: { textColor: 'white', backgroundColor: 'blue' },
+      panel: { textColor: 'black', backgroundColor: 'yellow' },
+      textColor: 'orange',
+    },
   });
 
-  public selectorOpenFrom: SelectTokenActionFrom | undefined;
   public loading = true;
 
   public inputValue = '0.00004';
@@ -65,7 +68,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.newPriceTradeContextAvailableSubscription =
       this.uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
         (tradeContext) => {
-          this.outputValue = tradeContext.expectedConvertQuote;
+          if (tradeContext.quoteDirection === TradeDirection.input) {
+            this.outputValue = tradeContext.expectedConvertQuote;
+          } else {
+            this.inputValue = tradeContext.expectedConvertQuote;
+          }
         },
       );
     try {
@@ -93,7 +100,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * Open token selector from
    */
   public openTokenSelectorFrom(): void {
-    this.selectorOpenFrom = SelectTokenActionFrom.input;
     this.uniswapDappSharedLogic.openTokenSelectorFrom();
   }
 
@@ -101,7 +107,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * Open token selector
    */
   public openTokenSelectorTo(): void {
-    this.selectorOpenFrom = SelectTokenActionFrom.output;
     this.uniswapDappSharedLogic.openTokenSelectorTo();
   }
 
@@ -109,7 +114,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * Hide token selector
    */
   public hideTokenSelector(): void {
-    this.selectorOpenFrom = undefined;
     this.uniswapDappSharedLogic.hideTokenSelector();
   }
 
@@ -126,8 +130,30 @@ export class AppComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.uniswapDappSharedLogic.changeInputTradePrice(amount);
+      await this.uniswapDappSharedLogic.changeTradePrice(
+        amount,
+        TradeDirection.input,
+      );
       this.outputValue =
+        this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    } catch (error) {
+      this.notEnoughLiquidity = true;
+    }
+  }
+
+  /**
+   * Change output trade price
+   * @param amount The amount
+   */
+  public async changeOutputTradePrice(amount: string): Promise<void> {
+    this.notEnoughLiquidity = false;
+    try {
+      this.outputValue = amount;
+      await this.uniswapDappSharedLogic.changeTradePrice(
+        amount,
+        TradeDirection.output,
+      );
+      this.inputValue =
         this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
     } catch (error) {
       this.notEnoughLiquidity = true;
@@ -168,12 +194,28 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param contractAddress The contractAddress
    */
   public async changeSelectToken(contractAddress: string): Promise<void> {
-    switch (this.selectorOpenFrom) {
+    switch (this.uniswapDappSharedLogic.selectorOpenFrom) {
       case SelectTokenActionFrom.input:
-        await this.uniswapDappSharedLogic.changeInputToken(contractAddress);
+        if (
+          this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
+          contractAddress
+        ) {
+          await this.switchSwap();
+          this.hideTokenSelector();
+          return;
+        }
+        await this.uniswapDappSharedLogic.changeToken(contractAddress);
         return;
       case SelectTokenActionFrom.output:
-        await this.uniswapDappSharedLogic.changeOutputToken(contractAddress);
+        if (
+          this.uniswapDappSharedLogic.tradeContext?.fromToken
+            .contractAddress === contractAddress
+        ) {
+          await this.switchSwap();
+          this.hideTokenSelector();
+          return;
+        }
+        await this.uniswapDappSharedLogic.changeToken(contractAddress);
     }
   }
 }
