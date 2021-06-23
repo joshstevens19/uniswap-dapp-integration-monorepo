@@ -5,6 +5,12 @@
     display: none !important;
   }
 
+  &__loading {
+    img {
+      max-width: 100%;
+    }
+  }
+
   position: relative;
   max-width: 480px;
   width: 100%;
