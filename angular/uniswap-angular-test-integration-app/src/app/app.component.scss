@@ -831,6 +831,42 @@
 
   &__modal {
     &-tokens {
+      &-title {
+        margin-top: 2px;
+      }
+
+      &-search {
+        box-sizing: border-box;
+        margin: 0px;
+        min-width: 0px;
+        width: 100%;
+        display: flex;
+        padding: 0px;
+        -webkit-box-align: center;
+        align-items: center;
+        -webkit-box-pack: start;
+        justify-content: flex-start;
+
+        &__input {
+          position: relative;
+          display: flex;
+          padding: 16px;
+          -webkit-box-align: center;
+          align-items: center;
+          width: 100%;
+          white-space: nowrap;
+          background: none;
+          outline: none;
+          border-radius: 20px;
+          color: rgb(0, 0, 0);
+          border: 1px solid rgb(206, 208, 217);
+          appearance: none;
+          font-size: 18px;
+          transition: border 100ms ease 0s;
+          margin-bottom: 12px;
+        }
+      }
+
       &-item {
         box-sizing: border-box;
         margin: 0px;
@@ -847,6 +883,19 @@
         gap: 16px;
         pointer-events: none;
         // opacity: 0.5;
+
+        &-container {
+          &:hover {
+            background: rgb(255, 0, 122);
+            color: white;
+            cursor: pointer;
+          }
+
+          &.selected {
+            background: rgb(255, 0, 122);
+            color: white;
+          }
+        }
 
         &-icon {
           width: 24px;

@@ -763,7 +763,17 @@
     <span class="uni-ic__modal__close" (click)="hideTokenSelector()"
       >&times;</span
     >
-    <p>Select a token</p>
+    <p class="uni-ic__modal-tokens-title">Select a token</p>
+    <div class="uni-ic__modal-tokens-search">
+      <input
+        type="text"
+        placeholder="Search name or paste address"
+        autocomplete="off"
+        class="uni-ic__modal-tokens-search__input"
+        value=""
+      />
+    </div>
+
     <div style="flex: 1 1 0%; position: relative">
       <div style="overflow: visible; height: 0px">
         <div
@@ -782,6 +792,16 @@
                 let token of uniswapDappSharedLogic.supportedTokenBalances
               "
               (click)="changeSelectToken(token.contractAddress)"
+              class="uni-ic__modal-tokens-item-container"
+              [ngClass]="{
+                selected:
+                  (token.contractAddress ===
+                    uniswapDappSharedLogic.inputToken.contractAddress &&
+                    uniswapDappSharedLogic.selectorOpenFrom === 'input') ||
+                  (token.contractAddress ===
+                    uniswapDappSharedLogic.outputToken?.contractAddress &&
+                    uniswapDappSharedLogic.selectorOpenFrom === 'output')
+              }"
             >
               <div class="uni-ic__modal-tokens-item">
                 <img
