@@ -73,6 +73,13 @@
     }
   }
 
+  &__error,
+  &__transaction {
+    position: relative;
+    padding: 8px;
+    text-align: center;
+  }
+
   &__swap {
     &-container {
       position: relative;

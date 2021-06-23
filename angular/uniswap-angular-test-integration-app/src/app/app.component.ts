@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import BigNumber from 'bignumber.js';
 import { Subscription } from 'rxjs';
-import { TradeDirection, Transaction } from 'simple-uniswap-sdk';
+import { ChainId, TradeDirection, Transaction } from 'simple-uniswap-sdk';
 import {
   SelectTokenActionFrom,
   UniswapDappSharedLogic,
@@ -22,17 +22,30 @@ export class AppComponent implements OnInit, OnDestroy {
   @Output()
   public generatedApproveTransaction: EventEmitter<Transaction> = new EventEmitter();
 
-  public notEnoughLiquidity = false;
-
   public uniswapDappSharedLogic = new UniswapDappSharedLogic({
-    inputCurrency: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b';
-    outputCurrency: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F', // 0xdac17f958d2ee523a2206206994597c13d831ec7
-    supportedContracts: [
-      { contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b' },
-      { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
-      { contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862' },
-      { contractAddress: '0x5EeAA2DCb23056F4E8654a349E57eBE5e76b5e6e' },
-      { contractAddress: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F' },
+    supportedNetworkTokens: [
+      {
+        chainId: ChainId.MAINNET,
+        defaultInputToken: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        defaultOutputToken: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F',
+        supportedTokens: [
+          { contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b' },
+          { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
+          { contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862' },
+          { contractAddress: '0x5EeAA2DCb23056F4E8654a349E57eBE5e76b5e6e' },
+          { contractAddress: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F' },
+        ],
+      },
+      {
+        chainId: ChainId.RINKEBY,
+        defaultInputToken: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
+        supportedTokens: [
+          {
+            contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
+          },
+        ],
+      },
     ],
     // theming: {
     //   backgroundColor: 'red',
@@ -43,6 +56,9 @@ export class AppComponent implements OnInit, OnDestroy {
   });
 
   public loading = true;
+
+  // errors
+  public notEnoughLiquidity = false;
 
   public inputValue = '0.00004';
   public outputValue = '0';
@@ -67,6 +83,15 @@ export class AppComponent implements OnInit, OnDestroy {
    * On load
    */
   public async ngOnInit(): Promise<void> {
+    try {
+      await this.uniswapDappSharedLogic.init();
+    } catch (error) {
+      if (error.message.includes('unsupported network')) {
+        this.loading = false;
+        return;
+      }
+    }
+
     this._newPriceTradeContextAvailableSubscription =
       this.uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
         (tradeContext) => {
@@ -77,15 +102,10 @@ export class AppComponent implements OnInit, OnDestroy {
           }
         },
       );
-    try {
-      await this.uniswapDappSharedLogic.init();
 
-      if (this.uniswapDappSharedLogic.tradeContext?.expectedConvertQuote) {
-        this.outputValue =
-          this.uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
-      }
-    } catch (error) {
-      this.notEnoughLiquidity = true;
+    if (this.uniswapDappSharedLogic.tradeContext?.expectedConvertQuote) {
+      this.outputValue =
+        this.uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
     }
 
     this.loading = false;
@@ -129,23 +149,18 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param amount The amount
    */
   public async changeInputTradePrice(amount: string): Promise<void> {
-    this.notEnoughLiquidity = false;
-    try {
-      this.inputValue = amount;
-      if (new BigNumber(this.inputValue).isEqualTo(0)) {
-        this.outputValue = '0';
-        return;
-      }
-
-      await this.uniswapDappSharedLogic.changeTradePrice(
-        amount,
-        TradeDirection.input,
-      );
-      this.outputValue =
-        this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
-    } catch (error) {
-      this.notEnoughLiquidity = true;
+    this.inputValue = amount;
+    if (new BigNumber(this.inputValue).isEqualTo(0)) {
+      this.outputValue = '0';
+      return;
     }
+
+    await this.uniswapDappSharedLogic.changeTradePrice(
+      amount,
+      TradeDirection.input,
+    );
+    this.outputValue =
+      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
   }
 
   /**
@@ -153,18 +168,13 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param amount The amount
    */
   public async changeOutputTradePrice(amount: string): Promise<void> {
-    this.notEnoughLiquidity = false;
-    try {
-      this.outputValue = amount;
-      await this.uniswapDappSharedLogic.changeTradePrice(
-        amount,
-        TradeDirection.output,
-      );
-      this.inputValue =
-        this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
-    } catch (error) {
-      this.notEnoughLiquidity = true;
-    }
+    this.outputValue = amount;
+    await this.uniswapDappSharedLogic.changeTradePrice(
+      amount,
+      TradeDirection.output,
+    );
+    this.inputValue =
+      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
   }
 
   /**
@@ -186,18 +196,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.uniswapDappSharedLogic.tradeContext!.approvalTransaction!,
     );
 
-    await this.uniswapDappSharedLogic.sendAsync(
-      this.uniswapDappSharedLogic.tradeContext!.approvalTransaction!,
-    );
+    await this.uniswapDappSharedLogic.approveAllowance();
   }
 
   /**
    * Confirm swap
    */
   public async confirmSwap(): Promise<void> {
-    await this.uniswapDappSharedLogic.sendAsync(
-      this.uniswapDappSharedLogic.tradeContext!.transaction,
-    );
+    await this.uniswapDappSharedLogic.swapTransaction();
   }
 
   /**

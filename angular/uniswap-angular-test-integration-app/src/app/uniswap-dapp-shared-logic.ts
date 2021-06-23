@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import {
+  ChainId,
   Token,
   TokenFactoryPublic,
   TokensFactoryPublic,
@@ -18,10 +19,7 @@ import {
 } from 'simple-uniswap-sdk';
 
 export interface UniswapDappSharedLogicContext {
-  // ethereumAddress: string;
-  inputCurrency?: string | undefined;
-  outputCurrency?: string | undefined;
-  supportedContracts: SupportedToken[];
+  supportedNetworkTokens: SupportedNetworkTokens[];
   settings?: UniswapPairSettings | undefined;
   theming?: UniswapTheming;
 }
@@ -43,6 +41,13 @@ export interface ExtendedToken extends Token {
   fiatPrice: BigNumber | undefined;
 }
 
+export interface SupportedNetworkTokens {
+  chainId: ChainId;
+  defaultInputToken?: string;
+  defaultOutputToken?: string;
+  supportedTokens: SupportedToken[];
+}
+
 export interface SupportedToken {
   iconUrl?: string;
   contractAddress: string;
@@ -55,6 +60,24 @@ export interface SupportedTokenResult {
 export enum SelectTokenActionFrom {
   input = 'input',
   output = 'output',
+}
+
+export enum MiningAction {
+  approval = 'approval',
+  swap = 'swap',
+}
+
+export enum TransactionStatus {
+  waitingForConfirmation = 'waitingForConfirmation',
+  rejected = 'rejected',
+  mining = 'mining',
+  completed = 'completed',
+}
+export interface MiningTransaction {
+  txHash?: string | undefined;
+  status: TransactionStatus;
+  miningAction: MiningAction;
+  blockExplorerLink?: string | undefined;
 }
 
 export class UniswapDappSharedLogic {
@@ -71,6 +94,9 @@ export class UniswapDappSharedLogic {
   public userAcceptedPriceChange = true;
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
   public selectorOpenFrom: SelectTokenActionFrom | undefined;
+  public chainId!: number;
+  public supportedNetwork = false;
+  public miningTransaction: MiningTransaction | undefined;
 
   private _confirmSwapOpened = false;
 
@@ -80,13 +106,11 @@ export class UniswapDappSharedLogic {
 
   private _ethereumAddress!: string;
   private _ethersInstance!: ethers.providers.Web3Provider;
-  private _chainId!: number;
 
   private _balanceInterval: NodeJS.Timeout | undefined;
   private _quoteSubscription: Subscription = Subscription.EMPTY;
 
   constructor(private _context: UniswapDappSharedLogicContext) {
-    this._context.supportedContracts.push(WETH.MAINNET());
     if (this._context.settings) {
       this.uniswapPairSettings = this._context.settings;
     }
@@ -97,11 +121,19 @@ export class UniswapDappSharedLogic {
    */
   public async init(): Promise<void> {
     this.loading.next(true);
+    this.supportedNetwork = false;
 
     await this.setupEthereumLogic();
+
+    const weth = WETH.token(this.chainId);
+    const supportedNetworkTokens = this._context.supportedNetworkTokens.find(
+      (t) => t.chainId === this.chainId,
+    )!;
+
+    supportedNetworkTokens.supportedTokens.push(weth);
+
     const inputToken =
-      this._context?.inputCurrency ||
-      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+      supportedNetworkTokens.defaultInputToken || weth.contractAddress;
 
     this.inputToken = await this.getTokenInformation(inputToken);
 
@@ -109,10 +141,10 @@ export class UniswapDappSharedLogic {
     this.syncBalancesInternal();
     this.themeComponent();
 
-    if (this._context.outputCurrency) {
+    if (supportedNetworkTokens.defaultOutputToken) {
       await this.buildFactory(
         this.inputToken.contractAddress,
-        this._context.outputCurrency,
+        supportedNetworkTokens.defaultOutputToken,
       );
     } else {
       this.inputToken = await this.getTokenInformation(inputToken);
@@ -143,16 +175,31 @@ export class UniswapDappSharedLogic {
 
     this._ethereumAddress = accounts[0];
 
-    this._chainId = (await this._ethersInstance.getNetwork()).chainId;
-    this._tokensFactoryPublic = new TokensFactoryPublic(this._chainId);
+    this.chainId = (await this._ethersInstance.getNetwork()).chainId;
+    this.supportedNetwork =
+      this.isSupportedChain() &&
+      this._context.supportedNetworkTokens.find(
+        (t) => t.chainId === this.chainId,
+      ) !== undefined;
+
+    if (!this.supportedNetwork) {
+      this.loading.next(false);
+      throw new Error('unsupported network');
+    }
+    this._tokensFactoryPublic = new TokensFactoryPublic(this.chainId);
 
     (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
-      this._quoteSubscription.unsubscribe();
-      this.init();
+      try {
+        this._quoteSubscription.unsubscribe();
+        this.init();
+      } catch (error) {}
     });
 
-    (window as any).ethereum.on('chainChanged', (chainId: string) => {
-      alert(chainId);
+    (window as any).ethereum.on('chainChanged', () => {
+      try {
+        this._quoteSubscription.unsubscribe();
+        this.init();
+      } catch (error) {}
     });
   }
 
@@ -165,6 +212,50 @@ export class UniswapDappSharedLogic {
       method: 'eth_sendTransaction',
       params: [transaction],
     });
+  }
+
+  /**
+   * Send the approve allowance
+   */
+  public async approveAllowance(): Promise<MiningTransaction> {
+    this.miningTransaction = {
+      status: TransactionStatus.waitingForConfirmation,
+      miningAction: MiningAction.approval,
+    };
+
+    try {
+      const txHash = await this.sendAsync(
+        this.tradeContext!.approvalTransaction!,
+      );
+      this.miningTransaction.status = TransactionStatus.mining;
+      this.miningTransaction.txHash = txHash;
+      this.miningTransaction.blockExplorerLink = '';
+      return this.miningTransaction;
+    } catch (error) {
+      this.miningTransaction.status = TransactionStatus.rejected;
+      return this.miningTransaction;
+    }
+  }
+
+  /**
+   * Send the swap transaction
+   */
+  public async swapTransaction(): Promise<MiningTransaction> {
+    this.miningTransaction = {
+      status: TransactionStatus.waitingForConfirmation,
+      miningAction: MiningAction.swap,
+    };
+
+    try {
+      const txHash = await this.sendAsync(this.tradeContext!.transaction);
+      this.miningTransaction.status = TransactionStatus.mining;
+      this.miningTransaction.txHash = txHash;
+      this.miningTransaction.blockExplorerLink = '';
+      return this.miningTransaction;
+    } catch (error) {
+      this.miningTransaction.status = TransactionStatus.rejected;
+      return this.miningTransaction;
+    }
   }
 
   /**
@@ -300,7 +391,7 @@ export class UniswapDappSharedLogic {
     contractAddress = ethers.utils.getAddress(contractAddress);
     const tokenFactoryPublic = new TokenFactoryPublic(
       contractAddress,
-      this._chainId,
+      this.chainId,
     );
 
     const token = (await tokenFactoryPublic.getToken()) as ExtendedToken;
@@ -469,7 +560,7 @@ export class UniswapDappSharedLogic {
       fromTokenContractAddress: inputToken,
       toTokenContractAddress: outputToken,
       ethereumAddress: this._ethereumAddress,
-      chainId: this._chainId,
+      chainId: this.chainId,
       settings,
     });
 
@@ -538,11 +629,15 @@ export class UniswapDappSharedLogic {
   private async getCoinGeckoFiatPrices(
     contractAddresses: string[],
   ): Promise<any> {
-    return await (
-      await fetch(
-        `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAddresses.join()}&vs_currencies=usd`,
-      )
-    ).json();
+    if (this.chainId === ChainId.MAINNET) {
+      return await (
+        await fetch(
+          `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAddresses.join()}&vs_currencies=usd`,
+        )
+      ).json();
+    } else {
+      return {};
+    }
   }
 
   /**
@@ -628,87 +723,93 @@ export class UniswapDappSharedLogic {
    * Get the balances of the supported contracts
    */
   private async getBalances(): Promise<void> {
-    const tokenWithAllowanceInfo =
-      await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
-        UniswapVersion.v3,
-        this._ethereumAddress,
-        this._context.supportedContracts.map((c) =>
-          ethers.utils.getAddress(c.contractAddress),
-        ),
-        true,
+    if (this.supportedNetwork) {
+      const tokenWithAllowanceInfo =
+        await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
+          UniswapVersion.v3,
+          this._ethereumAddress,
+          this._context.supportedNetworkTokens
+            .find((t) => t.chainId === this.chainId)!
+            .supportedTokens.map((c) =>
+              ethers.utils.getAddress(c.contractAddress),
+            ),
+          true,
+        );
+
+      // look at caching this we still want to fetch the balances every 5 seconds but
+      // fiat prices can be cached
+      const fiatPrices = await this.getCoinGeckoFiatPrices(
+        tokenWithAllowanceInfo.map((c) => c.token.contractAddress),
       );
 
-    // look at caching this we still want to fetch the balances every 5 seconds but
-    // fiat prices can be cached
-    const fiatPrices = await this.getCoinGeckoFiatPrices(
-      tokenWithAllowanceInfo.map((c) => c.token.contractAddress),
-    );
+      this.supportedTokenBalances = tokenWithAllowanceInfo
+        .map((item) =>
+          this.buildExtendedToken(
+            item.token,
+            item.allowanceAndBalanceOf.balanceOf,
+            fiatPrices,
+          ),
+        )
+        .sort((a, b) => {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        })
+        .sort((a, b) => {
+          if (a.balance.isLessThan(b.balance)) {
+            return 1;
+          }
+          if (a.balance.isGreaterThan(b.balance)) {
+            return -1;
+          }
+          return 0;
+        })
+        .sort((a, b) => {
+          if (a.contractAddress === this.inputToken.contractAddress) {
+            return -1;
+          }
 
-    this.supportedTokenBalances = tokenWithAllowanceInfo
-      .map((item) =>
-        this.buildExtendedToken(
-          item.token,
-          item.allowanceAndBalanceOf.balanceOf,
-          fiatPrices,
-        ),
-      )
-      .sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (a.name > b.name) {
-          return 1;
-        }
-        return 0;
-      })
-      .sort((a, b) => {
-        if (a.balance.isLessThan(b.balance)) {
-          return 1;
-        }
-        if (a.balance.isGreaterThan(b.balance)) {
-          return -1;
-        }
-        return 0;
-      })
-      .sort((a, b) => {
-        if (a.contractAddress === this.inputToken.contractAddress) {
-          return -1;
-        }
+          if (a.contractAddress === this.outputToken?.contractAddress) {
+            return -1;
+          }
 
-        if (a.contractAddress === this.outputToken?.contractAddress) {
-          return -1;
-        }
+          return 0;
+        });
 
-        return 0;
-      });
-
-    if (this.inputToken.symbol.toLowerCase() === 'weth') {
-      this.inputToken.balance = new BigNumber(
-        await this.factory!.getFromTokenBalance(),
-      );
-    } else {
-      const newInputBalance = this.supportedTokenBalances.find(
-        (c) => c.contractAddress === this.inputToken.contractAddress,
-      )?.balance;
-      if (newInputBalance) {
-        this.inputToken.balance = new BigNumber(newInputBalance);
-      }
-    }
-
-    if (this.outputToken) {
-      if (this.outputToken.symbol.toLowerCase() === 'weth') {
-        this.outputToken.balance = new BigNumber(
-          await this.factory!.getToTokenBalance(),
+      if (this.inputToken.symbol.toLowerCase() === 'weth' && this.factory) {
+        this.inputToken.balance = new BigNumber(
+          await this.factory.getFromTokenBalance(),
         );
       } else {
-        const newOutputBalance = this.supportedTokenBalances.find(
-          (c) => c.contractAddress === this.outputToken!.contractAddress,
+        const newInputBalance = this.supportedTokenBalances.find(
+          (c) => c.contractAddress === this.inputToken.contractAddress,
         )?.balance;
-
-        if (newOutputBalance) {
-          this.outputToken.balance = new BigNumber(newOutputBalance);
+        if (newInputBalance) {
+          this.inputToken.balance = new BigNumber(newInputBalance);
         }
       }
+
+      if (this.outputToken) {
+        if (this.outputToken.symbol.toLowerCase() === 'weth' && this.factory) {
+          this.outputToken.balance = new BigNumber(
+            await this.factory.getToTokenBalance(),
+          );
+        } else {
+          const newOutputBalance = this.supportedTokenBalances.find(
+            (c) => c.contractAddress === this.outputToken!.contractAddress,
+          )?.balance;
+
+          if (newOutputBalance) {
+            this.outputToken.balance = new BigNumber(newOutputBalance);
+          }
+        }
+      }
+    } else {
+      this.supportedTokenBalances = [];
     }
   }
 
@@ -793,5 +894,17 @@ export class UniswapDappSharedLogic {
     }
 
     return css;
+  }
+
+  /**
+   * Is support chain
+   */
+  private isSupportedChain(): boolean {
+    try {
+      WETH.token(this.chainId);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

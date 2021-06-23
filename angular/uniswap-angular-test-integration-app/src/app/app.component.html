@@ -4,7 +4,10 @@
 
 <ng-container *ngIf="!loading">
   <div class="uni-ic uni-ic__theme-background" *ngIf="!loading">
-    <div class="uni-ic__header-container">
+    <div
+      class="uni-ic__header-container"
+      *ngIf="uniswapDappSharedLogic.supportedNetwork"
+    >
       <div class="uni-ic__header-content">
         <div class="uni-ic__header-content-title">Swap</div>
         <div class="uni-ic__header-content-settings">
@@ -262,7 +265,10 @@
       </div>
     </div>
 
-    <div class="uni-ic__swap-container">
+    <div
+      class="uni-ic__swap-container"
+      *ngIf="uniswapDappSharedLogic.supportedNetwork"
+    >
       <div class="uni-ic__swap-content">
         <div class="uni-ic__swap-input-container">
           <div class="uni-ic__swap-input-content uni-ic__theme-panel">
@@ -479,7 +485,10 @@
                 (ngModelChange)="changeOutputTradePrice($event)"
               />
             </div>
-            <div class="uni-ic__swap-content-balance-and-price-container">
+            <div
+              class="uni-ic__swap-content-balance-and-price-container"
+              *ngIf="uniswapDappSharedLogic.outputToken"
+            >
               <div class="uni-ic__swap-content-balance-and-price">
                 <div
                   class="uni-ic__swap-content-balance-and-price__balance"
@@ -792,9 +801,22 @@
         </button>
       </div>
     </div>
+
+    <div class="uni-ic__error" *ngIf="!uniswapDappSharedLogic.supportedNetwork">
+      <p>
+        <strong
+          >Chain id {{ uniswapDappSharedLogic.chainId }} is a unsupported
+          network.</strong
+        >
+      </p>
+    </div>
   </div>
 
-  <div id="uni-ic__modal-token" class="uni-ic__modal">
+  <div
+    id="uni-ic__modal-token"
+    class="uni-ic__modal"
+    *ngIf="uniswapDappSharedLogic.supportedNetwork"
+  >
     <div
       class="
         uni-ic__modal__content uni-ic__modal-tokens uni-ic__theme-background
@@ -887,7 +909,11 @@
     </div>
   </div>
 
-  <div id="uni-ic__modal-confirm-swap" class="uni-ic__modal">
+  <div
+    id="uni-ic__modal-confirm-swap"
+    class="uni-ic__modal"
+    *ngIf="uniswapDappSharedLogic.supportedNetwork"
+  >
     <div
       class="
         uni-ic__modal__content
@@ -1008,14 +1034,14 @@
                 class="
                   uni-ic__modal-confirm-swap__output-header__price-container
                 "
-                *ngIf="uniswapDappSharedLogic.outputToken!.fiatPrice"
+                *ngIf="uniswapDappSharedLogic.outputToken?.fiatPrice"
               >
                 ~$
                 <span
                   class="uni-ic__modal-confirm-swap__output-header__price"
                   >{{
                     uniswapDappSharedLogic.toPrecision(
-                      uniswapDappSharedLogic.outputToken!.fiatPrice.times(
+                      uniswapDappSharedLogic.outputToken!.fiatPrice!.times(
                         outputValue
                       )
                     )
@@ -1286,5 +1312,19 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div
+    id="uni-ic__modal-transaction"
+    class="uni-ic__modal"
+    *ngIf="uniswapDappSharedLogic.supportedNetwork"
+  >
+    <div
+      class="
+        uni-ic__modal__content
+        uni-ic__modal-transaction
+        uni-ic__theme-background
+      "
+    ></div>
   </div>
 </ng-container>
