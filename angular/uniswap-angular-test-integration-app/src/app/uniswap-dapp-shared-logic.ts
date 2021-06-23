@@ -2,14 +2,14 @@
 
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import {
-  ChainId,
   Token,
   TokenFactoryPublic,
   TokensFactoryPublic,
   TradeContext,
   TradeDirection,
+  Transaction,
   UniswapPair,
   UniswapPairFactory,
   UniswapPairSettings,
@@ -66,6 +66,7 @@ export class UniswapDappSharedLogic {
   // this is used to alert the UI to change the framework
   // binded values
   public newPriceTradeContextAvailable = new Subject<TradeContext>();
+  public loading = new BehaviorSubject<boolean>(false);
   public supportedTokenBalances!: ExtendedToken[];
   public userAcceptedPriceChange = true;
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
@@ -75,7 +76,14 @@ export class UniswapDappSharedLogic {
 
   private _inputAmount = new BigNumber(0.00004);
 
-  private _tokensFactoryPublic = new TokensFactoryPublic(ChainId.MAINNET);
+  private _tokensFactoryPublic!: TokensFactoryPublic;
+
+  private _ethereumAddress!: string;
+  private _ethersInstance!: ethers.providers.Web3Provider;
+  private _chainId!: number;
+
+  private _balanceInterval: NodeJS.Timeout | undefined;
+  private _quoteSubscription: Subscription = Subscription.EMPTY;
 
   constructor(private _context: UniswapDappSharedLogicContext) {
     this._context.supportedContracts.push(WETH.MAINNET());
@@ -88,19 +96,75 @@ export class UniswapDappSharedLogic {
    * Init the shared logic
    */
   public async init(): Promise<void> {
+    this.loading.next(true);
+
+    await this.setupEthereumLogic();
     const inputToken =
       this._context?.inputCurrency ||
       '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 
-    if (this._context.outputCurrency) {
-      await this.buildFactory(inputToken, this._context.outputCurrency);
-    } else {
-      this.inputToken = await this.getTokenInformation(inputToken);
-    }
+    this.inputToken = await this.getTokenInformation(inputToken);
 
     this.getBalances();
     this.syncBalancesInternal();
     this.themeComponent();
+
+    if (this._context.outputCurrency) {
+      await this.buildFactory(
+        this.inputToken.contractAddress,
+        this._context.outputCurrency,
+      );
+    } else {
+      this.inputToken = await this.getTokenInformation(inputToken);
+    }
+
+    // resync once got context so ordering of tokens
+    // can sync
+    this.getBalances();
+    this.loading.next(false);
+  }
+
+  /**
+   * Setup ethereum provider logic
+   */
+  public async setupEthereumLogic(): Promise<void> {
+    // cover MM etc!
+    await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+    this._ethersInstance = new ethers.providers.Web3Provider(
+      (window as any).ethereum,
+    );
+
+    const accounts = await this._ethersInstance.listAccounts();
+    if (accounts.length === 0) {
+      throw new Error(
+        'No accounts found please make sure the user is authenticated with a wallet before using the uniswap logic',
+      );
+    }
+
+    this._ethereumAddress = accounts[0];
+
+    this._chainId = (await this._ethersInstance.getNetwork()).chainId;
+    this._tokensFactoryPublic = new TokensFactoryPublic(this._chainId);
+
+    (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
+      this._quoteSubscription.unsubscribe();
+      this.init();
+    });
+
+    (window as any).ethereum.on('chainChanged', (chainId: string) => {
+      alert(chainId);
+    });
+  }
+
+  /**
+   * Send async
+   * @param transaction The transaction
+   */
+  public async sendAsync(transaction: Transaction): Promise<string> {
+    return await this._ethersInstance.provider.request!({
+      method: 'eth_sendTransaction',
+      params: [transaction],
+    });
   }
 
   /**
@@ -236,7 +300,7 @@ export class UniswapDappSharedLogic {
     contractAddress = ethers.utils.getAddress(contractAddress);
     const tokenFactoryPublic = new TokenFactoryPublic(
       contractAddress,
-      ChainId.MAINNET,
+      this._chainId,
     );
 
     const token = (await tokenFactoryPublic.getToken()) as ExtendedToken;
@@ -404,9 +468,8 @@ export class UniswapDappSharedLogic {
     const uniswapPair = new UniswapPair({
       fromTokenContractAddress: inputToken,
       toTokenContractAddress: outputToken,
-      // the ethereum address of the user using this part of the dApp
-      ethereumAddress: '0x37c81284caA97131339415687d192BF7D18F0f2a',
-      chainId: ChainId.MAINNET,
+      ethereumAddress: this._ethereumAddress,
+      chainId: this._chainId,
       settings,
     });
 
@@ -502,16 +565,26 @@ export class UniswapDappSharedLogic {
       const context = await this.factory!.trade(amount.toFixed(), direction);
       this.tradeContext = this.formatTradeContext(context);
 
-      this.tradeContext?.quoteChanged$.subscribe((quote) => {
-        console.log('price change', quote);
-        const formattedQuote = this.formatTradeContext(quote);
-        if (this._confirmSwapOpened) {
-          this.newPriceTradeContext = formattedQuote;
-        } else {
-          this.tradeContext = formattedQuote;
-          this.newPriceTradeContextAvailable.next(formattedQuote);
-        }
-      });
+      this._quoteSubscription = this.tradeContext?.quoteChanged$.subscribe(
+        (quote) => {
+          // TEMP FIX UNTIL SORT THE SUBSCRIPTION LOGIC
+          if (
+            quote.toToken.contractAddress === this.inputToken.contractAddress &&
+            quote.fromToken.contractAddress ===
+              this.outputToken?.contractAddress &&
+            quote.transaction.from === this._ethereumAddress
+          ) {
+            console.log('price change', quote);
+            const formattedQuote = this.formatTradeContext(quote);
+            if (this._confirmSwapOpened) {
+              this.newPriceTradeContext = formattedQuote;
+            } else {
+              this.tradeContext = formattedQuote;
+              this.newPriceTradeContextAvailable.next(formattedQuote);
+            }
+          }
+        },
+      );
 
       console.log('first quote', this.tradeContext);
     } else {
@@ -546,7 +619,9 @@ export class UniswapDappSharedLogic {
    * Sync balances interval
    */
   private async syncBalancesInternal(): Promise<void> {
-    setInterval(() => this.getBalances(), 5000);
+    if (!this._balanceInterval) {
+      this._balanceInterval = setInterval(() => this.getBalances(), 5000);
+    }
   }
 
   /**
@@ -556,7 +631,7 @@ export class UniswapDappSharedLogic {
     const tokenWithAllowanceInfo =
       await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
         UniswapVersion.v3,
-        '0x37c81284caA97131339415687d192BF7D18F0f2a',
+        this._ethereumAddress,
         this._context.supportedContracts.map((c) =>
           ethers.utils.getAddress(c.contractAddress),
         ),

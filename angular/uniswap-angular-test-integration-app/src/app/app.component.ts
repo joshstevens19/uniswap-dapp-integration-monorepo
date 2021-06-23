@@ -50,24 +50,24 @@ export class AppComponent implements OnInit, OnDestroy {
   public transactionDeadline: number | undefined;
   public slippageCustom: number | undefined;
 
-  public newPriceTradeContextAvailableSubscription = Subscription.EMPTY;
+  private _newPriceTradeContextAvailableSubscription = Subscription.EMPTY;
+  private _loadingUniswapSubscription = Subscription.EMPTY;
 
-  constructor() {
-    // (<any>window).ethereum.request({ method: 'eth_requestAccounts' });
-  }
+  constructor() {}
 
   /**
    * On destroy
    */
   public ngOnDestroy(): void {
-    this.newPriceTradeContextAvailableSubscription.unsubscribe();
+    this._newPriceTradeContextAvailableSubscription.unsubscribe();
+    this._loadingUniswapSubscription.unsubscribe();
   }
 
   /**
    * On load
    */
   public async ngOnInit(): Promise<void> {
-    this.newPriceTradeContextAvailableSubscription =
+    this._newPriceTradeContextAvailableSubscription =
       this.uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
         (tradeContext) => {
           if (tradeContext.quoteDirection === TradeDirection.input) {
@@ -89,6 +89,11 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.loading = false;
+
+    this._loadingUniswapSubscription =
+      this.uniswapDappSharedLogic.loading.subscribe((_loading) => {
+        this.loading = _loading;
+      });
   }
 
   /**
@@ -176,9 +181,22 @@ export class AppComponent implements OnInit, OnDestroy {
   /**
    * approve allowance data
    */
-  public approveAllowance(): void {
+  public async approveAllowance(): Promise<void> {
     this.generatedApproveTransaction.emit(
       this.uniswapDappSharedLogic.tradeContext!.approvalTransaction!,
+    );
+
+    await this.uniswapDappSharedLogic.sendAsync(
+      this.uniswapDappSharedLogic.tradeContext!.approvalTransaction!,
+    );
+  }
+
+  /**
+   * Confirm swap
+   */
+  public async confirmSwap(): Promise<void> {
+    await this.uniswapDappSharedLogic.sendAsync(
+      this.uniswapDappSharedLogic.tradeContext!.transaction,
     );
   }
 
