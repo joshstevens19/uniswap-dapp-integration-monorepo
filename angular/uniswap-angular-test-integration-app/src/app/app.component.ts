@@ -65,6 +65,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public transactionDeadline: number | undefined;
   public slippageCustom: number | undefined;
+  public searchToken: string | undefined;
 
   private _newPriceTradeContextAvailableSubscription = Subscription.EMPTY;
   private _loadingUniswapSubscription = Subscription.EMPTY;

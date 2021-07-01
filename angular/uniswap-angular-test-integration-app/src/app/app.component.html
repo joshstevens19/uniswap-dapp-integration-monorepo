@@ -832,7 +832,8 @@
           placeholder="Search name or paste address"
           autocomplete="off"
           class="uni-ic__modal-tokens-search__input"
-          value=""
+          [ngModel]="searchToken"
+          (ngModelChange)="uniswapDappSharedLogic.searchToken($event)"
         />
       </div>
 
@@ -865,7 +866,7 @@
                       uniswapDappSharedLogic.selectorOpenFrom === 'output')
                 }"
               >
-                <div class="uni-ic__modal-tokens-item">
+                <div class="uni-ic__modal-tokens-item" *ngIf="token.canShow">
                   <img
                     [src]="
                       uniswapDappSharedLogic.getTokenImageUrl(

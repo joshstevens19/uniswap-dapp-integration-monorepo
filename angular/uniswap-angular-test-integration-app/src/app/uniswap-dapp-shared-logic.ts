@@ -20,6 +20,7 @@ import {
 
 export interface UniswapDappSharedLogicContext {
   supportedNetworkTokens: SupportedNetworkTokens[];
+  ethereumProvider?: any;
   settings?: UniswapPairSettings | undefined;
   theming?: UniswapTheming;
 }
@@ -43,6 +44,7 @@ export interface ExtendedToken extends Token {
 
 export interface SupportedNetworkTokens {
   chainId: ChainId;
+  providerUrl?: string | undefined;
   defaultInputToken?: string;
   defaultOutputToken?: string;
   supportedTokens: SupportedToken[];
@@ -53,8 +55,8 @@ export interface SupportedToken {
   contractAddress: string;
 }
 
-export interface SupportedTokenResult {
-  token: ExtendedToken;
+export interface SupportedTokenResult extends ExtendedToken {
+  canShow: boolean;
 }
 
 export enum SelectTokenActionFrom {
@@ -90,13 +92,14 @@ export class UniswapDappSharedLogic {
   // binded values
   public newPriceTradeContextAvailable = new Subject<TradeContext>();
   public loading = new BehaviorSubject<boolean>(false);
-  public supportedTokenBalances!: ExtendedToken[];
+  public supportedTokenBalances!: SupportedTokenResult[];
   public userAcceptedPriceChange = true;
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
   public selectorOpenFrom: SelectTokenActionFrom | undefined;
   public chainId!: number;
   public supportedNetwork = false;
   public miningTransaction: MiningTransaction | undefined;
+  public currentTokenSearch: string | undefined;
 
   private _confirmSwapOpened = false;
 
@@ -294,6 +297,7 @@ export class UniswapDappSharedLogic {
    */
   public hideTokenSelector(): void {
     this.selectorOpenFrom = undefined;
+    this.currentTokenSearch = undefined;
     const modal = document.getElementById('uni-ic__modal-token')!;
     modal.style.display = 'none';
   }
@@ -526,6 +530,27 @@ export class UniswapDappSharedLogic {
   }
 
   /**
+   * Search for tokens
+   * @param search The search term
+   */
+  public searchToken(search: string): void {
+    this.currentTokenSearch = search;
+
+    let noneCaseSearch = search.toLowerCase();
+    for (let i = 0; i < this.supportedTokenBalances.length; i++) {
+      const token = this.supportedTokenBalances[i];
+      if (
+        !token.symbol.toLowerCase().includes(noneCaseSearch) &&
+        noneCaseSearch !== token.contractAddress.toLowerCase()
+      ) {
+        token.canShow = false;
+      } else {
+        token.canShow = true;
+      }
+    }
+  }
+
+  /**
    * Change input token
    * @param contractAddress The contract address
    */
@@ -556,13 +581,11 @@ export class UniswapDappSharedLogic {
   ): Promise<void> {
     inputToken = ethers.utils.getAddress(inputToken);
     outputToken = ethers.utils.getAddress(outputToken);
-    const uniswapPair = new UniswapPair({
-      fromTokenContractAddress: inputToken,
-      toTokenContractAddress: outputToken,
-      ethereumAddress: this._ethereumAddress,
-      chainId: this.chainId,
+    const uniswapPair = this.createUniswapPairContext(
+      inputToken,
+      outputToken,
       settings,
-    });
+    );
 
     this.factory = await uniswapPair.createFactory();
     const fiatPrices = await this.getCoinGeckoFiatPrices([
@@ -581,6 +604,39 @@ export class UniswapDappSharedLogic {
       fiatPrices,
     );
     await this.trade(this._inputAmount, TradeDirection.input);
+  }
+
+  /**
+   * Create uniswap pair context
+   * @param inputToken The input token
+   * @param outputToken The output token
+   * @param settings The settings
+   */
+  private createUniswapPairContext(
+    inputToken: string,
+    outputToken: string,
+    settings?: UniswapPairSettings | undefined,
+  ): UniswapPair {
+    if (this._context.ethereumProvider) {
+      return new UniswapPair({
+        fromTokenContractAddress: inputToken,
+        toTokenContractAddress: outputToken,
+        ethereumAddress: this._ethereumAddress,
+        ethereumProvider: this._context.ethereumProvider,
+        settings,
+      });
+    }
+
+    return new UniswapPair({
+      fromTokenContractAddress: inputToken,
+      toTokenContractAddress: outputToken,
+      ethereumAddress: this._ethereumAddress,
+      chainId: this.chainId,
+      providerUrl: this._context.supportedNetworkTokens.find(
+        (c) => c.chainId === this.chainId,
+      )?.providerUrl,
+      settings,
+    });
   }
 
   /**
@@ -743,13 +799,33 @@ export class UniswapDappSharedLogic {
       );
 
       this.supportedTokenBalances = tokenWithAllowanceInfo
-        .map((item) =>
-          this.buildExtendedToken(
+        .map((item) => {
+          const token = this.buildExtendedToken(
             item.token,
             item.allowanceAndBalanceOf.balanceOf,
             fiatPrices,
-          ),
-        )
+          );
+
+          let canShow = true;
+          if (this.currentTokenSearch) {
+            canShow = this.supportedTokenBalances.find(
+              (c) =>
+                c.contractAddress.toLowerCase() ===
+                item.token.contractAddress.toLowerCase(),
+            )!.canShow;
+          }
+
+          return {
+            chainId: token.chainId,
+            contractAddress: token.contractAddress,
+            decimals: token.decimals,
+            symbol: token.symbol,
+            name: token.name,
+            fiatPrice: token.fiatPrice,
+            balance: token.balance,
+            canShow,
+          };
+        })
         .sort((a, b) => {
           if (a.name < b.name) {
             return -1;
