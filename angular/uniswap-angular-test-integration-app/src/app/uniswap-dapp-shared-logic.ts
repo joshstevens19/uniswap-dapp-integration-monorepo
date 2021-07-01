@@ -738,8 +738,6 @@ export class UniswapDappSharedLogic {
       );
 
       console.log('first quote', this.tradeContext);
-    } else {
-      this.factory = undefined;
     }
   }
 

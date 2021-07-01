@@ -120,6 +120,8 @@
                       >
                         <input
                           placeholder="custom"
+                          type="number"
+                          step="any"
                           class="
                             uni-ic__settings-transaction-slippage-manual-input
                           "
@@ -189,6 +191,9 @@
                         class="
                           uni-ic__settings-transaction-deadline-minute-input
                         "
+                        type="number"
+                        min="1"
+                        step="1"
                         [ngModel]="transactionDeadline"
                         (ngModelChange)="
                           uniswapDappSharedLogic.setTransactionDeadline($event)
