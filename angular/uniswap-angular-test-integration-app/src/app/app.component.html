@@ -318,12 +318,10 @@
               </button>
               <input
                 class="uni-ic__swap-input-content-main-from uni-ic__theme-panel"
-                inputmode="decimal"
-                title="Token Amount"
                 autocomplete="off"
                 autocorrect="off"
-                type="text"
-                pattern="^[0-9]*[.,]?[0-9]*$"
+                type="number"
+                step="any"
                 placeholder="0.0"
                 minlength="1"
                 maxlength="79"
@@ -353,7 +351,9 @@
                 </div>
                 <div
                   class="uni-ic__swap-content-balance-and-price__price"
-                  *ngIf="uniswapDappSharedLogic.inputToken!.fiatPrice"
+                  *ngIf="
+                    inputValue && uniswapDappSharedLogic.inputToken!.fiatPrice
+                  "
                 >
                   ~$
                   <span
@@ -476,12 +476,11 @@
                 class="
                   uni-ic__swap-output-content-main-from uni-ic__theme-panel
                 "
-                inputmode="decimal"
-                title="Token Amount"
                 autocomplete="off"
                 autocorrect="off"
                 type="text"
-                pattern="^[0-9]*[.,]?[0-9]*$"
+                type="number"
+                step="any"
                 placeholder="0.0"
                 minlength="1"
                 maxlength="79"
@@ -514,7 +513,9 @@
                 </div>
                 <div
                   class="uni-ic__swap-content-balance-and-price__price"
-                  *ngIf="uniswapDappSharedLogic.outputToken!.fiatPrice"
+                  *ngIf="
+                    outputValue && uniswapDappSharedLogic.outputToken!.fiatPrice
+                  "
                 >
                   ~$
                   <span
