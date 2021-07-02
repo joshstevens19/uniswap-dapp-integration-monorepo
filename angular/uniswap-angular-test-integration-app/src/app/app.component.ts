@@ -32,6 +32,20 @@ export class AppComponent implements OnInit {
       );
     }
 
+    // (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
+    //   try {
+    //     this.uniswapDappSharedLogicContext?.unsubscribe();
+    //     this.uniswapDappSharedLogicContext?.init();
+    //   } catch (error) {}
+    // });
+
+    // (window as any).ethereum.on('chainChanged', () => {
+    //   try {
+    //     this._quoteSubscription.unsubscribe();
+    //     this.init();
+    //   } catch (error) {}
+    // });
+
     this.uniswapDappSharedLogicContext = {
       supportedNetworkTokens: [
         {
@@ -68,3 +82,5 @@ export class AppComponent implements OnInit {
     };
   }
 }
+
+function getCoinmaketcapprice() {}
