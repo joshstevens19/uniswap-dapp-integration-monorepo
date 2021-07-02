@@ -387,27 +387,6 @@
           </svg>
         </div>
 
-        <!-- <div class="uni-ic__swap-divider-container">
-        <div class="uni-ic__swap-divider" style="padding: 0px 1rem">
-          <div class="uni-ic__swap-divider-action" (click)="switchSwap()">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#000000"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <polyline points="19 12 12 19 5 12"></polyline>
-            </svg>
-          </div>
-        </div>
-      </div> -->
-
         <div class="uni-ic__swap-output-container">
           <div class="uni-ic__swap-output-content uni-ic__theme-panel">
             <div class="uni-ic__swap-output-content-main">
@@ -684,32 +663,6 @@
               </div>
             </div>
           </div>
-          <!-- <div class="uni-ic__swap-quote-price-use-uniswap-version">
-          <div
-            font-size="14px"
-            color="text"
-            class="uni-ic__swap-quote-price-text"
-            style="padding: 0.1rem 0.5rem 0.1rem 0.35rem"
-          >
-            Use v2
-          </div>
-        </div> -->
-          <!-- <div class="uni-ic__swap-quote-slippage">
-          <div
-            font-size="14px"
-            color="text"
-            class="uni-ic__swap-quote-slippage-text"
-          >
-            Slippage Tolerance
-          </div>
-          <div
-            font-size="14px"
-            color="text"
-            class="uni-ic__swap-quote-slippage-text"
-          >
-            {{ uniswapDappSharedLogic.uniswapPairSettings.slippage * 100 }}%
-          </div>
-        </div> -->
         </div>
       </div>
 
@@ -754,44 +707,34 @@
           class="uni-ic__swap-button uni-ic__theme-background-button"
           (click)="uniswapDappSharedLogic.showConfirmSwap()"
           [disabled]="
-            outputValue === '0' ||
+            isZero(outputValue) ||
             uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false ||
             uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough ===
-              false ||
-            notEnoughLiquidity
+              false
           "
         >
           <div class="uni-ic__swap-button-text">
             <span
               *ngIf="
-                outputValue === '0' &&
-                uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough &&
-                !notEnoughLiquidity
+                isZero(outputValue) &&
+                uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Enter an amount</span
             >
             <span
               *ngIf="
-                outputValue !== '0' &&
-                uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough &&
-                !notEnoughLiquidity
+                !isZero(outputValue) &&
+                uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Swap</span
             >
             <span
               *ngIf="
-                !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough &&
-                !notEnoughLiquidity
+                !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Insufficient
               {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }}
               balance</span
-            >
-
-            <span *ngIf="notEnoughLiquidity"
-              >Insufficient
-              {{ uniswapDappSharedLogic.tradeContext?.toToken?.symbol }}
-              liquidity</span
             >
           </div>
         </button>

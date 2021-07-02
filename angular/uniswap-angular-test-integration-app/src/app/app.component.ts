@@ -22,6 +22,7 @@ export class AppComponent implements OnInit, OnDestroy {
   @Output()
   public generatedApproveTransaction: EventEmitter<Transaction> = new EventEmitter();
 
+  private _defaultInputValue = '';
   public uniswapDappSharedLogic = new UniswapDappSharedLogic({
     supportedNetworkTokens: [
       {
@@ -48,6 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
       },
     ],
     ethereumProvider: (<any>window).ethereum,
+    defaultInputValue: this._defaultInputValue,
     // theming: {
     //   backgroundColor: 'red',
     //   button: { textColor: 'white', backgroundColor: 'blue' },
@@ -58,11 +60,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public loading = true;
 
-  // errors
-  public notEnoughLiquidity = false;
-
-  public inputValue = '0.00004';
-  public outputValue = '0';
+  public inputValue = this._defaultInputValue;
+  public outputValue: string = '';
 
   public transactionDeadline: number | undefined;
   public slippageCustom: number | undefined;
@@ -226,5 +225,16 @@ export class AppComponent implements OnInit, OnDestroy {
         }
         await this.uniswapDappSharedLogic.changeToken(contractAddress);
     }
+  }
+
+  /**
+   * Check if something is zero
+   * @param amount The amount
+   */
+  public isZero(amount: string | number): boolean {
+    if (amount === '') {
+      return true;
+    }
+    return new BigNumber(amount).eq(0);
   }
 }
