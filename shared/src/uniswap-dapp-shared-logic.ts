@@ -75,6 +75,7 @@ export class UniswapDappSharedLogic {
   public async init(): Promise<void> {
     this.loading.next(true);
     this.supportedNetwork = false;
+    this._quoteSubscription.unsubscribe();
 
     await this.setupEthereumContext();
 
