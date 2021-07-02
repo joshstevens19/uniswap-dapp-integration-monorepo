@@ -1,5 +1,6 @@
-import { ChainId, UniswapPairSettings } from 'simple-uniswap-sdk';
+import { UniswapPairSettings } from 'simple-uniswap-sdk';
 import { UniswapTheming } from '../theming/models/uniswap-theming';
+import { SupportedNetworkTokens } from '../token/models/supported-network-token';
 
 export interface UniswapDappSharedLogicContext {
   supportedNetworkTokens: SupportedNetworkTokens[];
@@ -9,19 +10,6 @@ export interface UniswapDappSharedLogicContext {
   theming?: UniswapTheming;
   defaultInputValue?: string | undefined;
   ngZone?: any;
-}
-
-export interface SupportedNetworkTokens {
-  chainId: ChainId;
-  providerUrl?: string | undefined;
-  defaultInputToken?: string;
-  defaultOutputToken?: string;
-  supportedTokens: SupportedToken[];
-}
-
-export interface SupportedToken {
-  iconUrl?: string;
-  contractAddress: string;
 }
 
 export enum SelectTokenActionFrom {

@@ -1,6 +1,6 @@
 import { providers } from 'ethers';
 import { Transaction, WETH } from 'simple-uniswap-sdk';
-import { SupportedNetworkTokens } from './models';
+import { SupportedNetworkTokens } from './token/models/supported-network-token';
 
 export class EthereumProvider {
   private _ethersProvider:
