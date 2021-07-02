@@ -13,7 +13,7 @@
         <div class="uni-ic__header-content-settings">
           <button
             class="uni-ic__header-content-settings-button"
-            (click)="toggleSettings()"
+            (click)="uniswapDappSharedLogic.toggleSettings()"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -288,16 +288,11 @@
                   uni-ic__swap-input-content-main-from-currency-container
                   uni-ic__theme-panel
                 "
-                (click)="openTokenSelectorFrom()"
+                (click)="uniswapDappSharedLogic.openTokenSelectorFrom()"
               >
                 <span class="uni-ic__swap-input-content-main-from-currency"
                   ><img
-                    [src]="
-                      uniswapDappSharedLogic.getTokenImageUrl(
-                        uniswapDappSharedLogic.inputToken.contractAddress
-                      )
-                    "
-                    onError="this.src='assets/unknown.svg'"
+                    [src]="uniswapDappSharedLogic.inputToken.image"
                     class="uni-ic__swap-input-content-main-from-currency-icon"
                   /><span
                     class="uni-ic__swap-input-content-main-from-currency-symbol"
@@ -420,7 +415,7 @@
                 class="
                   uni-ic__swap-output-content-main-select uni-ic__theme-panel
                 "
-                (click)="openTokenSelectorTo()"
+                (click)="uniswapDappSharedLogic.openTokenSelectorTo()"
               >
                 <span
                   class="uni-ic__swap-output-content-main-select-content"
@@ -448,12 +443,7 @@
                   class="uni-ic__swap-input-content-main-from-currency"
                   *ngIf="uniswapDappSharedLogic.outputToken"
                   ><img
-                    [src]="
-                      uniswapDappSharedLogic.getTokenImageUrl(
-                        uniswapDappSharedLogic.outputToken.contractAddress
-                      )
-                    "
-                    onError="this.src='assets/unknown.svg'"
+                    [src]="uniswapDappSharedLogic.outputToken.image"
                     class="uni-ic__swap-input-content-main-from-currency-icon"
                   /><span
                     class="uni-ic__swap-input-content-main-from-currency-symbol"
@@ -828,7 +818,9 @@
         uni-ic__modal__content uni-ic__modal-tokens uni-ic__theme-background
       "
     >
-      <span class="uni-ic__modal__close" (click)="hideTokenSelector()"
+      <span
+        class="uni-ic__modal__close"
+        (click)="uniswapDappSharedLogic.hideTokenSelector()"
         >&times;</span
       >
       <p class="uni-ic__modal-tokens-title">Select a token</p>
@@ -874,12 +866,7 @@
               >
                 <div class="uni-ic__modal-tokens-item" *ngIf="token.canShow">
                   <img
-                    [src]="
-                      uniswapDappSharedLogic.getTokenImageUrl(
-                        token.contractAddress
-                      )
-                    "
-                    onError="this.src='assets/unknown.svg'"
+                    [src]="token.image"
                     class="uni-ic__modal-tokens-item-icon"
                   />
                   <div class="uni-ic__modal-tokens-item-content">
@@ -968,12 +955,7 @@
             <div class="uni-ic__modal-confirm-swap__input-main">
               <div class="uni-ic__modal-confirm-swap__input-main__symbol">
                 <img
-                  [src]="
-                    uniswapDappSharedLogic.getTokenImageUrl(
-                      uniswapDappSharedLogic.inputToken.contractAddress
-                    )
-                  "
-                  onError="this.src='assets/unknown.svg'"
+                  [src]="uniswapDappSharedLogic.inputToken.image"
                   class="uni-ic__modal-confirm-swap__input-main__symbol__image"
                   style="margin-right: 12px"
                 />
@@ -1060,12 +1042,7 @@
               <div class="uni-ic__modal-confirm-swap__output-main__symbol">
                 <img
                   class="uni-ic__modal-confirm-swap__output-main__symbol__image"
-                  [src]="
-                    uniswapDappSharedLogic.getTokenImageUrl(
-                      uniswapDappSharedLogic.outputToken!.contractAddress
-                    )
-                  "
-                  onError="this.src='assets/unknown.svg'"
+                  [src]="uniswapDappSharedLogic.outputToken!.image"
                   style="margin-right: 12px"
                 />
                 <div
@@ -1310,7 +1287,7 @@
             "
             style="margin: 10px 0px 0px"
             [disabled]="uniswapDappSharedLogic.newPriceTradeContext"
-            (click)="confirmSwap()"
+            (click)="uniswapDappSharedLogic.swapTransaction()"
           >
             <div class="uni-ic__modal-confirm-swap__action__button-text">
               Confirm Swap

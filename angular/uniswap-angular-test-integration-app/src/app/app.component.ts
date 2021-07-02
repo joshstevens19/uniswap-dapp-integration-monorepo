@@ -47,6 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
         ],
       },
     ],
+    ethereumProvider: (<any>window).ethereum,
     // theming: {
     //   backgroundColor: 'red',
     //   button: { textColor: 'white', backgroundColor: 'blue' },
@@ -118,34 +119,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Toggle settings
-   */
-  public toggleSettings(): void {
-    this.uniswapDappSharedLogic.toggleSettings();
-  }
-
-  /**
-   * Open token selector from
-   */
-  public openTokenSelectorFrom(): void {
-    this.uniswapDappSharedLogic.openTokenSelectorFrom();
-  }
-
-  /**
-   * Open token selector
-   */
-  public openTokenSelectorTo(): void {
-    this.uniswapDappSharedLogic.openTokenSelectorTo();
-  }
-
-  /**
-   * Hide token selector
-   */
-  public hideTokenSelector(): void {
-    this.uniswapDappSharedLogic.hideTokenSelector();
-  }
-
-  /**
    * Change input trade price
    * @param amount The amount
    */
@@ -201,13 +174,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Confirm swap
-   */
-  public async confirmSwap(): Promise<void> {
-    await this.uniswapDappSharedLogic.swapTransaction();
-  }
-
-  /**
    * Max supply
    */
   public async maxSwap(): Promise<void> {
@@ -224,22 +190,38 @@ export class AppComponent implements OnInit, OnDestroy {
     switch (this.uniswapDappSharedLogic.selectorOpenFrom) {
       case SelectTokenActionFrom.input:
         if (
+          this.uniswapDappSharedLogic.tradeContext?.fromToken
+            .contractAddress === contractAddress
+        ) {
+          this.uniswapDappSharedLogic.hideTokenSelector();
+          return;
+        }
+
+        if (
           this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
           contractAddress
         ) {
           await this.switchSwap();
-          this.hideTokenSelector();
+          this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
         await this.uniswapDappSharedLogic.changeToken(contractAddress);
         return;
       case SelectTokenActionFrom.output:
         if (
+          this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
+          contractAddress
+        ) {
+          this.uniswapDappSharedLogic.hideTokenSelector();
+          return;
+        }
+
+        if (
           this.uniswapDappSharedLogic.tradeContext?.fromToken
             .contractAddress === contractAddress
         ) {
           await this.switchSwap();
-          this.hideTokenSelector();
+          this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
         await this.uniswapDappSharedLogic.changeToken(contractAddress);

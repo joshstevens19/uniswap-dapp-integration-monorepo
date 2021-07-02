@@ -22,7 +22,7 @@
     "bignumber.js": "^9.0.1",
     "ethers": "^5.1.4",
     "rxjs": "~6.6.0",
-    "simple-uniswap-sdk": "file:simple-uniswap-sdk-2.4.0.tgz",
+    "simple-uniswap-sdk": "file:simple-uniswap-sdk-2.4.1.tgz",
     "tslib": "^2.0.0",
     "zone.js": "~0.11.3"
   },

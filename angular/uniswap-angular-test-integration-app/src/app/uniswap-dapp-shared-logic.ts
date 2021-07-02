@@ -40,6 +40,7 @@ export interface UniswapTheming {
 export interface ExtendedToken extends Token {
   balance: BigNumber;
   fiatPrice: BigNumber | undefined;
+  image: string;
 }
 
 export interface SupportedNetworkTokens {
@@ -82,6 +83,12 @@ export interface MiningTransaction {
   blockExplorerLink?: string | undefined;
 }
 
+export interface TokenCachedImage {
+  image: string;
+  contractAddress: string;
+  chainId: number;
+}
+
 export class UniswapDappSharedLogic {
   public inputToken!: ExtendedToken;
   public outputToken: ExtendedToken | undefined;
@@ -112,6 +119,8 @@ export class UniswapDappSharedLogic {
 
   private _balanceInterval: NodeJS.Timeout | undefined;
   private _quoteSubscription: Subscription = Subscription.EMPTY;
+
+  private _tokensCachedImages: TokenCachedImage[] = [];
 
   constructor(private _context: UniswapDappSharedLogicContext) {
     if (this._context.settings) {
@@ -189,7 +198,9 @@ export class UniswapDappSharedLogic {
       this.loading.next(false);
       throw new Error('unsupported network');
     }
-    this._tokensFactoryPublic = new TokensFactoryPublic(this.chainId);
+    this._tokensFactoryPublic = new TokensFactoryPublic({
+      chainId: this.chainId,
+    });
 
     (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
       try {
@@ -377,15 +388,6 @@ export class UniswapDappSharedLogic {
   }
 
   /**
-   * Get the token image url
-   * @param contractAddress The contract address
-   */
-  public getTokenImageUrl(contractAddress: string): string {
-    contractAddress = ethers.utils.getAddress(contractAddress);
-    return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contractAddress}/logo.png`;
-  }
-
-  /**
    * Get token information
    * @param contractAddress The contract address
    */
@@ -395,7 +397,8 @@ export class UniswapDappSharedLogic {
     contractAddress = ethers.utils.getAddress(contractAddress);
     const tokenFactoryPublic = new TokenFactoryPublic(
       contractAddress,
-      this.chainId,
+      // FIX
+      { chainId: this.chainId },
     );
 
     const token = (await tokenFactoryPublic.getToken()) as ExtendedToken;
@@ -593,12 +596,12 @@ export class UniswapDappSharedLogic {
       this.factory.toToken.contractAddress,
     ]);
 
-    this.inputToken = this.buildExtendedToken(
+    this.inputToken = await this.buildExtendedToken(
       this.factory.fromToken,
       await this.factory.getFromTokenBalance(),
       fiatPrices,
     );
-    this.outputToken = this.buildExtendedToken(
+    this.outputToken = await this.buildExtendedToken(
       this.factory.toToken,
       await this.factory.getToTokenBalance(),
       fiatPrices,
@@ -640,16 +643,63 @@ export class UniswapDappSharedLogic {
   }
 
   /**
+   * Get the token image url
+   * @param contractAddress The contract address
+   */
+  private async getTokenImageUrl(contractAddress: string): Promise<string> {
+    contractAddress = ethers.utils.getAddress(contractAddress);
+    const cachedImage = this._tokensCachedImages.find(
+      (c) =>
+        c.contractAddress === contractAddress && c.chainId === this.chainId,
+    );
+    if (cachedImage) {
+      return cachedImage.image;
+    }
+
+    const image = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contractAddress}/logo.png`;
+
+    try {
+      const result = await fetch(image);
+      if (result.status === 404) {
+        return this.getDefaultTokenImageAndCache(contractAddress);
+      }
+      this._tokensCachedImages.push({
+        contractAddress,
+        chainId: this.chainId,
+        image,
+      });
+
+      return image;
+    } catch (error) {
+      return this.getDefaultTokenImageAndCache(contractAddress);
+    }
+  }
+
+  /**
+   * Get the default token image and cache it
+   * @param contractAddress The contract address
+   */
+  private getDefaultTokenImageAndCache(contractAddress: string): string {
+    this._tokensCachedImages.push({
+      contractAddress,
+      chainId: this.chainId,
+      image: 'assets/unknown.svg',
+    });
+
+    return 'assets/unknown.svg';
+  }
+
+  /**
    * Build extended token
    * @param token The token
    * @param balance The balance
    */
-  private buildExtendedToken(
+  private async buildExtendedToken(
     token: Token,
     balance: string,
     // tslint:disable-next-line: ban-types
     fiatPriceResults: Object,
-  ): ExtendedToken {
+  ): Promise<ExtendedToken> {
     // const results = await (
     //   await fetch(
     //     `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${token.contractAddress}&vs_currencies=usd`,
@@ -675,6 +725,7 @@ export class UniswapDappSharedLogic {
       name: token.name,
       fiatPrice: fiatPrice !== undefined ? new BigNumber(fiatPrice) : undefined,
       balance: new BigNumber(balance),
+      image: await this.getTokenImageUrl(token.contractAddress),
     };
   }
 
@@ -796,34 +847,38 @@ export class UniswapDappSharedLogic {
         tokenWithAllowanceInfo.map((c) => c.token.contractAddress),
       );
 
-      this.supportedTokenBalances = tokenWithAllowanceInfo
-        .map((item) => {
-          const token = this.buildExtendedToken(
-            item.token,
-            item.allowanceAndBalanceOf.balanceOf,
-            fiatPrices,
-          );
+      this.supportedTokenBalances = (
+        await Promise.all(
+          tokenWithAllowanceInfo.map(async (item) => {
+            const token = await this.buildExtendedToken(
+              item.token,
+              item.allowanceAndBalanceOf.balanceOf,
+              fiatPrices,
+            );
 
-          let canShow = true;
-          if (this.currentTokenSearch) {
-            canShow = this.supportedTokenBalances.find(
-              (c) =>
-                c.contractAddress.toLowerCase() ===
-                item.token.contractAddress.toLowerCase(),
-            )!.canShow;
-          }
+            let canShow = true;
+            if (this.currentTokenSearch) {
+              canShow = this.supportedTokenBalances.find(
+                (c) =>
+                  c.contractAddress.toLowerCase() ===
+                  item.token.contractAddress.toLowerCase(),
+              )!.canShow;
+            }
 
-          return {
-            chainId: token.chainId,
-            contractAddress: token.contractAddress,
-            decimals: token.decimals,
-            symbol: token.symbol,
-            name: token.name,
-            fiatPrice: token.fiatPrice,
-            balance: token.balance,
-            canShow,
-          };
-        })
+            return {
+              chainId: token.chainId,
+              contractAddress: token.contractAddress,
+              decimals: token.decimals,
+              symbol: token.symbol,
+              name: token.name,
+              fiatPrice: token.fiatPrice,
+              balance: token.balance,
+              canShow,
+              image: await this.getTokenImageUrl(token.contractAddress),
+            };
+          }),
+        )
+      )
         .sort((a, b) => {
           if (a.name < b.name) {
             return -1;
