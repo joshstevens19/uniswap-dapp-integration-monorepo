@@ -1,8 +1,8 @@
 {
-  "name": "shared",
+  "name": "uniswap-dapp-integration-shared",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,5 +13,12 @@
     "ethers": "^5.4.0",
     "rxjs": "^7.1.0",
     "simple-uniswap-sdk": "^2.4.1"
-  }
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "package-lock.json",
+    "README.md",
+    "LICENSE"
+  ]
 }

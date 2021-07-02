@@ -2,13 +2,9 @@ import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
-  ChainId,
-  Token,
-  TokenFactoryPublic,
   TokensFactoryPublic,
   TradeContext,
   TradeDirection,
-  Transaction,
   UniswapPair,
   UniswapPairFactory,
   UniswapPairSettings,
@@ -16,16 +12,20 @@ import {
   UniswapVersion,
   WETH,
 } from 'simple-uniswap-sdk';
+import { getCoinGeckoFiatPrices } from './coin-gecko';
+import { EthereumProvider } from './ethereum-provider';
 import {
-  ExtendedToken,
   MiningAction,
   MiningTransaction,
   SelectTokenActionFrom,
-  SupportedTokenResult,
-  TokenCachedImage,
   TransactionStatus,
   UniswapDappSharedLogicContext,
 } from './models';
+import { Theming } from './theming';
+import { TokenService } from './token';
+import { ExtendedToken } from './token/models/extended-token';
+import { SupportedTokenResult } from './token/models/supported-token-result';
+import { Utils } from './utils';
 
 export class UniswapDappSharedLogic {
   public inputToken!: ExtendedToken;
@@ -47,18 +47,18 @@ export class UniswapDappSharedLogic {
   public currentTokenSearch: string | undefined;
 
   private _confirmSwapOpened = false;
-
   private _inputAmount = new BigNumber('0');
-
   private _tokensFactoryPublic!: TokensFactoryPublic;
-
-  private _ethereumAddress!: string;
-  private _ethersInstance!: ethers.providers.Web3Provider;
-
   private _balanceInterval: NodeJS.Timeout | undefined;
   private _quoteSubscription: UniswapSubscription = UniswapSubscription.EMPTY;
 
-  private _tokensCachedImages: TokenCachedImage[] = [];
+  // services
+  private _ethereumProvider: EthereumProvider = new EthereumProvider(
+    this._context.ethereumAddress,
+    this._context.ethereumProvider,
+  );
+  private _theming = new Theming(this._context.theming);
+  private _tokenService = new TokenService();
 
   constructor(private _context: UniswapDappSharedLogicContext) {
     if (this._context.defaultInputValue) {
@@ -76,7 +76,7 @@ export class UniswapDappSharedLogic {
     this.loading.next(true);
     this.supportedNetwork = false;
 
-    await this.setupEthereumLogic();
+    await this.setupEthereumContext();
 
     const weth = WETH.token(this.chainId);
     const supportedNetworkTokens = this._context.supportedNetworkTokens.find(
@@ -88,11 +88,14 @@ export class UniswapDappSharedLogic {
     const inputToken =
       supportedNetworkTokens.defaultInputToken || weth.contractAddress;
 
-    this.inputToken = await this.getTokenInformation(inputToken);
+    this.inputToken = await this._tokenService.getTokenInformation(
+      inputToken,
+      this.chainId,
+    );
 
     this.getBalances();
     this.syncBalancesInternal();
-    this.themeComponent();
+    this._theming.apply();
 
     if (supportedNetworkTokens.defaultOutputToken) {
       await this.buildFactory(
@@ -100,7 +103,10 @@ export class UniswapDappSharedLogic {
         supportedNetworkTokens.defaultOutputToken,
       );
     } else {
-      this.inputToken = await this.getTokenInformation(inputToken);
+      this.inputToken = await this._tokenService.getTokenInformation(
+        inputToken,
+        this.chainId,
+      );
     }
 
     // resync once got context so ordering of tokens
@@ -110,63 +116,37 @@ export class UniswapDappSharedLogic {
   }
 
   /**
-   * Setup ethereum provider logic
+   * Setup ethereum context
    */
-  public async setupEthereumLogic(): Promise<void> {
-    // cover MM etc!
-    await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-    this._ethersInstance = new ethers.providers.Web3Provider(
-      (window as any).ethereum,
+  public async setupEthereumContext(): Promise<void> {
+    this.chainId = (await this._ethereumProvider.provider.getNetwork()).chainId;
+    this.supportedNetwork = this._ethereumProvider.isSupportedChain(
+      this.chainId,
+      this._context.supportedNetworkTokens,
     );
-
-    const accounts = await this._ethersInstance.listAccounts();
-    if (accounts.length === 0) {
-      throw new Error(
-        'No accounts found please make sure the user is authenticated with a wallet before using the uniswap logic',
-      );
-    }
-
-    this._ethereumAddress = accounts[0];
-
-    this.chainId = (await this._ethersInstance.getNetwork()).chainId;
-    this.supportedNetwork =
-      this.isSupportedChain() &&
-      this._context.supportedNetworkTokens.find(
-        (t) => t.chainId === this.chainId,
-      ) !== undefined;
 
     if (!this.supportedNetwork) {
       this.loading.next(false);
       throw new Error('unsupported network');
     }
+
     this._tokensFactoryPublic = new TokensFactoryPublic({
       chainId: this.chainId,
     });
 
-    (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
-      try {
-        this._quoteSubscription.unsubscribe();
-        this.init();
-      } catch (error) {}
-    });
+    // (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
+    //   try {
+    //     this._quoteSubscription.unsubscribe();
+    //     this.init();
+    //   } catch (error) {}
+    // });
 
-    (window as any).ethereum.on('chainChanged', () => {
-      try {
-        this._quoteSubscription.unsubscribe();
-        this.init();
-      } catch (error) {}
-    });
-  }
-
-  /**
-   * Send async
-   * @param transaction The transaction
-   */
-  public async sendAsync(transaction: Transaction): Promise<string> {
-    return await this._ethersInstance.provider.request!({
-      method: 'eth_sendTransaction',
-      params: [transaction],
-    });
+    // (window as any).ethereum.on('chainChanged', () => {
+    //   try {
+    //     this._quoteSubscription.unsubscribe();
+    //     this.init();
+    //   } catch (error) {}
+    // });
   }
 
   /**
@@ -179,7 +159,7 @@ export class UniswapDappSharedLogic {
     };
 
     try {
-      const txHash = await this.sendAsync(
+      const txHash = await this._ethereumProvider.sendAsync(
         this.tradeContext!.approvalTransaction!,
       );
       this.miningTransaction.status = TransactionStatus.mining;
@@ -202,7 +182,9 @@ export class UniswapDappSharedLogic {
     };
 
     try {
-      const txHash = await this.sendAsync(this.tradeContext!.transaction);
+      const txHash = await this._ethereumProvider.sendAsync(
+        this.tradeContext!.transaction,
+      );
       this.miningTransaction.status = TransactionStatus.mining;
       this.miningTransaction.txHash = txHash;
       this.miningTransaction.blockExplorerLink = '';
@@ -217,15 +199,7 @@ export class UniswapDappSharedLogic {
    * Toggle showing and hiding the settings
    */
   public toggleSettings(): void {
-    const settingsElement = document.getElementsByClassName(
-      'uni-ic__settings-container',
-    )[0];
-    if (settingsElement.classList.contains('uni-ic-hidden')) {
-      settingsElement.classList.remove('uni-ic-hidden');
-    } else {
-      settingsElement.classList.add('uni-ic-hidden');
-      this.themeComponent();
-    }
+    this._theming.toggleSettings();
   }
 
   /**
@@ -233,7 +207,7 @@ export class UniswapDappSharedLogic {
    */
   public openTokenSelectorFrom(): void {
     this.selectorOpenFrom = SelectTokenActionFrom.input;
-    this.showTokenSelector();
+    this._theming.showTokenSelector();
   }
 
   /**
@@ -241,7 +215,7 @@ export class UniswapDappSharedLogic {
    */
   public openTokenSelectorTo(): void {
     this.selectorOpenFrom = SelectTokenActionFrom.output;
-    this.showTokenSelector();
+    this._theming.showTokenSelector();
   }
 
   /**
@@ -250,16 +224,14 @@ export class UniswapDappSharedLogic {
   public hideTokenSelector(): void {
     this.selectorOpenFrom = undefined;
     this.currentTokenSearch = undefined;
-    const modal = document.getElementById('uni-ic__modal-token')!;
-    modal.style.display = 'none';
+    this._theming.hideTokenSelector();
   }
 
   /**
    * Show the confirm swap modal
    */
   public showConfirmSwap(): void {
-    const modal = document.getElementById('uni-ic__modal-confirm-swap')!;
-    modal.style.display = 'block';
+    this._theming.showConfirmSwap();
     this._confirmSwapOpened = true;
   }
 
@@ -267,8 +239,7 @@ export class UniswapDappSharedLogic {
    * Hide the confirm swap modal
    */
   public hideConfirmSwap(): void {
-    const modal = document.getElementById('uni-ic__modal-confirm-swap')!;
-    modal.style.display = 'none';
+    this._theming.hideConfirmSwap();
     this._confirmSwapOpened = false;
     this.acceptPriceChange();
   }
@@ -329,42 +300,11 @@ export class UniswapDappSharedLogic {
   }
 
   /**
-   * Get token information
-   * @param contractAddress The contract address
-   */
-  public async getTokenInformation(
-    contractAddress: string,
-  ): Promise<ExtendedToken> {
-    contractAddress = ethers.utils.getAddress(contractAddress);
-    const tokenFactoryPublic = new TokenFactoryPublic(
-      contractAddress,
-      // FIX
-      { chainId: this.chainId },
-    );
-
-    const token = (await tokenFactoryPublic.getToken()) as ExtendedToken;
-    // to do fix
-    token.balance = new BigNumber(
-      await tokenFactoryPublic.balanceOf(contractAddress),
-    );
-
-    return token;
-  }
-
-  /**
-   * Deep clone a object
-   * @param object The object
-   */
-  public deepClone<T>(object: T): T {
-    return JSON.parse(JSON.stringify(object)) as T;
-  }
-
-  /**
    * Swap switch
    */
   public async swapSwitch(): Promise<void> {
-    const clonedOutput = this.deepClone(this.outputToken!);
-    const clonedInput = this.deepClone(this.inputToken);
+    const clonedOutput = Utils.deepClone(this.outputToken!);
+    const clonedInput = Utils.deepClone(this.inputToken);
 
     this._inputAmount = new BigNumber(this.tradeContext!.expectedConvertQuote!);
 
@@ -390,7 +330,7 @@ export class UniswapDappSharedLogic {
    * work out what 1 is equal to
    */
   public workOutOneEqualTo(): string {
-    return this.toPrecision(
+    return Utils.toPrecision(
       new BigNumber(
         +this.tradeContext!.expectedConvertQuote /
           +this.tradeContext!.baseConvertRequest,
@@ -448,50 +388,16 @@ export class UniswapDappSharedLogic {
   }
 
   /**
-   * To precision
-   * @param value The value
-   * @param significantDigits The significant digits
-   */
-  public toPrecision(
-    value: string | number | BigNumber,
-    significantDigits: number = 4,
-    significantDigitsForDecimalOnly: boolean = true,
-  ): string {
-    const parsedValue = new BigNumber(value);
-    if (significantDigitsForDecimalOnly) {
-      const beforeDecimalsCount = parsedValue.toString().split('.')[0].length;
-      return parsedValue
-        .precision(
-          beforeDecimalsCount + significantDigits,
-          BigNumber.ROUND_DOWN,
-        )
-        .toFixed();
-    } else {
-      return parsedValue
-        .precision(significantDigits, BigNumber.ROUND_DOWN)
-        .toFixed();
-    }
-  }
-
-  /**
    * Search for tokens
    * @param search The search term
    */
   public searchToken(search: string): void {
     this.currentTokenSearch = search;
 
-    let noneCaseSearch = search.toLowerCase();
-    for (let i = 0; i < this.supportedTokenBalances.length; i++) {
-      const token = this.supportedTokenBalances[i];
-      if (
-        !token.symbol.toLowerCase().includes(noneCaseSearch) &&
-        noneCaseSearch !== token.contractAddress.toLowerCase()
-      ) {
-        token.canShow = false;
-      } else {
-        token.canShow = true;
-      }
-    }
+    this.supportedTokenBalances = this._tokenService.searchToken(
+      search,
+      this.supportedTokenBalances,
+    );
   }
 
   /**
@@ -532,17 +438,20 @@ export class UniswapDappSharedLogic {
     );
 
     this.factory = await uniswapPair.createFactory();
-    const fiatPrices = await this.getCoinGeckoFiatPrices([
-      this.factory.fromToken.contractAddress,
-      this.factory.toToken.contractAddress,
-    ]);
+    const fiatPrices = await getCoinGeckoFiatPrices(
+      [
+        this.factory.fromToken.contractAddress,
+        this.factory.toToken.contractAddress,
+      ],
+      this.chainId,
+    );
 
-    this.inputToken = await this.buildExtendedToken(
+    this.inputToken = await this._tokenService.buildExtendedToken(
       this.factory.fromToken,
       await this.factory.getFromTokenBalance(),
       fiatPrices,
     );
-    this.outputToken = await this.buildExtendedToken(
+    this.outputToken = await this._tokenService.buildExtendedToken(
       this.factory.toToken,
       await this.factory.getToTokenBalance(),
       fiatPrices,
@@ -565,7 +474,7 @@ export class UniswapDappSharedLogic {
       return new UniswapPair({
         fromTokenContractAddress: inputToken,
         toTokenContractAddress: outputToken,
-        ethereumAddress: this._ethereumAddress,
+        ethereumAddress: this._ethereumProvider.address,
         ethereumProvider: this._context.ethereumProvider,
         settings,
       });
@@ -574,126 +483,13 @@ export class UniswapDappSharedLogic {
     return new UniswapPair({
       fromTokenContractAddress: inputToken,
       toTokenContractAddress: outputToken,
-      ethereumAddress: this._ethereumAddress,
+      ethereumAddress: this._ethereumProvider.address,
       chainId: this.chainId,
       providerUrl: this._context.supportedNetworkTokens.find(
         (c) => c.chainId === this.chainId,
       )?.providerUrl,
       settings,
     });
-  }
-
-  /**
-   * Get the token image url
-   * @param contractAddress The contract address
-   */
-  private async getTokenImageUrl(contractAddress: string): Promise<string> {
-    contractAddress = ethers.utils.getAddress(contractAddress);
-    const cachedImage = this._tokensCachedImages.find(
-      (c) =>
-        c.contractAddress === contractAddress && c.chainId === this.chainId,
-    );
-    if (cachedImage) {
-      return cachedImage.image;
-    }
-
-    const image = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contractAddress}/logo.png`;
-
-    try {
-      const result = await fetch(image);
-      if (result.status === 404) {
-        return this.getDefaultTokenImageAndCache(contractAddress);
-      }
-      this._tokensCachedImages.push({
-        contractAddress,
-        chainId: this.chainId,
-        image,
-      });
-
-      return image;
-    } catch (error) {
-      return this.getDefaultTokenImageAndCache(contractAddress);
-    }
-  }
-
-  /**
-   * Get the default token image and cache it
-   * @param contractAddress The contract address
-   */
-  private getDefaultTokenImageAndCache(contractAddress: string): string {
-    this._tokensCachedImages.push({
-      contractAddress,
-      chainId: this.chainId,
-      image: 'assets/unknown.svg',
-    });
-
-    return 'assets/unknown.svg';
-  }
-
-  /**
-   * Build extended token
-   * @param token The token
-   * @param balance The balance
-   */
-  private async buildExtendedToken(
-    token: Token,
-    balance: string,
-    // tslint:disable-next-line: ban-types
-    fiatPriceResults: Object,
-  ): Promise<ExtendedToken> {
-    // const results = await (
-    //   await fetch(
-    //     `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${token.contractAddress}&vs_currencies=usd`,
-    //   )
-    // ).json();
-
-    let fiatPrice: number | undefined;
-
-    for (const [key, value] of Object.entries(fiatPriceResults)) {
-      if (key.toLowerCase() === token.contractAddress.toLowerCase()) {
-        // @ts-ignore
-        // tslint:disable-next-line: no-string-literal
-        fiatPrice = Number(value['usd']);
-        break;
-      }
-    }
-
-    return {
-      chainId: token.chainId,
-      contractAddress: token.contractAddress,
-      decimals: token.decimals,
-      symbol: token.symbol,
-      name: token.name,
-      fiatPrice: fiatPrice !== undefined ? new BigNumber(fiatPrice) : undefined,
-      balance: new BigNumber(balance),
-      image: await this.getTokenImageUrl(token.contractAddress),
-    };
-  }
-
-  /**
-   * Get coin gecko fiat prices
-   * @param contractAddresses The contract addresses
-   */
-  private async getCoinGeckoFiatPrices(
-    contractAddresses: string[],
-  ): Promise<any> {
-    if (this.chainId === ChainId.MAINNET) {
-      return await (
-        await fetch(
-          `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAddresses.join()}&vs_currencies=usd`,
-        )
-      ).json();
-    } else {
-      return {};
-    }
-  }
-
-  /**
-   * Show the token selector
-   */
-  private showTokenSelector(): void {
-    const modal = document.getElementById('uni-ic__modal-token')!;
-    modal.style.display = 'block';
   }
 
   /**
@@ -715,7 +511,7 @@ export class UniswapDappSharedLogic {
             quote.toToken.contractAddress === this.inputToken.contractAddress &&
             quote.fromToken.contractAddress ===
               this.outputToken?.contractAddress &&
-            quote.transaction.from === this._ethereumAddress
+            quote.transaction.from === this._ethereumProvider.address
           ) {
             console.log('price change', quote);
             const formattedQuote = this.formatTradeContext(quote);
@@ -738,18 +534,18 @@ export class UniswapDappSharedLogic {
    * @param context The context
    */
   private formatTradeContext(context: TradeContext): TradeContext {
-    context.liquidityProviderFee = this.toPrecision(
+    context.liquidityProviderFee = Utils.toPrecision(
       context.liquidityProviderFee,
     );
     if (context.minAmountConvertQuote) {
-      context.minAmountConvertQuote = this.toPrecision(
+      context.minAmountConvertQuote = Utils.toPrecision(
         context.minAmountConvertQuote,
       );
     }
     if (context.maximumSent) {
-      context.maximumSent = this.toPrecision(context.maximumSent);
+      context.maximumSent = Utils.toPrecision(context.maximumSent);
     }
-    context.expectedConvertQuote = this.toPrecision(
+    context.expectedConvertQuote = Utils.toPrecision(
       context.expectedConvertQuote,
     );
 
@@ -773,7 +569,7 @@ export class UniswapDappSharedLogic {
       const tokenWithAllowanceInfo =
         await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
           UniswapVersion.v3,
-          this._ethereumAddress,
+          this._ethereumProvider.address,
           this._context.supportedNetworkTokens
             .find((t) => t.chainId === this.chainId)!
             .supportedTokens.map((c) =>
@@ -784,14 +580,15 @@ export class UniswapDappSharedLogic {
 
       // look at caching this we still want to fetch the balances every 5 seconds but
       // fiat prices can be cached
-      const fiatPrices = await this.getCoinGeckoFiatPrices(
+      const fiatPrices = await getCoinGeckoFiatPrices(
         tokenWithAllowanceInfo.map((c) => c.token.contractAddress),
+        this.chainId,
       );
 
       this.supportedTokenBalances = (
         await Promise.all(
           tokenWithAllowanceInfo.map(async (item) => {
-            const token = await this.buildExtendedToken(
+            const token = await this._tokenService.buildExtendedToken(
               item.token,
               item.allowanceAndBalanceOf.balanceOf,
               fiatPrices,
@@ -815,7 +612,10 @@ export class UniswapDappSharedLogic {
               fiatPrice: token.fiatPrice,
               balance: token.balance,
               canShow,
-              image: await this.getTokenImageUrl(token.contractAddress),
+              image: await this._tokenService.getTokenImageUrl(
+                token.contractAddress,
+                token.chainId,
+              ),
             };
           }),
         )
@@ -880,101 +680,6 @@ export class UniswapDappSharedLogic {
       }
     } else {
       this.supportedTokenBalances = [];
-    }
-  }
-
-  /**
-   * Theme component
-   */
-  public themeComponent(): void {
-    let css = '<style>';
-    css += this.themeBackgroundColors();
-    css += this.themeTextColors();
-    css += this.themePanelColors();
-    css += this.themeButtonColors();
-    css += '<style>';
-
-    document.head.insertAdjacentHTML('beforeend', css);
-  }
-
-  /**
-   * Theme background colors
-   */
-  private themeBackgroundColors(): string {
-    if (this._context.theming?.backgroundColor) {
-      return `.uni-ic__theme-background {background: ${this._context.theming.backgroundColor} !important}`;
-    }
-
-    return '';
-  }
-
-  /**
-   * Theme text colours
-   */
-  private themeTextColors(): string {
-    if (this._context.theming?.textColor) {
-      return `.uni-ic,
-              .uni-ic__modal,
-              .uni-ic__modal button:not(.uni-ic__theme-background-button),
-              svg
-              {color: ${this._context.theming.textColor} !important}`;
-    }
-
-    return '';
-  }
-
-  /**
-   * Theme button colours
-   */
-  private themeButtonColors(): string {
-    let css = '';
-    if (this._context.theming?.button?.backgroundColor) {
-      css += `background: ${this._context.theming.button.backgroundColor} !important; `;
-    }
-
-    if (this._context.theming?.button?.textColor) {
-      css += `color: ${this._context.theming.button.textColor} !important`;
-    }
-
-    if (css.length > 0) {
-      return `.uni-ic__theme-background-button,
-              .uni-ic__settings-transaction-slippage-option.selected,
-              .uni-ic__settings-interface-multihops-actions-off.selected
-              {${css}}`;
-    }
-
-    return css;
-  }
-
-  /**
-   * Theme panel colours
-   */
-  private themePanelColors(): string {
-    let css = '';
-    if (this._context.theming?.panel?.backgroundColor) {
-      css += `background: ${this._context.theming.panel.backgroundColor} !important; border-color: ${this._context.theming.backgroundColor} !important; `;
-    }
-
-    if (this._context.theming?.panel?.textColor) {
-      css += `color: ${this._context.theming.panel.textColor} !important`;
-    }
-
-    if (css.length > 0) {
-      return `.uni-ic__theme-panel {${css}}`;
-    }
-
-    return css;
-  }
-
-  /**
-   * Is support chain
-   */
-  private isSupportedChain(): boolean {
-    try {
-      WETH.token(this.chainId);
-      return true;
-    } catch (error) {
-      return false;
     }
   }
 }

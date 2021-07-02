@@ -1,30 +1,14 @@
-import BigNumber from 'bignumber.js';
-import { ChainId, Token, UniswapPairSettings } from 'simple-uniswap-sdk';
+import { ChainId, UniswapPairSettings } from 'simple-uniswap-sdk';
+import { UniswapTheming } from '../theming/models/uniswap-theming';
 
 export interface UniswapDappSharedLogicContext {
   supportedNetworkTokens: SupportedNetworkTokens[];
-  ethereumProvider?: any;
+  ethereumAddress: string;
+  ethereumProvider: any;
   settings?: UniswapPairSettings | undefined;
   theming?: UniswapTheming;
   defaultInputValue?: string | undefined;
-}
-
-interface TextAndColor {
-  textColor?: string | undefined;
-  backgroundColor?: string | undefined;
-}
-
-export interface UniswapTheming {
-  backgroundColor?: string | undefined;
-  textColor?: string | undefined;
-  button?: TextAndColor;
-  panel?: TextAndColor;
-}
-
-export interface ExtendedToken extends Token {
-  balance: BigNumber;
-  fiatPrice: BigNumber | undefined;
-  image: string;
+  ngZone?: any;
 }
 
 export interface SupportedNetworkTokens {
@@ -38,10 +22,6 @@ export interface SupportedNetworkTokens {
 export interface SupportedToken {
   iconUrl?: string;
   contractAddress: string;
-}
-
-export interface SupportedTokenResult extends ExtendedToken {
-  canShow: boolean;
 }
 
 export enum SelectTokenActionFrom {
@@ -65,10 +45,4 @@ export interface MiningTransaction {
   status: TransactionStatus;
   miningAction: MiningAction;
   blockExplorerLink?: string | undefined;
-}
-
-export interface TokenCachedImage {
-  image: string;
-  contractAddress: string;
-  chainId: number;
 }
