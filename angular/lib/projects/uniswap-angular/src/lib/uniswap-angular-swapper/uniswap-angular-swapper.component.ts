@@ -1,11 +1,12 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import BigNumber from 'bignumber.js';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { TradeDirection } from 'simple-uniswap-sdk';
 import {
   SelectTokenActionFrom,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
+  Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
 
 @Component({
@@ -14,34 +15,29 @@ import {
   styleUrls: ['./uniswap-angular-swapper.component.scss'],
 })
 export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
-  // @Output()
-  // public generatedApproveTransaction: EventEmitter<Transaction> = new EventEmitter();
-
   @Input() uniswapDappSharedLogicContext!: UniswapDappSharedLogicContext;
+  @Input() accountChanged: Observable<string> | undefined;
+  private _accountChangedSubscription: Subscription | undefined;
+  @Input() chainChanged: Observable<any> | undefined;
+  private _chainChangedSubscription: Subscription | undefined;
 
   public uniswapDappSharedLogic!: UniswapDappSharedLogic;
 
   public loading = true;
 
-  public inputValue: string = '';
-  public outputValue: string = '';
-
+  // ng models
+  public inputValue = '';
+  public outputValue = '';
   public transactionDeadline: number | undefined;
   public slippageCustom: number | undefined;
   public searchToken: string | undefined;
+
+  public utils = UniswapUtils;
 
   private _newPriceTradeContextAvailableSubscription: any = Subscription.EMPTY;
   private _loadingUniswapSubscription: any = Subscription.EMPTY;
 
   constructor() {}
-
-  /**
-   * On destroy
-   */
-  public ngOnDestroy(): void {
-    this._newPriceTradeContextAvailableSubscription.unsubscribe();
-    this._loadingUniswapSubscription.unsubscribe();
-  }
 
   /**
    * On load
@@ -84,6 +80,32 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
       this.uniswapDappSharedLogic.loading.subscribe((_loading) => {
         this.loading = _loading;
       });
+
+    if (this.accountChanged) {
+      this._accountChangedSubscription = this.accountChanged.subscribe(
+        (ethereumAddress: string) => {
+          this.uniswapDappSharedLogic.changeEthereumAddress(ethereumAddress);
+        },
+      );
+    }
+
+    if (this.chainChanged) {
+      this._chainChangedSubscription = this.chainChanged.subscribe(
+        (ethereumProvider: any) => {
+          this.uniswapDappSharedLogic.changeChain(ethereumProvider);
+        },
+      );
+    }
+  }
+
+  /**
+   * On destroy
+   */
+  public ngOnDestroy(): void {
+    this._newPriceTradeContextAvailableSubscription.unsubscribe();
+    this._loadingUniswapSubscription.unsubscribe();
+    this._accountChangedSubscription?.unsubscribe();
+    this._chainChangedSubscription?.unsubscribe();
   }
 
   /**
@@ -131,14 +153,17 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * approve allowance data
+   * approve allowance
    */
   public async approveAllowance(): Promise<void> {
-    // this.generatedApproveTransaction.emit(
-    //   this.uniswapDappSharedLogic.tradeContext!.approvalTransaction!,
-    // );
-
     await this.uniswapDappSharedLogic.approveAllowance();
+  }
+
+  /**
+   * swap transaction
+   */
+  public async swapTransaction(): Promise<void> {
+    await this.uniswapDappSharedLogic.swapTransaction();
   }
 
   /**

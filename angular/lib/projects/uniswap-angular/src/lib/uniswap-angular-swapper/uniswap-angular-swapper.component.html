@@ -337,7 +337,7 @@
                   >
                     Balance:
                     {{
-                      uniswapDappSharedLogic.toPrecision(
+                      utils.toPrecision(
                         uniswapDappSharedLogic.inputToken.balance
                       )
                     }}
@@ -354,7 +354,7 @@
                   <span
                     class="uni-ic__swap-content-balance-and-price__price-text"
                     >{{
-                      uniswapDappSharedLogic.toPrecision(
+                      utils.toPrecision(
                         uniswapDappSharedLogic.inputToken!.fiatPrice.times(
                           inputValue
                         )
@@ -473,7 +473,7 @@
                   >
                     Balance:
                     {{
-                      uniswapDappSharedLogic.toPrecision(
+                      utils.toPrecision(
                         uniswapDappSharedLogic.outputToken!.balance
                       )
                     }}
@@ -490,7 +490,7 @@
                   <span
                     class="uni-ic__swap-content-balance-and-price__price-text"
                     >{{
-                      uniswapDappSharedLogic.toPrecision(
+                      utils.toPrecision(
                         uniswapDappSharedLogic.outputToken!.fiatPrice.times(
                           outputValue
                         )
@@ -828,7 +828,7 @@
                     <div
                       class="uni-ic__modal-tokens-item-balance-content-value"
                     >
-                      {{ uniswapDappSharedLogic.toPrecision(token.balance) }}
+                      {{ utils.toPrecision(token.balance) }}
                     </div>
                   </div>
                 </div>
@@ -887,7 +887,7 @@
               >
                 ~$
                 <span class="uni-ic__modal-confirm-swap__input-header__price">{{
-                  uniswapDappSharedLogic.toPrecision(
+                  utils.toPrecision(
                     uniswapDappSharedLogic.inputToken!.fiatPrice.times(
                       inputValue
                     )
@@ -972,7 +972,7 @@
                 <span
                   class="uni-ic__modal-confirm-swap__output-header__price"
                   >{{
-                    uniswapDappSharedLogic.toPrecision(
+                    utils.toPrecision(
                       uniswapDappSharedLogic.outputToken!.fiatPrice!.times(
                         outputValue
                       )

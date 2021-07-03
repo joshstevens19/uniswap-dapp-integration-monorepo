@@ -9,7 +9,6 @@ export interface UniswapDappSharedLogicContext {
   settings?: UniswapPairSettings | undefined;
   theming?: UniswapTheming;
   defaultInputValue?: string | undefined;
-  ngZone?: any;
 }
 
 export enum SelectTokenActionFrom {

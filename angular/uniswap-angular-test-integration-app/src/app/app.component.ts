@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ethers, providers } from 'ethers';
 import { ChainId } from 'simple-uniswap-sdk';
 import { UniswapDappSharedLogicContext } from 'uniswap-dapp-integration-shared';
 
@@ -9,7 +8,6 @@ import { UniswapDappSharedLogicContext } from 'uniswap-dapp-integration-shared';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  private _ethersInstance!: providers.Web3Provider;
   public uniswapDappSharedLogicContext:
     | UniswapDappSharedLogicContext
     | undefined;
@@ -19,32 +17,9 @@ export class AppComponent implements OnInit {
    */
   async ngOnInit(): Promise<void> {
     // MetaMask
-    await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-
-    this._ethersInstance = new ethers.providers.Web3Provider(
-      (window as any).ethereum,
-    );
-
-    const accounts = await this._ethersInstance.listAccounts();
-    if (accounts.length === 0) {
-      throw new Error(
-        'No accounts found please make sure the user is authenticated with a wallet before using the uniswap logic',
-      );
-    }
-
-    // (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
-    //   try {
-    //     this.uniswapDappSharedLogicContext?.unsubscribe();
-    //     this.uniswapDappSharedLogicContext?.init();
-    //   } catch (error) {}
-    // });
-
-    // (window as any).ethereum.on('chainChanged', () => {
-    //   try {
-    //     this._quoteSubscription.unsubscribe();
-    //     this.init();
-    //   } catch (error) {}
-    // });
+    const accounts = await (window as any).ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     this.uniswapDappSharedLogicContext = {
       supportedNetworkTokens: [
@@ -72,7 +47,7 @@ export class AppComponent implements OnInit {
         },
       ],
       ethereumAddress: accounts[0],
-      ethereumProvider: (<any>window).ethereum,
+      ethereumProvider: (window as any).ethereum,
       theming: {
         backgroundColor: 'red',
         button: { textColor: 'white', backgroundColor: 'blue' },
@@ -82,5 +57,3 @@ export class AppComponent implements OnInit {
     };
   }
 }
-
-function getCoinmaketcapprice() {}

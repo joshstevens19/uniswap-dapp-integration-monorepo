@@ -117,6 +117,32 @@ export class UniswapDappSharedLogic {
   }
 
   /**
+   * Change ethereum address for your dApp if your provider does not
+   * emit the event `accountsChanged`
+   * @param ethereumAddress The ethereum address
+   */
+  public async changeEthereumAddress(ethereumAddress: string): Promise<void> {
+    this._quoteSubscription.unsubscribe();
+    this._ethereumProvider.updateEthereumAddress(ethereumAddress);
+    this.init();
+  }
+
+  /**
+   * Change the chain for your dApp if your provider does not
+   * emit the event `chainChanged`. Your ethereum provider you passed
+   * to the lib if changed will work without passing a `newEthereumProvider`
+   * if its a brand new instance you need to pass the lib the new ethereum provider
+   * @param newEthereumProvider The new ethereum provider
+   */
+  public async changeChain(newEthereumProvider?: any): Promise<void> {
+    if (newEthereumProvider) {
+      this._context.ethereumProvider = newEthereumProvider;
+    }
+    this._quoteSubscription.unsubscribe();
+    this.init();
+  }
+
+  /**
    * Setup ethereum context
    */
   public async setupEthereumContext(): Promise<void> {
@@ -135,19 +161,21 @@ export class UniswapDappSharedLogic {
       chainId: this.chainId,
     });
 
-    // (window as any).ethereum.on('accountsChanged', (_accounts: string[]) => {
-    //   try {
-    //     this._quoteSubscription.unsubscribe();
-    //     this.init();
-    //   } catch (error) {}
-    // });
+    // handle chain and account changes automatically
+    // if they have event handlers on
+    if (this._context.ethereumProvider.on) {
+      this._context.ethereumProvider.on(
+        'accountsChanged',
+        async (accounts: string[]) => {
+          await this.changeEthereumAddress(accounts[0]);
+        },
+      );
 
-    // (window as any).ethereum.on('chainChanged', () => {
-    //   try {
-    //     this._quoteSubscription.unsubscribe();
-    //     this.init();
-    //   } catch (error) {}
-    // });
+      this._context.ethereumProvider.on('chainChanged', async () => {
+        this._quoteSubscription.unsubscribe();
+        await this.init();
+      });
+    }
   }
 
   /**

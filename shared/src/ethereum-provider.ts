@@ -61,6 +61,14 @@ export class EthereumProvider {
     }
   }
 
+  /**
+   * Update ethereum address
+   * @param address The address
+   */
+  public updateEthereumAddress(address: string): void {
+    this._address = address;
+  }
+
   //   /**
   //    * Send async
   //    * @param transaction The transaction
