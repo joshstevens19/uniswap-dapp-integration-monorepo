@@ -60,7 +60,6 @@ export class YourComponent implements OnInit {
    * On load
    */
   async ngOnInit(): Promise<void> {
-    // MetaMask
     const accounts = await (window as any).ethereum.request({
       method: 'eth_requestAccounts',
     });
@@ -149,7 +148,6 @@ export class YourComponent implements OnInit {
    * On load
    */
   async ngOnInit(): Promise<void> {
-    // MetaMask
     const accounts = await (window as any).ethereum.request({
       method: 'eth_requestAccounts',
     });
@@ -239,7 +237,6 @@ export class YourComponent implements OnInit {
    * On load
    */
   async ngOnInit(): Promise<void> {
-    // MetaMask
     const accounts = await (window as any).ethereum.request({
       method: 'eth_requestAccounts',
     });
