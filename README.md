@@ -8,7 +8,7 @@ Integrating uniswap within your dApp should be a simple thing but with all the c
 
 ## Angular
 
-LINK COMING
+Link coming
 
 ## React
 
