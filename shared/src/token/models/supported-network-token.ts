@@ -3,8 +3,7 @@ import { SupportedToken } from './supported-token';
 
 export interface SupportedNetworkTokens {
   chainId: ChainId;
-  providerUrl?: string | undefined;
-  defaultInputToken?: string;
-  defaultOutputToken?: string;
+  defaultInputToken?: string | undefined;
+  defaultOutputToken?: string | undefined;
   supportedTokens: SupportedToken[];
 }

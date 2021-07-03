@@ -514,9 +514,7 @@ export class UniswapDappSharedLogic {
       toTokenContractAddress: outputToken,
       ethereumAddress: this._ethereumProvider.address,
       chainId: this.chainId,
-      providerUrl: this._context.supportedNetworkTokens.find(
-        (c) => c.chainId === this.chainId,
-      )?.providerUrl,
+      ethereumProvider: this._ethereumProvider.provider,
       settings,
     });
   }
