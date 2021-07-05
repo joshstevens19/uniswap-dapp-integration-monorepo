@@ -5,6 +5,7 @@ import {
   TokensFactoryPublic,
   TradeContext,
   TradeDirection,
+  Transaction,
   UniswapPair,
   UniswapPairFactory,
   UniswapPairSettings,
@@ -51,7 +52,6 @@ export class UniswapDappSharedLogic {
   private _confirmSwapOpened = false;
   private _inputAmount = new BigNumber('0');
   private _tokensFactoryPublic!: TokensFactoryPublic;
-  private _balanceInterval: NodeJS.Timeout | undefined;
   private _quoteSubscription: UniswapSubscription = UniswapSubscription.EMPTY;
 
   // services
@@ -62,9 +62,7 @@ export class UniswapDappSharedLogic {
   private _theming = new Theming(this._context.theming);
   private _tokenService = new TokenService();
   private _chainService = new ChainService(this._ethereumProvider);
-  private _blockStream = this._chainService.newBlock$.subscribe((block) => {
-    this.blockNumber = block;
-  });
+  private _blockStream = Subscription.EMPTY;
 
   constructor(private _context: UniswapDappSharedLogicContext) {
     if (this._context.defaultInputValue) {
@@ -82,6 +80,7 @@ export class UniswapDappSharedLogic {
     this.loading.next(true);
     this.supportedNetwork = false;
     this._quoteSubscription.unsubscribe();
+    this._blockStream.unsubscribe();
 
     await this.setupEthereumContext();
 
@@ -101,7 +100,7 @@ export class UniswapDappSharedLogic {
     );
 
     this.getBalances();
-    this.syncBalancesInternal();
+    this._blockStream = this.subscribeToBlockStream();
     this._theming.apply();
 
     if (supportedNetworkTokens.defaultOutputToken) {
@@ -143,15 +142,11 @@ export class UniswapDappSharedLogic {
   public async changeChain(newEthereumProvider?: any): Promise<void> {
     if (newEthereumProvider) {
       this._context.ethereumProvider = newEthereumProvider;
-      this._blockStream.unsubscribe();
       this._ethereumProvider = new EthereumProvider(
         this._context.ethereumAddress,
         this._context.ethereumProvider,
       );
       this._chainService = new ChainService(this._ethereumProvider);
-      this._blockStream = this._chainService.newBlock$.subscribe((block) => {
-        this.blockNumber = block;
-      });
     }
     this._quoteSubscription.unsubscribe();
     this.init();
@@ -202,20 +197,10 @@ export class UniswapDappSharedLogic {
       miningAction: MiningAction.approval,
     };
 
-    try {
-      const txHash = await this._ethereumProvider.sendAsync(
-        this.tradeContext!.approvalTransaction!,
-      );
-      this.miningTransaction.status = TransactionStatus.mining;
-      this.miningTransaction.txHash = txHash;
-      this.miningTransaction.blockExplorerLink =
-        this._chainService.getBlockExplorerLinkForTransactionHash(
-          this.chainId,
-          txHash,
-        );
-    } catch (error) {
-      this.miningTransaction.status = TransactionStatus.rejected;
-    }
+    await this.handleTransaction(
+      this.tradeContext!.approvalTransaction!,
+      this.miningTransaction,
+    );
   }
 
   /**
@@ -229,42 +214,10 @@ export class UniswapDappSharedLogic {
 
     this.showTransaction();
 
-    try {
-      const txHash = await this._ethereumProvider.sendAsync(
-        this.tradeContext!.transaction,
-      );
-      this.miningTransaction.status = TransactionStatus.mining;
-      this.miningTransaction.txHash = txHash;
-      this.miningTransaction.blockExplorerLink =
-        this._chainService.getBlockExplorerLinkForTransactionHash(
-          this.chainId,
-          txHash,
-        );
-
-      let blockStream = Subscription.EMPTY;
-
-      await new Promise<void>((resolve, reject) => {
-        blockStream = this._chainService.newBlock$.subscribe(async () => {
-          try {
-            const receipt =
-              await this._ethereumProvider.provider.getTransactionReceipt(
-                txHash,
-              );
-            if (receipt) {
-              resolve();
-              this.miningTransaction!.status = TransactionStatus.completed;
-            }
-          } catch (error) {
-            blockStream.unsubscribe();
-            reject(error);
-          }
-        });
-      });
-
-      blockStream.unsubscribe();
-    } catch (error) {
-      this.miningTransaction.status = TransactionStatus.rejected;
-    }
+    await this.handleTransaction(
+      this.tradeContext!.transaction,
+      this.miningTransaction,
+    );
   }
 
   /**
@@ -490,6 +443,51 @@ export class UniswapDappSharedLogic {
   }
 
   /**
+   * Handle transaction
+   * @param transaction The transaction
+   * @param miningTransaction The mining transaction
+   */
+  private async handleTransaction(
+    transaction: Transaction,
+    miningTransaction: MiningTransaction,
+  ): Promise<void> {
+    try {
+      const txHash = await this._ethereumProvider.sendAsync(transaction);
+      miningTransaction.status = TransactionStatus.mining;
+      miningTransaction.txHash = txHash;
+      miningTransaction.blockExplorerLink =
+        this._chainService.getBlockExplorerLinkForTransactionHash(
+          this.chainId,
+          txHash,
+        );
+
+      let blockStream = Subscription.EMPTY;
+
+      await new Promise<void>((resolve, reject) => {
+        blockStream = this._chainService.newBlock$.subscribe(async () => {
+          try {
+            const receipt =
+              await this._ethereumProvider.provider.getTransactionReceipt(
+                txHash,
+              );
+            if (receipt) {
+              resolve();
+              this.miningTransaction!.status = TransactionStatus.completed;
+            }
+          } catch (error) {
+            blockStream.unsubscribe();
+            reject(error);
+          }
+        });
+      });
+
+      blockStream.unsubscribe();
+    } catch (error) {
+      miningTransaction.status = TransactionStatus.rejected;
+    }
+  }
+
+  /**
    * Change input token
    * @param contractAddress The contract address
    */
@@ -640,12 +638,13 @@ export class UniswapDappSharedLogic {
   }
 
   /**
-   * Sync balances interval
+   * Subscribe to the block stream
    */
-  private async syncBalancesInternal(): Promise<void> {
-    if (!this._balanceInterval) {
-      this._balanceInterval = setInterval(() => this.getBalances(), 5000);
-    }
+  private subscribeToBlockStream(): Subscription {
+    return this._chainService.newBlock$.subscribe((block) => {
+      this.blockNumber = block;
+      this.getBalances();
+    });
   }
 
   /**
