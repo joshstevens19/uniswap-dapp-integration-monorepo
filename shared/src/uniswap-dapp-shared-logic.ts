@@ -14,7 +14,7 @@ import {
   WETH,
 } from 'simple-uniswap-sdk';
 import { ChainService } from './chain';
-import { getCoinGeckoFiatPrices } from './coin-gecko';
+import { CoinGecko } from './coin-gecko';
 import { EthereumProvider } from './ethereum-provider';
 import {
   MiningAction,
@@ -59,6 +59,7 @@ export class UniswapDappSharedLogic {
     this._context.ethereumAddress,
     this._context.ethereumProvider,
   );
+  private _coinGecko = new CoinGecko();
   private _theming = new Theming(this._context.theming);
   private _tokenService = new TokenService(
     this._context.supportedNetworkTokens,
@@ -537,7 +538,7 @@ export class UniswapDappSharedLogic {
     );
 
     this.factory = await uniswapPair.createFactory();
-    const fiatPrices = await getCoinGeckoFiatPrices(
+    const fiatPrices = await this._coinGecko.getCoinGeckoFiatPrices(
       [
         this.factory.fromToken.contractAddress,
         this.factory.toToken.contractAddress,
@@ -676,9 +677,7 @@ export class UniswapDappSharedLogic {
           true,
         );
 
-      // look at caching this we still want to fetch the balances every 5 seconds but
-      // fiat prices can be cached
-      const fiatPrices = await getCoinGeckoFiatPrices(
+      const fiatPrices = await this._coinGecko.getCoinGeckoFiatPrices(
         tokenWithAllowanceInfo.map((c) => c.token.contractAddress),
         this.chainId,
       );
