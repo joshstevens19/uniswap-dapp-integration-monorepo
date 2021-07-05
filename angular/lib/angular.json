@@ -42,6 +42,126 @@
           }
         }
       }
+    },
+    "uniswap-angular-showcase": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/uniswap-angular-showcase",
+      "sourceRoot": "projects/uniswap-angular-showcase/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/uniswap-angular-showcase",
+            "index": "projects/uniswap-angular-showcase/src/index.html",
+            "main": "projects/uniswap-angular-showcase/src/main.ts",
+            "polyfills": "projects/uniswap-angular-showcase/src/polyfills.ts",
+            "tsConfig": "projects/uniswap-angular-showcase/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              "projects/uniswap-angular-showcase/src/favicon.ico",
+              "projects/uniswap-angular-showcase/src/assets"
+            ],
+            "styles": [
+              "projects/uniswap-angular-showcase/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/uniswap-angular-showcase/src/environments/environment.ts",
+                  "with": "projects/uniswap-angular-showcase/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "uniswap-angular-showcase:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "uniswap-angular-showcase:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "uniswap-angular-showcase:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/uniswap-angular-showcase/src/test.ts",
+            "polyfills": "projects/uniswap-angular-showcase/src/polyfills.ts",
+            "tsConfig": "projects/uniswap-angular-showcase/tsconfig.spec.json",
+            "karmaConfig": "projects/uniswap-angular-showcase/karma.conf.js",
+            "assets": [
+              "projects/uniswap-angular-showcase/src/favicon.ico",
+              "projects/uniswap-angular-showcase/src/assets"
+            ],
+            "styles": [
+              "projects/uniswap-angular-showcase/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/uniswap-angular-showcase/tsconfig.app.json",
+              "projects/uniswap-angular-showcase/tsconfig.spec.json",
+              "projects/uniswap-angular-showcase/e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/uniswap-angular-showcase/e2e/protractor.conf.js",
+            "devServerTarget": "uniswap-angular-showcase:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "uniswap-angular-showcase:serve:production"
+            }
+          }
+        }
+      }
     }
   },
   "defaultProject": "uniswap-angular"

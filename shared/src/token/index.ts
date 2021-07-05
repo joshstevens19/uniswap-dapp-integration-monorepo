@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { ethers } from 'ethereum-abi-types-generator/node_modules/ethersv5';
+import { ethers } from 'ethers';
 import { Token, TokenFactoryPublic } from 'simple-uniswap-sdk';
 import { ExtendedToken } from './models/extended-token';
 import { SupportedTokenResult } from './models/supported-token-result';

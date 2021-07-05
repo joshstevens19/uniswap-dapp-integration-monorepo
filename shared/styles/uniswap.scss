@@ -1385,6 +1385,162 @@
         }
       }
     }
+
+    &-transaction {
+      &__state {
+        display: grid;
+        grid-auto-rows: auto;
+        row-gap: 12px;
+
+        &__loading {
+          display: flex;
+          flex-direction: column;
+          -webkit-box-pack: start;
+          justify-content: flex-start;
+          width: 100%;
+          -webkit-box-align: center;
+          align-items: center;
+          padding: 60px 0px;
+
+          &-spinner {
+            animation: 2s linear 0s infinite normal none running iVXCSc;
+            height: 90px;
+            width: 90px;
+
+            @keyframes iVXCSc {
+              0% {
+                transform: rotate(0deg);
+              }
+
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          }
+        }
+
+        &__info {
+          display: grid;
+          grid-auto-rows: auto;
+          row-gap: 12px;
+          justify-items: center;
+
+          &-confirmation {
+            box-sizing: border-box;
+            margin: 0px;
+            min-width: 0px;
+            font-weight: 500;
+            font-size: 20px;
+            text-align: center;
+          }
+
+          &-quote {
+            display: grid;
+            grid-auto-rows: auto;
+            row-gap: 12px;
+            justify-items: center;
+
+            &-info {
+              box-sizing: border-box;
+              margin: 0px;
+              min-width: 0px;
+              font-weight: 600;
+              font-size: 14px;
+              text-align: center;
+            }
+          }
+        }
+
+        &__action {
+          box-sizing: border-box;
+          margin: 0px 0px 12px;
+          min-width: 0px;
+          font-size: 12px;
+          text-align: center;
+
+          button {
+            padding: 16px;
+            width: 100%;
+            font-weight: 500;
+            text-align: center;
+            border-radius: 20px;
+            outline: none;
+            border: 1px solid transparent;
+            text-decoration: none;
+            display: flex;
+            -webkit-box-pack: center;
+            justify-content: center;
+            flex-wrap: nowrap;
+            -webkit-box-align: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            will-change: transform;
+            transition: transform 450ms ease 0s;
+            transform: perspective(1px) translateZ(0px);
+            background-color: rgb(232, 0, 111);
+            color: white;
+          }
+        }
+      }
+
+      &__rejected {
+        display: grid;
+        grid-auto-rows: auto;
+        row-gap: 12px;
+
+        &__content {
+          display: grid;
+          grid-auto-rows: auto;
+          row-gap: 24px;
+          justify-items: center;
+
+          &-text {
+            box-sizing: border-box;
+            margin: 0px;
+            min-width: 0px;
+            font-weight: 500;
+            font-size: 16px;
+            color: rgb(218, 45, 43);
+          }
+        }
+
+        &__dismiss {
+          display: grid;
+          grid-auto-rows: auto;
+          row-gap: 12px;
+          padding: 0px;
+          border-bottom-left-radius: 20px;
+          border-bottom-right-radius: 20px;
+
+          &-button {
+            padding: 16px;
+            width: 100%;
+            font-weight: 500;
+            text-align: center;
+            border-radius: 20px;
+            outline: none;
+            border: 1px solid transparent;
+            text-decoration: none;
+            display: flex;
+            -webkit-box-pack: center;
+            justify-content: center;
+            flex-wrap: nowrap;
+            -webkit-box-align: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            will-change: transform;
+            transition: transform 450ms ease 0s;
+            transform: perspective(1px) translateZ(0px);
+            background-color: rgb(232, 0, 111);
+            color: white;
+          }
+        }
+      }
+    }
   }
 
   .uni-ic__swap-quote-price-text-info:hover .uni-ic__tooltip-wrapper {

@@ -23,7 +23,8 @@
         "dist/uniswap-angular/uniswap-angular",
         "dist/uniswap-angular"
       ]
-    }
+    },
+    "skipLibCheck": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

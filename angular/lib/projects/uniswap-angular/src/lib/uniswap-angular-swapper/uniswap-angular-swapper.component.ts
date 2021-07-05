@@ -1,9 +1,14 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import BigNumber from 'bignumber.js';
 import { Observable, Subscription } from 'rxjs';
 import { TradeDirection } from 'simple-uniswap-sdk';
 import {
-  SelectTokenActionFrom,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils,
@@ -13,6 +18,7 @@ import {
   selector: 'lib-uniswap-angular-swapper',
   templateUrl: './uniswap-angular-swapper.component.html',
   styleUrls: ['./uniswap-angular-swapper.component.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   @Input() uniswapDappSharedLogicContext!: UniswapDappSharedLogicContext;
@@ -28,9 +34,6 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   // ng models
   public inputValue = '';
   public outputValue = '';
-  public transactionDeadline: number | undefined;
-  public slippageCustom: number | undefined;
-  public searchToken: string | undefined;
 
   public utils = UniswapUtils;
 
@@ -74,8 +77,6 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
         this.uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
     }
 
-    this.loading = false;
-
     this._loadingUniswapSubscription =
       this.uniswapDappSharedLogic.loading.subscribe((_loading) => {
         this.loading = _loading;
@@ -96,6 +97,8 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
         },
       );
     }
+
+    this.loading = false;
   }
 
   /**
@@ -145,18 +148,17 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    * Switch the swap
    */
   public async switchSwap(): Promise<void> {
-    this.inputValue = this.outputValue;
     await this.uniswapDappSharedLogic.swapSwitch();
-
-    this.outputValue =
-      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    this.switchSwapCompleted();
   }
 
   /**
-   * approve allowance
+   * Switch the swap completed
    */
-  public async approveAllowance(): Promise<void> {
-    await this.uniswapDappSharedLogic.approveAllowance();
+  public switchSwapCompleted(): void {
+    this.inputValue = this.outputValue;
+    this.outputValue =
+      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
   }
 
   /**
@@ -169,57 +171,17 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   /**
    * Max supply
    */
-  public async maxSwap(): Promise<void> {
-    this.inputValue = await this.uniswapDappSharedLogic.setMaxInput();
-    this.outputValue =
-      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
-  }
 
-  /**
-   * Change select token
-   * @param contractAddress The contractAddress
-   */
-  public async changeSelectToken(contractAddress: string): Promise<void> {
-    switch (this.uniswapDappSharedLogic.selectorOpenFrom) {
-      case SelectTokenActionFrom.input:
-        if (
-          this.uniswapDappSharedLogic.tradeContext?.fromToken
-            .contractAddress === contractAddress
-        ) {
-          this.uniswapDappSharedLogic.hideTokenSelector();
-          return;
-        }
-
-        if (
-          this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
-          contractAddress
-        ) {
-          await this.switchSwap();
-          this.uniswapDappSharedLogic.hideTokenSelector();
-          return;
-        }
-        await this.uniswapDappSharedLogic.changeToken(contractAddress);
-        return;
-      case SelectTokenActionFrom.output:
-        if (
-          this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
-          contractAddress
-        ) {
-          this.uniswapDappSharedLogic.hideTokenSelector();
-          return;
-        }
-
-        if (
-          this.uniswapDappSharedLogic.tradeContext?.fromToken
-            .contractAddress === contractAddress
-        ) {
-          await this.switchSwap();
-          this.uniswapDappSharedLogic.hideTokenSelector();
-          return;
-        }
-        await this.uniswapDappSharedLogic.changeToken(contractAddress);
-    }
-  }
+  //  <button
+  //     class="uni-ic__swap-input-content-main-from-max"
+  //     (click)="maxSwap()"
+  //     >
+  //   MAX</button>
+  // public async maxSwap(): Promise<void> {
+  //   this.inputValue = await this.uniswapDappSharedLogic.setMaxInput();
+  //   this.outputValue =
+  //     this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+  // }
 
   /**
    * Check if something is zero

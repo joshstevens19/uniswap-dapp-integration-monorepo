@@ -1,0 +1,90 @@
+<div
+  id="uni-ic__modal-token"
+  class="uni-ic__modal"
+  *ngIf="uniswapDappSharedLogic.supportedNetwork"
+>
+  <div
+    class="uni-ic__modal__content uni-ic__modal-tokens uni-ic__theme-background"
+  >
+    <span
+      class="uni-ic__modal__close"
+      (click)="uniswapDappSharedLogic.hideTokenSelector()"
+      >&times;</span
+    >
+    <p class="uni-ic__modal-tokens-title">Select a token</p>
+    <div class="uni-ic__modal-tokens-search">
+      <input
+        type="text"
+        placeholder="Search name or paste address"
+        autocomplete="off"
+        class="uni-ic__modal-tokens-search__input"
+        [ngModel]="searchToken"
+        (ngModelChange)="uniswapDappSharedLogic.searchToken($event)"
+      />
+    </div>
+
+    <div style="flex: 1 1 0%; position: relative">
+      <div style="overflow: visible; height: 0px">
+        <div
+          style="
+            position: relative;
+            height: 210px;
+            width: 100%;
+            overflow: auto;
+            will-change: transform;
+            direction: ltr;
+          "
+        >
+          <div style="height: 100%; width: 100%">
+            <div
+              *ngFor="
+                let token of uniswapDappSharedLogic.supportedTokenBalances
+              "
+              (click)="changeSelectToken(token.contractAddress)"
+              class="uni-ic__modal-tokens-item-container"
+              [ngClass]="{
+                selected:
+                  (token.contractAddress ===
+                    uniswapDappSharedLogic.inputToken.contractAddress &&
+                    uniswapDappSharedLogic.selectorOpenFrom === 'input') ||
+                  (token.contractAddress ===
+                    uniswapDappSharedLogic.outputToken?.contractAddress &&
+                    uniswapDappSharedLogic.selectorOpenFrom === 'output')
+              }"
+            >
+              <div class="uni-ic__modal-tokens-item" *ngIf="token.canShow">
+                <img
+                  [src]="token.image"
+                  class="uni-ic__modal-tokens-item-icon"
+                />
+                <div class="uni-ic__modal-tokens-item-content">
+                  <div class="uni-ic__modal-tokens-item-content-symbol">
+                    {{ token.symbol }}
+                  </div>
+                  <div class="uni-ic__modal-tokens-item-content-name">
+                    {{ token.name }}
+                  </div>
+                </div>
+                <span></span>
+                <div
+                  class="uni-ic__modal-tokens-item-balance-content"
+                  style="justify-self: flex-end"
+                >
+                  <div class="uni-ic__modal-tokens-item-balance-content-value">
+                    {{ utils.toPrecision(token.balance) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="resize-triggers">
+        <div class="expand-trigger">
+          <div style="width: 419px; height: 211px"></div>
+        </div>
+        <div class="contract-trigger"></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -132,4 +132,20 @@ export class Theming {
     const modal = document.getElementById('uni-ic__modal-confirm-swap')!;
     modal.style.display = 'none';
   }
+
+  /**
+   * Show the transaction
+   */
+  public showTransaction(): void {
+    const modal = document.getElementById('uni-ic__modal-transaction')!;
+    modal.style.display = 'block';
+  }
+
+  /**
+   * Hide the transaction
+   */
+  public hideTransaction(): void {
+    const modal = document.getElementById('uni-ic__modal-transaction')!;
+    modal.style.display = 'none';
+  }
 }

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import {
   TokensFactoryPublic,
   TradeContext,
@@ -12,6 +12,7 @@ import {
   UniswapVersion,
   WETH,
 } from 'simple-uniswap-sdk';
+import { ChainService } from './chain';
 import { getCoinGeckoFiatPrices } from './coin-gecko';
 import { EthereumProvider } from './ethereum-provider';
 import {
@@ -45,6 +46,7 @@ export class UniswapDappSharedLogic {
   public supportedNetwork = false;
   public miningTransaction: MiningTransaction | undefined;
   public currentTokenSearch: string | undefined;
+  public blockNumber: number | undefined;
 
   private _confirmSwapOpened = false;
   private _inputAmount = new BigNumber('0');
@@ -59,6 +61,10 @@ export class UniswapDappSharedLogic {
   );
   private _theming = new Theming(this._context.theming);
   private _tokenService = new TokenService();
+  private _chainService = new ChainService(this._ethereumProvider);
+  private _blockStream = this._chainService.newBlock$.subscribe((block) => {
+    this.blockNumber = block;
+  });
 
   constructor(private _context: UniswapDappSharedLogicContext) {
     if (this._context.defaultInputValue) {
@@ -137,6 +143,15 @@ export class UniswapDappSharedLogic {
   public async changeChain(newEthereumProvider?: any): Promise<void> {
     if (newEthereumProvider) {
       this._context.ethereumProvider = newEthereumProvider;
+      this._blockStream.unsubscribe();
+      this._ethereumProvider = new EthereumProvider(
+        this._context.ethereumAddress,
+        this._context.ethereumProvider,
+      );
+      this._chainService = new ChainService(this._ethereumProvider);
+      this._blockStream = this._chainService.newBlock$.subscribe((block) => {
+        this.blockNumber = block;
+      });
     }
     this._quoteSubscription.unsubscribe();
     this.init();
@@ -181,7 +196,7 @@ export class UniswapDappSharedLogic {
   /**
    * Send the approve allowance
    */
-  public async approveAllowance(): Promise<MiningTransaction> {
+  public async approveAllowance(): Promise<void> {
     this.miningTransaction = {
       status: TransactionStatus.waitingForConfirmation,
       miningAction: MiningAction.approval,
@@ -193,22 +208,26 @@ export class UniswapDappSharedLogic {
       );
       this.miningTransaction.status = TransactionStatus.mining;
       this.miningTransaction.txHash = txHash;
-      this.miningTransaction.blockExplorerLink = '';
-      return this.miningTransaction;
+      this.miningTransaction.blockExplorerLink =
+        this._chainService.getBlockExplorerLinkForTransactionHash(
+          this.chainId,
+          txHash,
+        );
     } catch (error) {
       this.miningTransaction.status = TransactionStatus.rejected;
-      return this.miningTransaction;
     }
   }
 
   /**
    * Send the swap transaction
    */
-  public async swapTransaction(): Promise<MiningTransaction> {
+  public async swapTransaction(): Promise<void> {
     this.miningTransaction = {
       status: TransactionStatus.waitingForConfirmation,
       miningAction: MiningAction.swap,
     };
+
+    this.showTransaction();
 
     try {
       const txHash = await this._ethereumProvider.sendAsync(
@@ -216,11 +235,35 @@ export class UniswapDappSharedLogic {
       );
       this.miningTransaction.status = TransactionStatus.mining;
       this.miningTransaction.txHash = txHash;
-      this.miningTransaction.blockExplorerLink = '';
-      return this.miningTransaction;
+      this.miningTransaction.blockExplorerLink =
+        this._chainService.getBlockExplorerLinkForTransactionHash(
+          this.chainId,
+          txHash,
+        );
+
+      let blockStream = Subscription.EMPTY;
+
+      await new Promise<void>((resolve, reject) => {
+        blockStream = this._chainService.newBlock$.subscribe(async () => {
+          try {
+            const receipt =
+              await this._ethereumProvider.provider.getTransactionReceipt(
+                txHash,
+              );
+            if (receipt) {
+              resolve();
+              this.miningTransaction!.status = TransactionStatus.completed;
+            }
+          } catch (error) {
+            blockStream.unsubscribe();
+            reject(error);
+          }
+        });
+      });
+
+      blockStream.unsubscribe();
     } catch (error) {
       this.miningTransaction.status = TransactionStatus.rejected;
-      return this.miningTransaction;
     }
   }
 
@@ -271,6 +314,23 @@ export class UniswapDappSharedLogic {
     this._theming.hideConfirmSwap();
     this._confirmSwapOpened = false;
     this.acceptPriceChange();
+  }
+
+  /**
+   * Show transaction modal
+   */
+  public showTransaction(): void {
+    this._theming.hideConfirmSwap();
+    this._theming.showTransaction();
+  }
+
+  /**
+   * Hide the transaction modal
+   */
+  public hideTransaction(): void {
+    this._theming.hideTransaction();
+    this.miningTransaction = undefined;
+    this.hideConfirmSwap();
   }
 
   /**

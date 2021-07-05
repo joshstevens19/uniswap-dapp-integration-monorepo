@@ -1,0 +1,156 @@
+<div id="uni-ic__modal-transaction" class="uni-ic__modal">
+  <div
+    class="
+      uni-ic__modal__content uni-ic__modal-transaction uni-ic__theme-background
+    "
+  >
+    <span
+      class="uni-ic__modal__close"
+      (click)="uniswapDappSharedLogic.hideTransaction()"
+      >&times;</span
+    >
+
+    <div
+      class="uni-ic__modal-transaction__state"
+      *ngIf="
+        uniswapDappSharedLogic.miningTransaction?.status ===
+          transactionStatus.waitingForConfirmation ||
+        uniswapDappSharedLogic.miningTransaction?.status ===
+          transactionStatus.mining ||
+        uniswapDappSharedLogic.miningTransaction?.status ===
+          transactionStatus.completed
+      "
+    >
+      <div
+        class="uni-ic__modal-transaction__state__loading"
+        *ngIf="
+          uniswapDappSharedLogic.miningTransaction?.status !==
+          transactionStatus.completed
+        "
+      >
+        <img
+          src="https://app.uniswap.org/static/media/blue-loader.249140da.svg"
+          alt="loader"
+          class="uni-ic__modal-transaction__state__loading-spinner"
+        />
+      </div>
+      <div class="uni-ic__modal-transaction__state__info">
+        <div class="uni-ic__modal-transaction__state__info-confirmation">
+          <span
+            *ngIf="
+              uniswapDappSharedLogic.miningTransaction?.status ===
+              transactionStatus.waitingForConfirmation
+            "
+            >Waiting For Confirmation</span
+          >
+          <span
+            *ngIf="
+              uniswapDappSharedLogic.miningTransaction?.status ===
+              transactionStatus.mining
+            "
+            >Mining</span
+          >
+
+          <span
+            *ngIf="
+              uniswapDappSharedLogic.miningTransaction?.status ===
+              transactionStatus.completed
+            "
+            >Swap complete</span
+          >
+        </div>
+        <div class="uni-ic__modal-transaction__state__info-quote">
+          <div class="uni-ic__modal-transaction__state__info-quote-info">
+            <span
+              *ngIf="
+                uniswapDappSharedLogic.miningTransaction?.status ===
+                  transactionStatus.waitingForConfirmation ||
+                uniswapDappSharedLogic.miningTransaction?.status ===
+                  transactionStatus.mining
+              "
+              >Swapping</span
+            >
+            <span
+              *ngIf="
+                uniswapDappSharedLogic.miningTransaction?.status ===
+                transactionStatus.completed
+              "
+              >Swapped</span
+            >
+            {{ uniswapDappSharedLogic.tradeContext?.baseConvertRequest }}
+            {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }} for
+            {{ uniswapDappSharedLogic.tradeContext?.expectedConvertQuote }}
+            {{ uniswapDappSharedLogic.tradeContext?.toToken?.symbol }}
+          </div>
+        </div>
+        <div class="uni-ic__modal-transaction__state__action">
+          <span
+            *ngIf="
+              uniswapDappSharedLogic.miningTransaction?.status ===
+              transactionStatus.waitingForConfirmation
+            "
+            >Confirm this transaction in your wallet</span
+          >
+          <button
+            *ngIf="
+              uniswapDappSharedLogic.miningTransaction?.status ===
+                transactionStatus.mining ||
+              uniswapDappSharedLogic.miningTransaction?.status ===
+                transactionStatus.completed
+            "
+            (click)="viewOnEtherscan()"
+          >
+            View tx on etherscan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="uni-ic__modal-transaction__rejected"
+      *ngIf="
+        uniswapDappSharedLogic.miningTransaction?.status ===
+        transactionStatus.rejected
+      "
+    >
+      <div
+        class="uni-ic__modal-transaction__rejected__content"
+        style="margin-top: 20px; padding: 2rem 0px"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#DA2D2B"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="stroke-width: 1.5"
+        >
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          ></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <div
+          class="uni-ic__modal-transaction__rejected__content-text"
+          style="text-align: center; width: 85%; word-break: break-word"
+        >
+          Transaction rejected.
+        </div>
+      </div>
+
+      <div class="uni-ic__modal-transaction__rejected__dismiss">
+        <button
+          class="uni-ic__modal-transaction__rejected__dismiss-button"
+          (click)="uniswapDappSharedLogic.hideTransaction()"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
