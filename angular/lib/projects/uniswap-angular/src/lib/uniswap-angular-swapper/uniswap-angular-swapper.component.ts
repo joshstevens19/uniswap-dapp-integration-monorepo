@@ -105,6 +105,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    * On destroy
    */
   public ngOnDestroy(): void {
+    this.uniswapDappSharedLogic.destroy();
     this._newPriceTradeContextAvailableSubscription.unsubscribe();
     this._loadingUniswapSubscription.unsubscribe();
     this._accountChangedSubscription?.unsubscribe();
@@ -117,8 +118,8 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    */
   public async changeInputTradePrice(amount: string): Promise<void> {
     this.inputValue = amount;
-    if (new BigNumber(this.inputValue).isEqualTo(0)) {
-      this.outputValue = '0';
+    if (!this.inputValue || new BigNumber(this.inputValue).isEqualTo(0)) {
+      this.outputValue = '';
       return;
     }
 
@@ -136,6 +137,10 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    */
   public async changeOutputTradePrice(amount: string): Promise<void> {
     this.outputValue = amount;
+    if (!this.outputValue || new BigNumber(this.outputValue).isEqualTo(0)) {
+      this.inputValue = '';
+      return;
+    }
     await this.uniswapDappSharedLogic.changeTradePrice(
       amount,
       TradeDirection.output,
@@ -162,13 +167,6 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * swap transaction
-   */
-  public async swapTransaction(): Promise<void> {
-    await this.uniswapDappSharedLogic.swapTransaction();
-  }
-
-  /**
    * Max supply
    */
 
@@ -182,15 +180,4 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   //   this.outputValue =
   //     this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
   // }
-
-  /**
-   * Check if something is zero
-   * @param amount The amount
-   */
-  public isZero(amount: string | number): boolean {
-    if (!amount || amount === '') {
-      return true;
-    }
-    return new BigNumber(amount).eq(0);
-  }
 }

@@ -32,4 +32,15 @@ export class Utils {
   public static deepClone<T>(object: T): T {
     return JSON.parse(JSON.stringify(object)) as T;
   }
+
+  /**
+   * Check if something is zero
+   * @param amount The amount
+   */
+  public static isZero(amount: string | number): boolean {
+    if (!amount || amount === '') {
+      return true;
+    }
+    return new BigNumber(amount).eq(0);
+  }
 }

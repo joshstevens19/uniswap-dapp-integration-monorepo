@@ -22,6 +22,13 @@ export class ChainService {
   }
 
   /**
+   * unwatch any block streams
+   */
+  public unwatch(): void {
+    this._ethereumProvider.provider.removeAllListeners('block');
+  }
+
+  /**
    * Get block explorer link for network
    * @param network The network
    */
@@ -57,12 +64,5 @@ export class ChainService {
   private handleNewBlock(block: number): void {
     console.log('new block chain service', block);
     this.newBlock$.next(block);
-  }
-
-  /**
-   * unwatch any block streams
-   */
-  private unwatch(): void {
-    this._ethereumProvider.provider.removeAllListeners('block');
   }
 }

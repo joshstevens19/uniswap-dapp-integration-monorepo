@@ -122,6 +122,16 @@ export class UniswapDappSharedLogic {
   }
 
   /**
+   * Destroy logic
+   */
+  public destroy(): void {
+    this._quoteSubscription.unsubscribe();
+    this._blockStream.unsubscribe();
+    this._chainService.unwatch();
+    this.tradeContext?.destroy();
+  }
+
+  /**
    * Change ethereum address for your dApp if your provider does not
    * emit the event `accountsChanged`
    * @param ethereumAddress The ethereum address

@@ -246,24 +246,24 @@
           class="uni-ic__swap-button uni-ic__theme-background-button"
           (click)="uniswapDappSharedLogic.showConfirmSwap()"
           [disabled]="
-            isZero(outputValue) ||
+            utils.isZero(outputValue) ||
             uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false ||
             uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough ===
               false
           "
         >
           <div class="uni-ic__swap-button-text">
-            <span *ngIf="isZero(outputValue)">Enter an amount</span>
+            <span *ngIf="utils.isZero(outputValue)">Enter an amount</span>
             <span
               *ngIf="
-                !isZero(outputValue) &&
+                !utils.isZero(outputValue) &&
                 uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Swap</span
             >
             <span
               *ngIf="
-                !isZero(outputValue) &&
+                !utils.isZero(outputValue) &&
                 !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Insufficient
