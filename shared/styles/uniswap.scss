@@ -1,3 +1,5 @@
+@import 'breakpoints';
+
 .uni-ic {
   input[type='number'] {
     -moz-appearance: textfield;
@@ -22,7 +24,6 @@
   }
 
   position: relative;
-  // max-width: 480px;
   width: 100%;
   background: rgb(255, 255, 255);
   box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px,
@@ -34,8 +35,6 @@
   &__header-container {
     padding: 1rem 1.25rem 0.5rem;
     margin-bottom: -4px;
-    // width: 100%;
-    // max-width: 480px;
   }
 
   &__header-content {
@@ -500,6 +499,10 @@
 
     &-container {
       min-width: 20.125rem;
+
+      @include rwd(353) {
+        min-width: 280px;
+      }
       background-color: rgb(237, 238, 242);
       box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px,
         rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
@@ -593,6 +596,10 @@
           background: rgb(255, 255, 255);
           margin-right: 8px;
           color: rgb(0, 0, 0);
+
+          &:not(.selected) {
+            cursor: pointer;
+          }
 
           &.selected {
             background: rgb(255, 0, 122);
@@ -1543,7 +1550,11 @@
     }
   }
 
-  .uni-ic__swap-quote-price-text-info:hover .uni-ic__tooltip-wrapper {
+  .uni-ic__swap-quote-price-text-info:hover .uni-ic__tooltip-wrapper,
+  .uni-ic__settings-transaction-slippage-info:hover .uni-ic__tooltip-wrapper,
+  .uni-ic__settings-transaction-deadline-info:hover .uni-ic__tooltip-wrapper,
+  .uni-ic__settings-interface-multihops-text-info:hover
+    .uni-ic__tooltip-wrapper {
     visibility: visible;
   }
 
@@ -1612,13 +1623,6 @@
         font-size: 12px;
       }
     }
-
-    &__arrow {
-      width: 8px;
-      height: 8px;
-      z-index: 9998;
-      right: -5px;
-    }
   }
 
   &__modal {
@@ -1626,6 +1630,7 @@
     position: fixed;
     z-index: 3;
     padding-top: 100px;
+    padding-bottom: 100px;
     left: 0;
     top: 0;
     width: 100%;
@@ -1642,6 +1647,14 @@
       margin: auto;
       padding: 20px;
       width: 20%;
+
+      @include rwd(1400) {
+        width: 40%;
+      }
+
+      @include md {
+        width: 80%;
+      }
     }
 
     &__close {

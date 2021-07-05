@@ -188,7 +188,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    * @param amount The amount
    */
   public isZero(amount: string | number): boolean {
-    if (amount === '') {
+    if (!amount || amount === '') {
       return true;
     }
     return new BigNumber(amount).eq(0);

@@ -105,6 +105,7 @@ export class Theming {
    * Show the token selector
    */
   public showTokenSelector(): void {
+    this.hideSettings();
     const modal = document.getElementById('uni-ic__modal-token')!;
     modal.style.display = 'block';
   }
@@ -121,6 +122,7 @@ export class Theming {
    * Show the confirm swap modal
    */
   public showConfirmSwap(): void {
+    this.hideSettings();
     const modal = document.getElementById('uni-ic__modal-confirm-swap')!;
     modal.style.display = 'block';
   }
@@ -147,5 +149,15 @@ export class Theming {
   public hideTransaction(): void {
     const modal = document.getElementById('uni-ic__modal-transaction')!;
     modal.style.display = 'none';
+  }
+
+  /**
+   * Hide the settings
+   */
+  private hideSettings(): void {
+    const settingsElement = document.getElementsByClassName(
+      'uni-ic__settings-container',
+    )[0];
+    settingsElement.classList.remove('uni-ic-hidden');
   }
 }

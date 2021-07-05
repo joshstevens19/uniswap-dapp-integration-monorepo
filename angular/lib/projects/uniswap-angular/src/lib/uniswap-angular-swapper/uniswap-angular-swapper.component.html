@@ -253,13 +253,7 @@
           "
         >
           <div class="uni-ic__swap-button-text">
-            <span
-              *ngIf="
-                isZero(outputValue) &&
-                uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
-              "
-              >Enter an amount</span
-            >
+            <span *ngIf="isZero(outputValue)">Enter an amount</span>
             <span
               *ngIf="
                 !isZero(outputValue) &&
@@ -269,6 +263,7 @@
             >
             <span
               *ngIf="
+                !isZero(outputValue) &&
                 !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Insufficient
