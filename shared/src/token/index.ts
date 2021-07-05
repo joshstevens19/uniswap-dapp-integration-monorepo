@@ -2,13 +2,17 @@ import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { Token, TokenFactoryPublic } from 'simple-uniswap-sdk';
 import { ExtendedToken } from './models/extended-token';
+import { SupportedNetworkTokens } from './models/supported-network-token';
 import { SupportedTokenResult } from './models/supported-token-result';
 import { TokenCachedImage } from './models/token-cached-image';
+import { TokenImage } from './models/token-image';
 
 export class TokenService {
   private _tokensCachedImages: TokenCachedImage[] = [];
+  private _defaultTokenImageSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sc-1fvnadz-1 eIZpIe" style="color: rgb(136, 141, 155);"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>';
 
-  constructor() {}
+  constructor(private _supportedNetworkTokens: SupportedNetworkTokens[]) {}
 
   /**
    * Get the token image url
@@ -18,13 +22,31 @@ export class TokenService {
   public async getTokenImageUrl(
     contractAddress: string,
     chainId: number,
-  ): Promise<string> {
+  ): Promise<TokenImage> {
     contractAddress = ethers.utils.getAddress(contractAddress);
     const cachedImage = this._tokensCachedImages.find(
       (c) => c.contractAddress === contractAddress && c.chainId === chainId,
     );
     if (cachedImage) {
-      return cachedImage.image;
+      return cachedImage.tokenImageContext;
+    }
+
+    const supportedTokensForNetwork = this._supportedNetworkTokens.find(
+      (tokens) => tokens.chainId === chainId,
+    );
+
+    if (supportedTokensForNetwork) {
+      const token = supportedTokensForNetwork.supportedTokens.find(
+        (c) => c.contractAddress === contractAddress,
+      );
+      if (token?.tokenImageContext) {
+        this._tokensCachedImages.push({
+          contractAddress: contractAddress,
+          chainId: chainId,
+          tokenImageContext: token.tokenImageContext,
+        });
+        return token.tokenImageContext;
+      }
     }
 
     const image = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contractAddress}/logo.png`;
@@ -37,10 +59,10 @@ export class TokenService {
       this._tokensCachedImages.push({
         contractAddress,
         chainId: chainId,
-        image,
+        tokenImageContext: { image, isSvg: false },
       });
 
-      return image;
+      return { image, isSvg: false };
     } catch (error) {
       return this.getDefaultTokenImageAndCache(contractAddress, chainId);
     }
@@ -101,7 +123,10 @@ export class TokenService {
       name: token.name,
       fiatPrice: fiatPrice !== undefined ? new BigNumber(fiatPrice) : undefined,
       balance: new BigNumber(balance),
-      image: await this.getTokenImageUrl(token.contractAddress, token.chainId),
+      tokenImageContext: await this.getTokenImageUrl(
+        token.contractAddress,
+        token.chainId,
+      ),
     };
   }
 
@@ -137,13 +162,17 @@ export class TokenService {
   private getDefaultTokenImageAndCache(
     contractAddress: string,
     chainId: number,
-  ): string {
+  ): TokenImage {
+    const tokenImageContext: TokenImage = {
+      image: this._defaultTokenImageSvg,
+      isSvg: true,
+    };
     this._tokensCachedImages.push({
       contractAddress,
       chainId: chainId,
-      image: 'assets/unknown.svg',
+      tokenImageContext,
     });
 
-    return 'assets/unknown.svg';
+    return { image: this._defaultTokenImageSvg, isSvg: true };
   }
 }

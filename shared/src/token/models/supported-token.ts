@@ -1,4 +1,6 @@
+import { TokenImage } from './token-image';
+
 export interface SupportedToken {
-  iconUrl?: string;
+  tokenImageContext?: TokenImage;
   contractAddress: string;
 }

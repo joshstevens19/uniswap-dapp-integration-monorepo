@@ -158,6 +158,6 @@ export class Theming {
     const settingsElement = document.getElementsByClassName(
       'uni-ic__settings-container',
     )[0];
-    settingsElement.classList.remove('uni-ic-hidden');
+    settingsElement.classList.add('uni-ic-hidden');
   }
 }

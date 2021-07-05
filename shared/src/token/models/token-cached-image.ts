@@ -1,5 +1,7 @@
+import { TokenImage } from './token-image';
+
 export interface TokenCachedImage {
-  image: string;
+  tokenImageContext: TokenImage;
   contractAddress: string;
   chainId: number;
 }

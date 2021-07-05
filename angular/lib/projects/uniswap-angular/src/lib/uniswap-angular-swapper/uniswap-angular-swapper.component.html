@@ -21,9 +21,26 @@
               >
                 <span class="uni-ic__swap-input-content-main-from-currency"
                   ><img
-                    [src]="uniswapDappSharedLogic.inputToken.image"
+                    *ngIf="
+                      !uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg
+                    "
+                    [src]="
+                      uniswapDappSharedLogic.inputToken.tokenImageContext.image
+                    "
                     class="uni-ic__swap-input-content-main-from-currency-icon"
-                  /><span
+                  />
+                  <div
+                    *ngIf="
+                      uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg
+                    "
+                    class="uni-ic__swap-input-content-main-from-currency-icon"
+                    [innerHTML]="
+                      uniswapDappSharedLogic.inputToken.tokenImageContext.image
+                        | safe
+                    "
+                  ></div>
+
+                  <span
                     class="uni-ic__swap-input-content-main-from-currency-symbol"
                     >{{ uniswapDappSharedLogic.inputToken.symbol }}</span
                   ><svg
@@ -151,9 +168,27 @@
                   class="uni-ic__swap-input-content-main-from-currency"
                   *ngIf="uniswapDappSharedLogic.outputToken"
                   ><img
-                    [src]="uniswapDappSharedLogic.outputToken.image"
+                    *ngIf="
+                      !uniswapDappSharedLogic.outputToken.tokenImageContext
+                        .isSvg
+                    "
+                    [src]="
+                      uniswapDappSharedLogic.outputToken.tokenImageContext.image
+                    "
                     class="uni-ic__swap-input-content-main-from-currency-icon"
-                  /><span
+                  />
+                  <div
+                    *ngIf="
+                      uniswapDappSharedLogic.outputToken.tokenImageContext.isSvg
+                    "
+                    class="uni-ic__swap-input-content-main-from-currency-icon"
+                    [innerHTML]="
+                      uniswapDappSharedLogic.outputToken.tokenImageContext.image
+                        | safe
+                    "
+                  ></div>
+
+                  <span
                     class="uni-ic__swap-input-content-main-from-currency-symbol"
                     >{{ uniswapDappSharedLogic.outputToken.symbol }}</span
                   ><svg

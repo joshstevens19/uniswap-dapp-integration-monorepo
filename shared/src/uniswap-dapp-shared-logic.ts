@@ -60,7 +60,9 @@ export class UniswapDappSharedLogic {
     this._context.ethereumProvider,
   );
   private _theming = new Theming(this._context.theming);
-  private _tokenService = new TokenService();
+  private _tokenService = new TokenService(
+    this._context.supportedNetworkTokens,
+  );
   private _chainService = new ChainService(this._ethereumProvider);
   private _blockStream = Subscription.EMPTY;
 
@@ -708,7 +710,7 @@ export class UniswapDappSharedLogic {
               fiatPrice: token.fiatPrice,
               balance: token.balance,
               canShow,
-              image: await this._tokenService.getTokenImageUrl(
+              tokenImageContext: await this._tokenService.getTokenImageUrl(
                 token.contractAddress,
                 token.chainId,
               ),
