@@ -1,6 +1,6 @@
 # Uniswap angular
 
-[![npm version](https://badge.fury.io/js/simple-uniswap-sdk.svg)](https://badge.fury.io/js/uniswap-angular)
+[![npm version](https://badge.fury.io/js/uniswap-angular.svg)](https://badge.fury.io/js/uniswap-angular)
 ![downloads](https://img.shields.io/npm/dw/uniswap-angular)
 
 # Installing
