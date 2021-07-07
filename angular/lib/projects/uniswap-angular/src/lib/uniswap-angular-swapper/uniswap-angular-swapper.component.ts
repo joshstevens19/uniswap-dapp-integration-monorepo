@@ -7,9 +7,9 @@ import {
 } from '@angular/core';
 import BigNumber from 'bignumber.js';
 import { Observable, Subscription } from 'rxjs';
-import { TradeDirection } from 'simple-uniswap-sdk';
 import {
   SwapSwitchResponse,
+  TradeDirection,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils,

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ETH } from 'simple-uniswap-sdk';
 import {
   ChainId,
+  ETH,
   UniswapDappSharedLogicContext,
 } from 'uniswap-dapp-integration-shared';
 
