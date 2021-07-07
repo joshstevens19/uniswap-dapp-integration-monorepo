@@ -8,7 +8,7 @@ Integrating uniswap within your dApp should be a simple thing but with all the c
 
 ## Angular
 
-Link coming
+Full docs for the angular integration please go [here](https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo/tree/master/angular)
 
 ## React
 
