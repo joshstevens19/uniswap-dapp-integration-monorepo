@@ -1617,10 +1617,13 @@
       border: 1px solid rgb(206, 208, 217);
       box-shadow: rgb(47 128 237 / 10%) 0px 4px 8px 0px;
       border-radius: 8px;
+      position: absolute;
+      margin-left: 30px;
     }
 
     &-container {
-      width: 256px;
+      max-width: 256px;
+      min-width: 256px;
       padding: 0.6rem 1rem;
       font-weight: 400;
       word-break: break-word;

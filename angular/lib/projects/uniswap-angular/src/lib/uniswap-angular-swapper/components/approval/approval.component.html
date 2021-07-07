@@ -20,9 +20,12 @@
           uniswapDappSharedLogic.miningTransaction?.status ===
             transactionStatus.rejected
         "
-        >Allow the Uniswap Protocol to use your
-        {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}</span
-      >
+        >You must give the Uniswap smart contract permisson to use your
+        {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}. You only
+        have to do this once per token per uniswap version. Click here to
+        approve the permissons.
+      </span>
+
       <span
         *ngIf="
           uniswapDappSharedLogic.miningTransaction?.status ===
@@ -38,7 +41,7 @@
         >Waiting for your transaction to be mined...</span
       >
     </span>
-    <div class="uni-ic__swap-allow-info">
+    <!-- <div class="uni-ic__swap-allow-info">
       <div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -56,6 +59,6 @@
           <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
       </div>
-    </div>
+    </div> -->
   </div>
 </button>
