@@ -407,8 +407,6 @@ This is the ethereum provider you are using to send these transaction. It must c
 
 This is the settings you want to use on uniswap. `UniswapPairSettings` is a class.
 
-**TODO: SORT WITH NEW SDK AND ANGULAR PACKAGE TO MAKE SURE `useWETHAsERC20Route` IS EXPOSED**
-
 ```ts
 export declare class UniswapPairSettings {
   // if not supplied it will use `0.005` which is 0.5%
@@ -421,16 +419,6 @@ export declare class UniswapPairSettings {
   // if this is true it will require swaps to direct
   // pairs
   disableMultihops: boolean;
-  // if not supplied it will be false by default
-  // when this is false it will class WETH as native eth
-  // and call methods like `swapETHForExactTokens` etc
-  // so if you swapped AAVE > WETH you would get native ETH and
-  // not the erc20 WETH
-  // when this is false it treat WETH as a erc20 token
-  // and call methods like `swapExactTokensForTokens`,
-  // so if you swapped AAVE > WETH you would get ERC20 WETH and
-  // not the native ETH
-  useWETHAsERC20Route: false;
   // for example if you only wanted to turn on quotes for v3 and not v3
   // you can only support the v3 enum same works if you only want v2 quotes
   // if you do not supply anything it query both v2 and v3
