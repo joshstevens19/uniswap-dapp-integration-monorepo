@@ -114,7 +114,10 @@ export class TokenService {
     let fiatPrice: number | undefined;
 
     for (const [key, value] of Object.entries(fiatPriceResults)) {
-      if (key.toLowerCase() === token.contractAddress.toLowerCase()) {
+      if (
+        key.toLowerCase() ===
+        removeEthFromContractAddress(token.contractAddress.toLowerCase())
+      ) {
         // @ts-ignore
         // tslint:disable-next-line: no-string-literal
         fiatPrice = Number(value['usd']);
