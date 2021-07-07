@@ -64,8 +64,8 @@
                 type="number"
                 step="any"
                 placeholder="0.0"
-                minlength="1"
-                maxlength="79"
+                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                [attr.maxlength]="uniswapDappSharedLogic.inputToken.decimals"
                 spellcheck="false"
                 [(ngModel)]="inputValue"
                 (ngModelChange)="changeInputTradePrice($event)"
@@ -215,8 +215,8 @@
                 type="number"
                 step="any"
                 placeholder="0.0"
-                minlength="1"
-                maxlength="79"
+                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                [attr.maxlength]="uniswapDappSharedLogic.outputToken?.decimals"
                 spellcheck="false"
                 [(ngModel)]="outputValue"
                 (ngModelChange)="changeOutputTradePrice($event)"
@@ -320,7 +320,7 @@
 
   <lib-tokens-modal
     [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-    (switchSwapCompleted)="switchSwapCompleted()"
+    (switchSwapCompleted)="switchSwapCompleted($event)"
   ></lib-tokens-modal>
 
   <lib-confirm-swap-modal

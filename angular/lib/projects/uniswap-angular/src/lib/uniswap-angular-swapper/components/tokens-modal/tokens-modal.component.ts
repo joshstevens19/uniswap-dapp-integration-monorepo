@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   SelectTokenActionFrom,
+  SwapSwitchResponse,
   UniswapDappSharedLogic,
   Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
@@ -12,7 +13,7 @@ import {
 })
 export class TokensModalComponent {
   @Input() public uniswapDappSharedLogic!: UniswapDappSharedLogic;
-  @Output() public switchSwapCompleted = new EventEmitter();
+  @Output() public switchSwapCompleted = new EventEmitter<SwapSwitchResponse>();
 
   public utils = UniswapUtils;
   public searchToken: string | undefined;
@@ -37,8 +38,8 @@ export class TokensModalComponent {
           this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
           contractAddress
         ) {
-          await this.uniswapDappSharedLogic.swapSwitch();
-          this.switchSwapCompleted.emit();
+          const swapResponse = await this.uniswapDappSharedLogic.swapSwitch();
+          this.switchSwapCompleted.emit(swapResponse);
           this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
@@ -57,8 +58,8 @@ export class TokensModalComponent {
           this.uniswapDappSharedLogic.tradeContext?.fromToken
             .contractAddress === contractAddress
         ) {
-          await this.uniswapDappSharedLogic.swapSwitch();
-          this.switchSwapCompleted.emit();
+          const swapResponse = await this.uniswapDappSharedLogic.swapSwitch();
+          this.switchSwapCompleted.emit(swapResponse);
           this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }

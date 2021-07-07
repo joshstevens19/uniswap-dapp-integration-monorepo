@@ -1,5 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
+import {
+  TransactionStatus,
+  UniswapDappSharedLogic,
+} from 'uniswap-dapp-integration-shared';
 
 @Component({
   selector: 'lib-approval',
@@ -9,5 +12,6 @@ import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
 export class ApprovalComponent {
   @Input() public uniswapDappSharedLogic!: UniswapDappSharedLogic;
 
+  public transactionStatus = TransactionStatus;
   constructor() {}
 }

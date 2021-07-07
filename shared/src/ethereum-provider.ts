@@ -1,5 +1,5 @@
 import { providers } from 'ethers';
-import { Transaction, WETH } from 'simple-uniswap-sdk';
+import { ETH, Transaction } from 'simple-uniswap-sdk';
 import { SupportedNetworkTokens } from './token/models/supported-network-token';
 
 export class EthereumProvider {
@@ -51,7 +51,7 @@ export class EthereumProvider {
     supportedNetworkTokens: SupportedNetworkTokens[],
   ): boolean {
     try {
-      WETH.token(chainId);
+      ETH.info(chainId);
 
       return (
         supportedNetworkTokens.find((t) => t.chainId === chainId) !== undefined

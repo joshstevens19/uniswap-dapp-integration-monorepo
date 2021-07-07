@@ -62,7 +62,6 @@ export class ChainService {
    * Handle new block
    */
   private handleNewBlock(block: number): void {
-    console.log('new block chain service', block);
     this.newBlock$.next(block);
   }
 }

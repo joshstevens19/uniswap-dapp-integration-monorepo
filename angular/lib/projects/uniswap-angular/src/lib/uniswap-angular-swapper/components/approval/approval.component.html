@@ -8,10 +8,36 @@
   (click)="uniswapDappSharedLogic.approveAllowance()"
 >
   <div class="uni-ic__swap-allow-container">
-    <span style="display: flex; align-items: center"
-      >Allow the Uniswap Protocol to use your
-      {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}</span
-    >
+    <span style="display: flex; align-items: center">
+      <img
+        *ngIf="!uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg"
+        [src]="uniswapDappSharedLogic.inputToken.tokenImageContext.image"
+        class="uni-ic__swap-allow-icon"
+      />
+      <span
+        *ngIf="
+          uniswapDappSharedLogic.miningTransaction === undefined ||
+          uniswapDappSharedLogic.miningTransaction?.status ===
+            transactionStatus.rejected
+        "
+        >Allow the Uniswap Protocol to use your
+        {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}</span
+      >
+      <span
+        *ngIf="
+          uniswapDappSharedLogic.miningTransaction?.status ===
+          transactionStatus.waitingForConfirmation
+        "
+        >Waiting for confirmation....</span
+      >
+      <span
+        *ngIf="
+          uniswapDappSharedLogic.miningTransaction?.status ===
+          transactionStatus.mining
+        "
+        >Waiting for your transaction to be mined...</span
+      >
+    </span>
     <div class="uni-ic__swap-allow-info">
       <div>
         <svg

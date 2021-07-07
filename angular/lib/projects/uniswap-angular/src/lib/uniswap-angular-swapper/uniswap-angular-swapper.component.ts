@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import { Observable, Subscription } from 'rxjs';
 import { TradeDirection } from 'simple-uniswap-sdk';
 import {
+  SwapSwitchResponse,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils,
@@ -153,17 +154,16 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    * Switch the swap
    */
   public async switchSwap(): Promise<void> {
-    await this.uniswapDappSharedLogic.swapSwitch();
-    this.switchSwapCompleted();
+    const swapState = await this.uniswapDappSharedLogic.swapSwitch();
+    this.switchSwapCompleted(swapState);
   }
 
   /**
    * Switch the swap completed
    */
-  public switchSwapCompleted(): void {
-    this.inputValue = this.outputValue;
-    this.outputValue =
-      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+  public switchSwapCompleted(response: SwapSwitchResponse): void {
+    this.inputValue = response.inputValue;
+    this.outputValue = response.outputValue;
   }
 
   /**

@@ -523,6 +523,14 @@
         justify-content: space-between;
       }
 
+      &-icon {
+        width: 24px;
+        height: 24px;
+        box-shadow: rgb(0 0 0 / 8%) 0px 6px 10px;
+        border-radius: 24px;
+        margin-right: 10px;
+      }
+
       &-info {
         display: inline-block;
       }

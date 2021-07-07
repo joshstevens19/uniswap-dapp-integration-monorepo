@@ -1,4 +1,4 @@
-import { ChainId } from 'simple-uniswap-sdk';
+import { ChainId, removeEthFromContractAddress } from 'simple-uniswap-sdk';
 import { Utils } from './utils';
 
 export class CoinGecko {
@@ -21,6 +21,9 @@ export class CoinGecko {
     contractAddresses: string[],
     chainId: number,
   ): Promise<any> {
+    contractAddresses = contractAddresses.map((address) =>
+      removeEthFromContractAddress(address),
+    );
     if (chainId === ChainId.MAINNET) {
       if (this._fiatPriceCache) {
         const now = Date.now();

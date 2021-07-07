@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
-import { ethers } from 'ethers';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import {
+  ETH,
+  getAddress,
   TokensFactoryPublic,
   TradeContext,
   TradeDirection,
@@ -11,7 +12,6 @@ import {
   UniswapPairSettings,
   UniswapSubscription,
   UniswapVersion,
-  WETH,
 } from 'simple-uniswap-sdk';
 import { ChainService } from './chain';
 import { CoinGecko } from './coin-gecko';
@@ -20,6 +20,7 @@ import {
   MiningAction,
   MiningTransaction,
   SelectTokenActionFrom,
+  SwapSwitchResponse,
   TransactionStatus,
   UniswapDappSharedLogicContext,
 } from './models';
@@ -62,6 +63,7 @@ export class UniswapDappSharedLogic {
   private _coinGecko = new CoinGecko();
   private _theming = new Theming(this._context.theming);
   private _tokenService = new TokenService(
+    this._ethereumProvider,
     this._context.supportedNetworkTokens,
   );
   private _chainService = new ChainService(this._ethereumProvider);
@@ -87,19 +89,28 @@ export class UniswapDappSharedLogic {
 
     await this.setupEthereumContext();
 
-    const weth = WETH.token(this.chainId);
+    const eth = ETH.info(this.chainId);
     const supportedNetworkTokens = this._context.supportedNetworkTokens.find(
       (t) => t.chainId === this.chainId,
     )!;
 
-    supportedNetworkTokens.supportedTokens.push(weth);
+    if (
+      !supportedNetworkTokens.supportedTokens.find(
+        (c) =>
+          c.contractAddress.toLowerCase() === eth.contractAddress.toLowerCase(),
+      )
+    ) {
+      supportedNetworkTokens.supportedTokens.push({
+        contractAddress: eth.contractAddress,
+      });
+    }
 
     const inputToken =
-      supportedNetworkTokens.defaultInputToken || weth.contractAddress;
+      supportedNetworkTokens.defaultInputToken || eth.contractAddress;
 
     this.inputToken = await this._tokenService.getTokenInformation(
       inputToken,
-      this.chainId,
+      this._context.ethereumProvider,
     );
 
     this.getBalances();
@@ -114,7 +125,7 @@ export class UniswapDappSharedLogic {
     } else {
       this.inputToken = await this._tokenService.getTokenInformation(
         inputToken,
-        this.chainId,
+        this._context.ethereumProvider,
       );
     }
 
@@ -160,6 +171,10 @@ export class UniswapDappSharedLogic {
         this._context.ethereumProvider,
       );
       this._chainService = new ChainService(this._ethereumProvider);
+      this._tokenService = new TokenService(
+        this._ethereumProvider,
+        this._context.supportedNetworkTokens,
+      );
     }
     this._quoteSubscription.unsubscribe();
     this.init();
@@ -214,6 +229,12 @@ export class UniswapDappSharedLogic {
       this.tradeContext!.approvalTransaction!,
       this.miningTransaction,
     );
+
+    if (this.miningTransaction.status === TransactionStatus.completed) {
+      this.miningTransaction = undefined;
+      this.tradeContext!.approvalTransaction = undefined;
+      this.tradeContext!.hasEnoughAllowance = true;
+    }
   }
 
   /**
@@ -306,21 +327,9 @@ export class UniswapDappSharedLogic {
   public async changeToken(contractAddress: string): Promise<void> {
     switch (this.selectorOpenFrom) {
       case SelectTokenActionFrom.input:
-        // if (
-        //   this.tradeContext?.toToken.contractAddress ===
-        //   contractAddress
-        // ) {
-        //   return await this.switchSwap();
-        // }
         await this.changeInputToken(contractAddress);
         return;
       case SelectTokenActionFrom.output:
-        // if (
-        //   this.uniswapDappSharedLogic.tradeContext?.fromToken
-        //     .contractAddress === contractAddress
-        // ) {
-        //   return await this.switchSwap();
-        // }
         await this.changeOutputToken(contractAddress);
     }
   }
@@ -357,16 +366,41 @@ export class UniswapDappSharedLogic {
   /**
    * Swap switch
    */
-  public async swapSwitch(): Promise<void> {
+  public async swapSwitch(): Promise<SwapSwitchResponse> {
     const clonedOutput = Utils.deepClone(this.outputToken!);
     const clonedInput = Utils.deepClone(this.inputToken);
-
-    this._inputAmount = new BigNumber(this.tradeContext!.expectedConvertQuote!);
 
     await this.buildFactory(
       clonedOutput.contractAddress,
       clonedInput.contractAddress,
+      false,
     );
+
+    if (this.tradeContext) {
+      if (this.tradeContext.quoteDirection === TradeDirection.output) {
+        const amount = Utils.deepClone(this.tradeContext.baseConvertRequest);
+        await this.trade(new BigNumber(amount), TradeDirection.input);
+
+        return {
+          outputValue: this.tradeContext.expectedConvertQuote,
+          inputValue: amount,
+        };
+      } else {
+        const amount = Utils.deepClone(this.tradeContext.baseConvertRequest);
+
+        await this.trade(new BigNumber(amount), TradeDirection.output);
+
+        return {
+          outputValue: amount,
+          inputValue: this.tradeContext.expectedConvertQuote,
+        };
+      }
+    } else {
+      return {
+        outputValue: '',
+        inputValue: '',
+      };
+    }
   }
 
   /**
@@ -380,7 +414,6 @@ export class UniswapDappSharedLogic {
     this.userAcceptedPriceChange = true;
   }
 
-  // MOVE INTO SDK
   /**
    * work out what 1 is equal to
    */
@@ -402,7 +435,6 @@ export class UniswapDappSharedLogic {
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
-      this.uniswapPairSettings,
     );
   }
 
@@ -421,7 +453,6 @@ export class UniswapDappSharedLogic {
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
-      this.uniswapPairSettings,
     );
   }
 
@@ -438,7 +469,6 @@ export class UniswapDappSharedLogic {
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
-      this.uniswapPairSettings,
     );
   }
 
@@ -506,8 +536,6 @@ export class UniswapDappSharedLogic {
    */
   private async changeInputToken(contractAddress: string): Promise<void> {
     this.hideTokenSelector();
-    contractAddress = ethers.utils.getAddress(contractAddress);
-
     await this.buildFactory(contractAddress, this.outputToken!.contractAddress);
   }
 
@@ -517,7 +545,6 @@ export class UniswapDappSharedLogic {
    */
   private async changeOutputToken(contractAddress: string): Promise<void> {
     this.hideTokenSelector();
-    contractAddress = ethers.utils.getAddress(contractAddress);
     await this.buildFactory(this.inputToken.contractAddress, contractAddress);
   }
 
@@ -527,14 +554,14 @@ export class UniswapDappSharedLogic {
   private async buildFactory(
     inputToken: string,
     outputToken: string,
-    settings?: UniswapPairSettings | undefined,
+    executeTrade = true,
   ): Promise<void> {
-    inputToken = ethers.utils.getAddress(inputToken);
-    outputToken = ethers.utils.getAddress(outputToken);
+    inputToken = getAddress(inputToken, true);
+    outputToken = getAddress(outputToken, true);
     const uniswapPair = this.createUniswapPairContext(
       inputToken,
       outputToken,
-      settings,
+      this.uniswapPairSettings,
     );
 
     this.factory = await uniswapPair.createFactory();
@@ -556,7 +583,9 @@ export class UniswapDappSharedLogic {
       await this.factory.getToTokenBalance(),
       fiatPrices,
     );
-    await this.trade(this._inputAmount, TradeDirection.input);
+    if (executeTrade) {
+      await this.trade(this._inputAmount, TradeDirection.input);
+    }
   }
 
   /**
@@ -667,13 +696,12 @@ export class UniswapDappSharedLogic {
     if (this.supportedNetwork) {
       const tokenWithAllowanceInfo =
         await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
+          // dont care about allowance here so use v3 wont make a difference
           UniswapVersion.v3,
           this._ethereumProvider.address,
           this._context.supportedNetworkTokens
             .find((t) => t.chainId === this.chainId)!
-            .supportedTokens.map((c) =>
-              ethers.utils.getAddress(c.contractAddress),
-            ),
+            .supportedTokens.map((c) => getAddress(c.contractAddress, true)),
           true,
         );
 
@@ -747,32 +775,20 @@ export class UniswapDappSharedLogic {
           return 0;
         });
 
-      if (this.inputToken.symbol.toLowerCase() === 'weth' && this.factory) {
-        this.inputToken.balance = new BigNumber(
-          await this.factory.getFromTokenBalance(),
-        );
-      } else {
-        const newInputBalance = this.supportedTokenBalances.find(
-          (c) => c.contractAddress === this.inputToken.contractAddress,
-        )?.balance;
-        if (newInputBalance) {
-          this.inputToken.balance = new BigNumber(newInputBalance);
-        }
+      const newInputBalance = this.supportedTokenBalances.find(
+        (c) => c.contractAddress === this.inputToken.contractAddress,
+      )?.balance;
+      if (newInputBalance) {
+        this.inputToken.balance = new BigNumber(newInputBalance);
       }
 
       if (this.outputToken) {
-        if (this.outputToken.symbol.toLowerCase() === 'weth' && this.factory) {
-          this.outputToken.balance = new BigNumber(
-            await this.factory.getToTokenBalance(),
-          );
-        } else {
-          const newOutputBalance = this.supportedTokenBalances.find(
-            (c) => c.contractAddress === this.outputToken!.contractAddress,
-          )?.balance;
+        const newOutputBalance = this.supportedTokenBalances.find(
+          (c) => c.contractAddress === this.outputToken!.contractAddress,
+        )?.balance;
 
-          if (newOutputBalance) {
-            this.outputToken.balance = new BigNumber(newOutputBalance);
-          }
+        if (newOutputBalance) {
+          this.outputToken.balance = new BigNumber(newOutputBalance);
         }
       }
     } else {

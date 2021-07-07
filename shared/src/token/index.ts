@@ -1,6 +1,11 @@
 import BigNumber from 'bignumber.js';
-import { ethers } from 'ethers';
-import { Token, TokenFactoryPublic } from 'simple-uniswap-sdk';
+import {
+  getAddress,
+  removeEthFromContractAddress,
+  Token,
+  TokenFactoryPublic,
+} from 'simple-uniswap-sdk';
+import { EthereumProvider } from '../ethereum-provider';
 import { ExtendedToken } from './models/extended-token';
 import { SupportedNetworkTokens } from './models/supported-network-token';
 import { SupportedTokenResult } from './models/supported-token-result';
@@ -12,7 +17,10 @@ export class TokenService {
   private _defaultTokenImageSvg =
     '<svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sc-1fvnadz-1 eIZpIe" style="color: rgb(136, 141, 155);"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>';
 
-  constructor(private _supportedNetworkTokens: SupportedNetworkTokens[]) {}
+  constructor(
+    private _ethereumProvider: EthereumProvider,
+    private _supportedNetworkTokens: SupportedNetworkTokens[],
+  ) {}
 
   /**
    * Get the token image url
@@ -23,7 +31,7 @@ export class TokenService {
     contractAddress: string,
     chainId: number,
   ): Promise<TokenImage> {
-    contractAddress = ethers.utils.getAddress(contractAddress);
+    contractAddress = getAddress(contractAddress, true);
     const cachedImage = this._tokensCachedImages.find(
       (c) => c.contractAddress === contractAddress && c.chainId === chainId,
     );
@@ -41,7 +49,7 @@ export class TokenService {
       );
       if (token?.tokenImageContext) {
         this._tokensCachedImages.push({
-          contractAddress: contractAddress,
+          contractAddress,
           chainId: chainId,
           tokenImageContext: token.tokenImageContext,
         });
@@ -49,7 +57,9 @@ export class TokenService {
       }
     }
 
-    const image = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${contractAddress}/logo.png`;
+    const image = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${removeEthFromContractAddress(
+      contractAddress,
+    )}/logo.png`;
 
     try {
       const result = await fetch(image);
@@ -71,23 +81,20 @@ export class TokenService {
   /**
    * Get token information
    * @param contractAddress The contract address
-   * @param chainId The chain id
+   * @param ethereumProvider The custom ethereum provider from the dapp (not our interval one)
    */
   public async getTokenInformation(
     contractAddress: string,
-    chainId: number,
+    ethereumProvider: any,
   ): Promise<ExtendedToken> {
-    contractAddress = ethers.utils.getAddress(contractAddress);
-    const tokenFactoryPublic = new TokenFactoryPublic(
-      contractAddress,
-      // FIX
-      { chainId: chainId },
-    );
+    contractAddress = getAddress(contractAddress, true);
+    const tokenFactoryPublic = new TokenFactoryPublic(contractAddress, {
+      ethereumProvider,
+    });
 
     const token = (await tokenFactoryPublic.getToken()) as ExtendedToken;
-    // to do fix
     token.balance = new BigNumber(
-      await tokenFactoryPublic.balanceOf(contractAddress),
+      await tokenFactoryPublic.balanceOf(this._ethereumProvider.address),
     );
 
     return token;

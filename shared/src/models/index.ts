@@ -33,3 +33,8 @@ export interface MiningTransaction {
   miningAction: MiningAction;
   blockExplorerLink?: string | undefined;
 }
+
+export interface SwapSwitchResponse {
+  outputValue: string;
+  inputValue: string;
+}
