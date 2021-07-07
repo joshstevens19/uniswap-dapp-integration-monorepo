@@ -44,6 +44,7 @@ import { Component, OnInit } from '@angular/core';
 import {
   UniswapDappSharedLogicContext,
   ChainId,
+  ETH,
 } from 'uniswap-dapp-integration-shared';
 
 @Component({
@@ -68,9 +69,10 @@ export class YourComponent implements OnInit {
       supportedNetworkTokens: [
         {
           chainId: ChainId.MAINNET,
-          defaultInputToken: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          defaultInputToken: ETH.MAINNET().contractAddress,
           defaultOutputToken: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F',
           supportedTokens: [
+            { contractAddress: ETH.MAINNET().contractAddress },
             { contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b' },
             { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
             { contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862' },
@@ -80,9 +82,10 @@ export class YourComponent implements OnInit {
         },
         {
           chainId: ChainId.RINKEBY,
-          defaultInputToken: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+          defaultInputToken: ETH.RINKEBY().contractAddress,
           defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
           supportedTokens: [
+            { contractAddress: ETH.RINKEBY().contractAddress },
             {
               contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
             },
@@ -156,9 +159,10 @@ export class YourComponent implements OnInit {
       supportedNetworkTokens: [
         {
           chainId: ChainId.MAINNET,
-          defaultInputToken: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          defaultInputToken: ETH.MAINNET().contractAddress,
           defaultOutputToken: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F',
           supportedTokens: [
+            { contractAddress: ETH.MAINNET().contractAddress },
             { contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b' },
             { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
             { contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862' },
@@ -168,9 +172,10 @@ export class YourComponent implements OnInit {
         },
         {
           chainId: ChainId.RINKEBY,
-          defaultInputToken: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+          defaultInputToken: ETH.RINKEBY().contractAddress,
           defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
           supportedTokens: [
+            { contractAddress: ETH.RINKEBY().contractAddress },
             {
               contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
             },
@@ -245,9 +250,10 @@ export class YourComponent implements OnInit {
       supportedNetworkTokens: [
         {
           chainId: ChainId.MAINNET,
-          defaultInputToken: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+          defaultInputToken: ETH.MAINNET().contractAddress,
           defaultOutputToken: '0xDe30da39c46104798bB5aA3fe8B9e0e1F348163F',
           supportedTokens: [
+            { contractAddress: ETH.MAINNET().contractAddress },
             { contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b' },
             { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
             { contractAddress: '0x1985365e9f78359a9B6AD760e32412f4a445E862' },
@@ -257,9 +263,10 @@ export class YourComponent implements OnInit {
         },
         {
           chainId: ChainId.RINKEBY,
-          defaultInputToken: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+          defaultInputToken: ETH.RINKEBY().contractAddress,
           defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
           supportedTokens: [
+            { contractAddress: ETH.RINKEBY().contractAddress },
             {
               contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
             },
@@ -306,7 +313,10 @@ export interface UniswapDappSharedLogicContext {
     defaultInputToken?: string | undefined;
     defaultOutputToken?: string | undefined;
     supportedTokens: {
-      iconUrl?: string;
+      tokenImageContext?: {
+        image: string;
+        isSvg: boolean;
+      };
       contractAddress: string;
     }[];
   }[];
@@ -366,10 +376,15 @@ supportedNetworkTokens: {
     // an array of all the tokens you want to support
     // should include any that you supplied above
     supportedTokens: {
-        // if not supplied it tries to get the image from trust
+        // if not supplied it try to get the image from trust
         // wallet github assets `https://github.com/trustwallet/assets`
-        // if you supply a url it will use this instead of the trust wallet one
-        iconUrl?: string;
+        // image accepts a svg string or url for the image, if you pass in a
+        // svg make sure you set `isSvg` to true. If you pass in a image url even
+        // if that is a `.svg` pass in `isSvg` as false
+        tokenImageContext?: {
+          image: string;
+          isSvg: boolean;
+        },
         // the contract address for the token
         contractAddress: string;
     }[];
