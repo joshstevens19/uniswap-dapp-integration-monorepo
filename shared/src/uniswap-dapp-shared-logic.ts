@@ -166,16 +166,17 @@ export class UniswapDappSharedLogic {
   public async changeChain(newEthereumProvider?: any): Promise<void> {
     if (newEthereumProvider) {
       this._context.ethereumProvider = newEthereumProvider;
-      this._ethereumProvider = new EthereumProvider(
-        this._context.ethereumAddress,
-        this._context.ethereumProvider,
-      );
-      this._chainService = new ChainService(this._ethereumProvider);
-      this._tokenService = new TokenService(
-        this._ethereumProvider,
-        this._context.supportedNetworkTokens,
-      );
     }
+
+    this._ethereumProvider = new EthereumProvider(
+      this._context.ethereumAddress,
+      this._context.ethereumProvider,
+    );
+    this._chainService = new ChainService(this._ethereumProvider);
+    this._tokenService = new TokenService(
+      this._ethereumProvider,
+      this._context.supportedNetworkTokens,
+    );
     this._quoteSubscription.unsubscribe();
     this.init();
   }
@@ -185,6 +186,7 @@ export class UniswapDappSharedLogic {
    */
   public async setupEthereumContext(): Promise<void> {
     this.chainId = (await this._ethereumProvider.provider.getNetwork()).chainId;
+
     this.supportedNetwork = this._ethereumProvider.isSupportedChain(
       this.chainId,
       this._context.supportedNetworkTokens,
@@ -210,8 +212,7 @@ export class UniswapDappSharedLogic {
       );
 
       this._context.ethereumProvider.on('chainChanged', async () => {
-        this._quoteSubscription.unsubscribe();
-        await this.init();
+        await this.changeChain();
       });
     }
   }

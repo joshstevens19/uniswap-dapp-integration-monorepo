@@ -312,8 +312,8 @@
 
     <lib-error
       *ngIf="!uniswapDappSharedLogic.supportedNetwork"
-      [error]="
-        'Chain id {{ uniswapDappSharedLogic?.chainId }} is a unsupported network.'
+      error="
+        Chain id {{ uniswapDappSharedLogic?.chainId }} is a unsupported network.
       "
     ></lib-error>
   </div>
