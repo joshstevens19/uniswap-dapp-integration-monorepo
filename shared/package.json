@@ -19,6 +19,11 @@
     "package.json",
     "package-lock.json",
     "README.md",
-    "LICENSE"
-  ]
+    "LICENSE",
+    "styles/uniswap.scss",
+    "styles/uniswap.css"
+  ],
+  "devDependencies": {
+    "node-sass": "^4.11.0"
+  }
 }
