@@ -57,12 +57,11 @@
                 *ngIf="
                   uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg
                 "
-                class="uni-ic__swap-input-content-main-from-currency-icon"
+                class="uni-ic__modal-confirm-swap__input-main__symbol__image"
                 [innerHTML]="
                   uniswapDappSharedLogic.inputToken.tokenImageContext.image
                     | safe
                 "
-                class="uni-ic__modal-confirm-swap__input-main__symbol__image"
                 style="margin-right: 12px"
               ></div>
               <div
@@ -198,10 +197,7 @@
         style="margin-top: 0.25rem; padding: 0px 1rem"
       >
         <div class="uni-ic__modal-confirm-swap__price__title">Price</div>
-        <button
-          title="1 DAI = 0.0003956 ETH "
-          class="uni-ic__modal-confirm-swap__price__rate-button"
-        >
+        <button class="uni-ic__modal-confirm-swap__price__rate-button">
           <div style="align-items: center; display: flex; width: fit-content">
             <div class="uni-ic__modal-confirm-swap__price__rate">
               1
