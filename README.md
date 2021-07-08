@@ -12,7 +12,7 @@ Full docs for the angular integration please go [here](https://github.com/uniswa
 
 ## React
 
-Link coming
+Full docs for the react integration please go [here](https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo/tree/master/react-package)
 
 ## VUE
 
