@@ -15,6 +15,7 @@ import ConfirmSwap from './components/confirmSwap';
 import Header from './components/header';
 import Loading from './components/loading';
 import SwapQuoteInfo from './components/swapQuoteInfo';
+import TokenIcon from './components/tokenIcon';
 import TokensModal from './components/tokensModal';
 import TransactionModal from './components/transactionModal';
 
@@ -137,22 +138,10 @@ const UniswapReact = ({
                             }
                           >
                             <span className="uni-ic__swap-input-content-main-from-currency">
-                              {!inputToken.tokenImageContext.isSvg && (
-                                <img
-                                  src={inputToken.tokenImageContext.image}
-                                  className="uni-ic__swap-input-content-main-from-currency-icon"
-                                />
-                              )}
-                              {inputToken.tokenImageContext.isSvg && (
-                                <div className="uni-ic__swap-input-content-main-from-currency-icon">
-                                  <span
-                                    dangerouslySetInnerHTML={{
-                                      __html:
-                                        inputToken.tokenImageContext.image,
-                                    }}
-                                  ></span>
-                                </div>
-                              )}
+                              <TokenIcon
+                                classes="uni-ic__swap-input-content-main-from-currency-icon"
+                                tokenImageContext={inputToken.tokenImageContext}
+                              />
 
                               <span className="uni-ic__swap-input-content-main-from-currency-symbol">
                                 {inputToken.symbol}
@@ -270,18 +259,12 @@ const UniswapReact = ({
 
                             {outputToken && (
                               <span className="uni-ic__swap-input-content-main-from-currency">
-                                {!outputToken.tokenImageContext.isSvg && (
-                                  <img
-                                    src={outputToken.tokenImageContext.image}
-                                    className="uni-ic__swap-input-content-main-from-currency-icon"
-                                  />
-                                )}
-
-                                {outputToken.tokenImageContext.isSvg && (
-                                  <div className="uni-ic__swap-input-content-main-from-currency-icon">
-                                    {outputToken.tokenImageContext.image}
-                                  </div>
-                                )}
+                                <TokenIcon
+                                  classes="uni-ic__swap-input-content-main-from-currency-icon"
+                                  tokenImageContext={
+                                    outputToken.tokenImageContext
+                                  }
+                                />
 
                                 <span className="uni-ic__swap-input-content-main-from-currency-symbol">
                                   {outputToken.symbol}

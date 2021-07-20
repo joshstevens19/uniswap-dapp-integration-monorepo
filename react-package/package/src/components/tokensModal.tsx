@@ -5,6 +5,7 @@ import {
   UniswapDappSharedLogic,
   Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
+import TokenIcon from './tokenIcon';
 
 const TokensModal = ({
   uniswapDappSharedLogic,
@@ -127,18 +128,10 @@ const TokensModal = ({
                         >
                           {token.canShow && (
                             <div className="uni-ic__modal-tokens-item">
-                              {!token.tokenImageContext.isSvg && (
-                                <img
-                                  src={token.tokenImageContext.image}
-                                  className="uni-ic__modal-tokens-item-icon"
-                                />
-                              )}
-
-                              {token.tokenImageContext.isSvg && (
-                                <div className="uni-ic__modal-tokens-item-icon">
-                                  {token.tokenImageContext.image}
-                                </div>
-                              )}
+                              <TokenIcon
+                                classes="uni-ic__modal-tokens-item-icon"
+                                tokenImageContext={token.tokenImageContext}
+                              />
 
                               <div className="uni-ic__modal-tokens-item-content">
                                 <div className="uni-ic__modal-tokens-item-content-symbol">

@@ -3,6 +3,7 @@ import {
   TransactionStatus,
   UniswapDappSharedLogic,
 } from 'uniswap-dapp-integration-shared';
+import TokenIcon from './tokenIcon';
 
 const Approval = ({
   uniswapDappSharedLogic,
@@ -23,14 +24,13 @@ const Approval = ({
           >
             <div className="uni-ic__swap-allow-container">
               <span style={{ display: 'flex', alignItems: 'center' }}>
-                {!uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg && (
-                  <img
-                    src={
-                      uniswapDappSharedLogic.inputToken.tokenImageContext.image
-                    }
-                    className="uni-ic__swap-allow-icon"
-                  />
-                )}
+                <TokenIcon
+                  classes="uni-ic__swap-allow-icon"
+                  tokenImageContext={
+                    uniswapDappSharedLogic.inputToken.tokenImageContext
+                  }
+                />
+
                 {(uniswapDappSharedLogic.miningTransaction === undefined ||
                   uniswapDappSharedLogic.miningTransaction.status ===
                     transactionStatus.rejected) && (
