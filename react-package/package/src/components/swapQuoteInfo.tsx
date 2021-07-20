@@ -35,9 +35,11 @@ const SwapQuoteInfo = ({
                   fontSize: '14px',
                 }}
               >
-                1{uniswapDappSharedLogic.tradeContext!.fromToken.symbol} =
-                {uniswapDappSharedLogic.workOutOneEqualTo()}
-                {uniswapDappSharedLogic.tradeContext!.toToken.symbol}
+                <span>
+                  1 {uniswapDappSharedLogic.tradeContext!.fromToken.symbol} ={' '}
+                  {uniswapDappSharedLogic.workOutOneEqualTo()}{' '}
+                  {uniswapDappSharedLogic.tradeContext!.toToken.symbol}
+                </span>
                 <div className="uni-ic__swap-quote-price-text-info">
                   <div
                     style={{
@@ -81,7 +83,7 @@ const SwapQuoteInfo = ({
                             {
                               uniswapDappSharedLogic.tradeContext
                                 .liquidityProviderFee
-                            }
+                            }{' '}
                             {
                               uniswapDappSharedLogic.tradeContext.fromToken
                                 .symbol
@@ -110,7 +112,7 @@ const SwapQuoteInfo = ({
                               {
                                 uniswapDappSharedLogic.tradeContext
                                   .minAmountConvertQuote
-                              }
+                              }{' '}
                               {
                                 uniswapDappSharedLogic.tradeContext.toToken
                                   .symbol
@@ -126,7 +128,7 @@ const SwapQuoteInfo = ({
                               </div>
                             </div>
                             <div className="uni-ic__tooltip__item__value">
-                              {uniswapDappSharedLogic.tradeContext.maximumSent}
+                              {uniswapDappSharedLogic.tradeContext.maximumSent}{' '}
                               {
                                 uniswapDappSharedLogic.tradeContext.fromToken
                                   .symbol

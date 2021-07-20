@@ -14,7 +14,6 @@ const Approval = ({
 
   return (
     <div>
-      {uniswapDappSharedLogic.miningTransaction?.status}
       {uniswapDappSharedLogic.tradeContext?.approvalTransaction &&
         uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough && (
           <button
@@ -36,10 +35,9 @@ const Approval = ({
                     transactionStatus.rejected) && (
                   <span>
                     You must give the Uniswap smart contract permisson to use
-                    your
-                    {uniswapDappSharedLogic.tradeContext!.fromToken.symbol}. You
-                    only have to do this once per token per uniswap version.
-                    Click here to approve the permissons.
+                    your {uniswapDappSharedLogic.tradeContext!.fromToken.symbol}
+                    . You only have to do this once per token per uniswap
+                    version. Click here to approve the permissons.
                   </span>
                 )}
 
