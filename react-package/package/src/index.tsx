@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js';
 import React, { useEffect } from 'react';
 import {
+  SwapSwitchResponse,
   TradeDirection,
   UniswapDappSharedLogic,
-  // SwapSwitchResponse,
-  // TradeDirection,
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
@@ -404,7 +403,7 @@ const UniswapReact = ({
 
           <TokensModal
             uniswapDappSharedLogic={uniswapDappSharedLogic}
-            switchSwapCompleted={(swapCompleted) => {
+            switchSwapCompleted={(swapCompleted: SwapSwitchResponse) => {
               setInputValue(swapCompleted.inputValue);
               setOutputValue(swapCompleted.outputValue);
             }}
