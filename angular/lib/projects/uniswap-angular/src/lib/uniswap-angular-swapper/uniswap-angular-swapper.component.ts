@@ -53,14 +53,8 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     if (this.uniswapDappSharedLogicContext.defaultInputValue) {
       this.inputValue = this.uniswapDappSharedLogicContext.defaultInputValue;
     }
-    try {
-      await this.uniswapDappSharedLogic.init();
-    } catch (error) {
-      if (error.message.includes('unsupported network')) {
-        this.loading = false;
-        return;
-      }
-    }
+
+    await this.uniswapDappSharedLogic.init();
 
     this._newPriceTradeContextAvailableSubscription =
       this.uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
