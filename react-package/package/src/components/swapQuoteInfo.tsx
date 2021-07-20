@@ -13,22 +13,26 @@ const SwapQuoteInfo = ({
           <div className="uni-ic__swap-quote-container">
             <div className="uni-ic__swap-quote-price">
               <div
-                font-size="14px"
                 color="text"
                 className="uni-ic__swap-quote-price-text"
-                style={{ padding: '0.1rem 0.5rem 0.1rem 0.35rem' }}
+                style={{
+                  padding: '0.1rem 0.5rem 0.1rem 0.35rem',
+                  fontSize: '14px',
+                }}
               >
-                Best rate on
-                {uniswapDappSharedLogic.tradeContext.uniswapVersion}
+                <span>
+                  Best rate on{' '}
+                  {uniswapDappSharedLogic.tradeContext.uniswapVersion}
+                </span>
               </div>
               <div
-                font-size="14px"
                 color="text"
                 className="uni-ic__swap-quote-price-text"
                 style={{
                   justifyContent: 'center',
                   alignItems: 'center',
                   display: 'flex',
+                  fontSize: '14px',
                 }}
               >
                 1{uniswapDappSharedLogic.tradeContext!.fromToken.symbol} =
@@ -49,9 +53,9 @@ const SwapQuoteInfo = ({
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
                       <circle cx="12" cy="12" r="10"></circle>
                       <line x1="12" y1="16" x2="12" y2="12"></line>
