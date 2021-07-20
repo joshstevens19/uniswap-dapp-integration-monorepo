@@ -1,6 +1,7 @@
 export {
   ChainId,
   ETH,
+  Token,
   TradeDirection,
   Transaction,
   WETHContract,

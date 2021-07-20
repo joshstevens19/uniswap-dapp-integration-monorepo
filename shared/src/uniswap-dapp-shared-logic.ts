@@ -815,8 +815,13 @@ export class UniswapDappSharedLogic {
       const newInputBalance = this.supportedTokenBalances.find(
         (c) => c.contractAddress === this.inputToken.contractAddress,
       )?.balance;
-      if (newInputBalance) {
-        this.inputToken.balance = new BigNumber(newInputBalance);
+      if (
+        newInputBalance &&
+        !this.inputToken.balance.isEqualTo(newInputBalance)
+      ) {
+        this.inputToken.balance = newInputBalance;
+        console.log('here input', newInputBalance.toFixed());
+        this.inputToken$.next(this.inputToken);
       }
 
       if (this.outputToken) {
@@ -824,8 +829,13 @@ export class UniswapDappSharedLogic {
           (c) => c.contractAddress === this.outputToken!.contractAddress,
         )?.balance;
 
-        if (newOutputBalance) {
-          this.outputToken.balance = new BigNumber(newOutputBalance);
+        if (
+          newOutputBalance &&
+          !this.outputToken.balance.isEqualTo(newOutputBalance)
+        ) {
+          this.outputToken.balance = newOutputBalance;
+          console.log('here output', newOutputBalance.toFixed());
+          this.outputToken$.next(this.outputToken);
         }
       }
     } else {

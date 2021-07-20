@@ -27,8 +27,12 @@ const UniswapReact = ({
 }): JSX.Element => {
   const [loading, setLoading] = React.useState(true);
   const [inputToken, setInputToken] = React.useState<ExtendedToken>();
+  const [inputBalance, setInputBalance] = React.useState<string | undefined>();
   const [inputValue, setInputValue] = React.useState('');
   const [outputToken, setOutputToken] = React.useState<ExtendedToken>();
+  const [outputBalance, setOutputBalance] = React.useState<
+    string | undefined
+  >();
   const [outputValue, setOutputValue] = React.useState('');
   const [supportedNetwork, setSupportedNetwork] = React.useState(false);
   const [chainId, setChainId] = React.useState<number | undefined>();
@@ -64,13 +68,23 @@ const UniswapReact = ({
       });
 
       setInputToken(uniswapDappSharedLogic.inputToken);
+      setInputBalance(
+        utils.toPrecision(uniswapDappSharedLogic.inputToken.balance),
+      );
       uniswapDappSharedLogic.inputToken$.subscribe((token) => {
         setInputToken(token);
+        setInputBalance(utils.toPrecision(token.balance));
       });
 
       setOutputToken(uniswapDappSharedLogic.outputToken);
+      if (uniswapDappSharedLogic.outputToken) {
+        setOutputBalance(
+          utils.toPrecision(uniswapDappSharedLogic.outputToken.balance),
+        );
+      }
       uniswapDappSharedLogic.outputToken$.subscribe((token) => {
         setOutputToken(token);
+        setOutputBalance(utils.toPrecision(token.balance));
       });
 
       uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
@@ -190,9 +204,7 @@ const UniswapReact = ({
                             <div className="uni-ic__swap-content-balance-and-price__balance">
                               <div className="uni-ic__swap-content-balance-and-price__balance-text">
                                 <span>
-                                  Balance:{' '}
-                                  {utils.toPrecision(inputToken.balance)}{' '}
-                                  {inputToken.symbol}
+                                  Balance: {inputBalance} {inputToken.symbol}
                                 </span>
                               </div>
                             </div>
@@ -309,8 +321,7 @@ const UniswapReact = ({
                               <div className="uni-ic__swap-content-balance-and-price__balance">
                                 <div className="uni-ic__swap-content-balance-and-price__balance-text">
                                   <span>
-                                    Balance:{' '}
-                                    {utils.toPrecision(outputToken!.balance)}{' '}
+                                    Balance: {outputBalance}{' '}
                                     {outputToken!.symbol}
                                   </span>
                                 </div>
