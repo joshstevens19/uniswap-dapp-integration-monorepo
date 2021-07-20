@@ -6,7 +6,8 @@
   "module": "./lib/esm/index.js",
   "types": "./lib/esm/index.d.ts",
   "scripts": {
-    "build": "npm run build:esm && npm run build:cjs",
+    "build": "npm run build:esm && npm run build:cjs && npm run copy-readme",
+    "copy-readme": "cp ../README.md ./lib/cjs && cp ../README.md ./lib/esm",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs"
   },

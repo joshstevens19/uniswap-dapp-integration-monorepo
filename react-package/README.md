@@ -59,11 +59,12 @@ function YourComponent() {
 
   useEffect(() => {
     (async () => {
-      // MetaMask
+      // MetaMask example
       const accounts = await (window as any).ethereum.request({
         method: 'eth_requestAccounts',
       });
 
+      // basic config!
       const uniswapDappSharedLogicContext: UniswapDappSharedLogicContext = {
         supportedNetworkTokens: [
           {
@@ -98,12 +99,6 @@ function YourComponent() {
         ],
         ethereumAddress: accounts[0],
         ethereumProvider: (window as any).ethereum,
-        theming: {
-          backgroundColor: 'red',
-          button: { textColor: 'white', backgroundColor: 'blue' },
-          panel: { textColor: 'black', backgroundColor: 'yellow' },
-          textColor: 'orange',
-        },
       };
 
       setUniswapDappSharedLogicContext(uniswapDappSharedLogicContext);
@@ -126,33 +121,7 @@ export default App;
 
 ## Account changes and chain changes
 
-If your ethereum provider follows `https://eips.ethereum.org/EIPS/eip-1193` spec then this should just work. As long as your provider emits `accountsChanged` on a account change and `chainChanged` on a chain change then this will all happen automatically for you. If for some reason you can not support this then we have exposed 2 inputs for you to emit values to when they change.
-
-### accountChanged
-
-```ts
-@Input() accountChanged: Observable<string> | undefined;
-```
-
-When the account changes just emit the new account value to this input, example below:
-
-#### YourComponent.tsx
-
-TODO WRITE DOC CODE SAMPLES
-
-### chainChanged
-
-```ts
-@Input() chainChanged: Observable<any> | undefined;
-```
-
-When the chain changes just emit the new ethereum provider, if there is no need for your ethereum provider to change or the instance you passed to the lib is the property that has changed then you do not need to pass us the new ethereum provider. example below:
-
-#### YourComponent.tsx
-
-TODO WRITE DOC CODE SAMPLES
-
-Thats it it now will be integrated in your dApp, now lets talk about the config you can pass it.
+If your ethereum provider follows `https://eips.ethereum.org/EIPS/eip-1193` spec then this should just work. As long as your provider emits `accountsChanged` on a account change and `chainChanged` on a chain change then this will all happen automatically for you.
 
 ## Config
 
