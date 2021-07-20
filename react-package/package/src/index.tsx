@@ -74,6 +74,16 @@ const UniswapReact = ({
         setOutputToken(token);
       });
 
+      uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
+        (tradeContext) => {
+          if (tradeContext.quoteDirection === TradeDirection.input) {
+            setOutputValue(tradeContext.expectedConvertQuote);
+          } else {
+            setInputValue(tradeContext.expectedConvertQuote);
+          }
+        },
+      );
+
       setLoading(false);
       uniswapDappSharedLogic.loading.subscribe((loading) => {
         setLoading(loading);
