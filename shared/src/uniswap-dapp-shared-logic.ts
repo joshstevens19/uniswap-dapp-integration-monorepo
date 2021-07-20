@@ -48,7 +48,10 @@ export class UniswapDappSharedLogic {
   public uniswapPairSettings$: Subject<UniswapPairSettings> = new Subject();
   public selectorOpenFrom: SelectTokenActionFrom | undefined;
   public chainId!: number;
+  public chainId$: Subject<number> = new Subject();
   public supportedNetwork = false;
+  public supportedNetwork$: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
   public miningTransaction: MiningTransaction | undefined;
   public miningTransaction$: BehaviorSubject<MiningTransaction | undefined> =
     new BehaviorSubject<MiningTransaction | undefined>(undefined);
@@ -91,10 +94,15 @@ export class UniswapDappSharedLogic {
   public async init(): Promise<void> {
     this.loading.next(true);
     this.supportedNetwork = false;
+    this.supportedNetwork$.next(this.supportedNetwork);
     this._quoteSubscription.unsubscribe();
     this._blockStream.unsubscribe();
 
     await this.setupEthereumContext();
+    if (!this.supportedNetwork) {
+      this.loading.next(false);
+      return;
+    }
 
     const eth = ETH.info(this.chainId);
     const supportedNetworkTokens = this._context.supportedNetworkTokens.find(
@@ -195,20 +203,20 @@ export class UniswapDappSharedLogic {
    */
   public async setupEthereumContext(): Promise<void> {
     this.chainId = (await this._ethereumProvider.provider.getNetwork()).chainId;
+    this.chainId$.next(this.chainId);
 
     this.supportedNetwork = this._ethereumProvider.isSupportedChain(
       this.chainId,
       this._context.supportedNetworkTokens,
     );
 
-    if (!this.supportedNetwork) {
-      this.loading.next(false);
-      throw new Error('unsupported network');
-    }
+    this.supportedNetwork$.next(this.supportedNetwork);
 
-    this._tokensFactoryPublic = new TokensFactoryPublic({
-      chainId: this.chainId,
-    });
+    if (this.supportedNetwork) {
+      this._tokensFactoryPublic = new TokensFactoryPublic({
+        chainId: this.chainId,
+      });
+    }
 
     // handle chain and account changes automatically
     // if they have event handlers on
