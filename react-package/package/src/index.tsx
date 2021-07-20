@@ -1,8 +1,13 @@
 import BigNumber from 'bignumber.js';
 import React, { useEffect } from 'react';
 import {
+  MiningTransaction,
+  SelectTokenActionFrom,
+  Subscription,
   SwapSwitchResponse,
+  TradeContext,
   TradeDirection,
+  TransactionStatus,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils,
@@ -19,6 +24,7 @@ import TokensModal from './components/tokensModal';
 import TransactionModal from './components/transactionModal';
 
 let uniswapDappSharedLogic: undefined | UniswapDappSharedLogic;
+const subcriptions: Subscription[] = [];
 
 const UniswapReact = ({
   uniswapDappSharedLogicContext,
@@ -36,6 +42,19 @@ const UniswapReact = ({
   const [outputValue, setOutputValue] = React.useState('');
   const [supportedNetwork, setSupportedNetwork] = React.useState(false);
   const [chainId, setChainId] = React.useState<number | undefined>();
+  const [selectorOpenFrom, setSelectorOpenFrom] = React.useState<
+    SelectTokenActionFrom | undefined
+  >();
+  const [tradeContext, setTradeContext] = React.useState<
+    TradeContext | undefined
+  >();
+  const [miningTransaction, setMiningTransaction] = React.useState<
+    MiningTransaction | undefined
+  >();
+
+  const [miningTransactionStatus, setMiningTransactionStatus] = React.useState<
+    TransactionStatus | undefined
+  >();
 
   const utils = UniswapUtils;
 
@@ -51,30 +70,49 @@ const UniswapReact = ({
 
       await sharedLogic!.init();
 
-      if (sharedLogic!.tradeContext?.expectedConvertQuote) {
-        setOutputValue(sharedLogic!.tradeContext.expectedConvertQuote);
+      setTradeContext(sharedLogic!.tradeContext);
+      subcriptions.push(
+        sharedLogic.tradeContext$.subscribe((context) => {
+          setTradeContext(context);
+          if (context?.expectedConvertQuote) {
+            setOutputValue(context.expectedConvertQuote);
+          }
+          if (context?.expectedConvertQuote) {
+            setInputValue(context.baseConvertRequest);
+          }
+        }),
+      );
+
+      if (tradeContext?.expectedConvertQuote) {
+        setOutputValue(tradeContext.expectedConvertQuote);
       }
 
       uniswapDappSharedLogic = sharedLogic;
 
       setSupportedNetwork(uniswapDappSharedLogic.supportedNetwork);
-      uniswapDappSharedLogic.supportedNetwork$.subscribe((supported) => {
-        setSupportedNetwork(supported);
-      });
+      subcriptions.push(
+        uniswapDappSharedLogic.supportedNetwork$.subscribe((supported) => {
+          setSupportedNetwork(supported);
+        }),
+      );
 
       setChainId(uniswapDappSharedLogic.chainId);
-      uniswapDappSharedLogic.chainId$.subscribe((chainId) => {
-        setChainId(chainId);
-      });
+      subcriptions.push(
+        uniswapDappSharedLogic.chainId$.subscribe((chainId) => {
+          setChainId(chainId);
+        }),
+      );
 
       setInputToken(uniswapDappSharedLogic.inputToken);
       setInputBalance(
         utils.toPrecision(uniswapDappSharedLogic.inputToken.balance),
       );
-      uniswapDappSharedLogic.inputToken$.subscribe((token) => {
-        setInputToken(token);
-        setInputBalance(utils.toPrecision(token.balance));
-      });
+      subcriptions.push(
+        uniswapDappSharedLogic.inputToken$.subscribe((token) => {
+          setInputToken(token);
+          setInputBalance(utils.toPrecision(token.balance));
+        }),
+      );
 
       setOutputToken(uniswapDappSharedLogic.outputToken);
       if (uniswapDappSharedLogic.outputToken) {
@@ -82,26 +120,58 @@ const UniswapReact = ({
           utils.toPrecision(uniswapDappSharedLogic.outputToken.balance),
         );
       }
-      uniswapDappSharedLogic.outputToken$.subscribe((token) => {
-        setOutputToken(token);
-        setOutputBalance(utils.toPrecision(token.balance));
-      });
+      subcriptions.push(
+        uniswapDappSharedLogic.outputToken$.subscribe((token) => {
+          setOutputToken(token);
+          setOutputBalance(utils.toPrecision(token.balance));
+        }),
+      );
 
-      uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
-        (tradeContext) => {
-          if (tradeContext.quoteDirection === TradeDirection.input) {
-            setOutputValue(tradeContext.expectedConvertQuote);
-          } else {
-            setInputValue(tradeContext.expectedConvertQuote);
-          }
-        },
+      subcriptions.push(
+        uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
+          (tradeContext) => {
+            if (tradeContext.quoteDirection === TradeDirection.input) {
+              setOutputValue(tradeContext.expectedConvertQuote);
+            } else {
+              setInputValue(tradeContext.expectedConvertQuote);
+            }
+          },
+        ),
+      );
+
+      setSelectorOpenFrom(uniswapDappSharedLogic.selectorOpenFrom);
+      subcriptions.push(
+        uniswapDappSharedLogic.selectorOpenFrom$.subscribe((openFrom) => {
+          setSelectorOpenFrom(openFrom);
+        }),
+      );
+
+      setMiningTransaction(uniswapDappSharedLogic.miningTransaction);
+      setMiningTransactionStatus(
+        uniswapDappSharedLogic.miningTransaction?.status,
+      );
+      subcriptions.push(
+        uniswapDappSharedLogic.miningTransaction$.subscribe(
+          (_miningTransaction) => {
+            setMiningTransaction(_miningTransaction);
+            setMiningTransactionStatus(_miningTransaction?.status);
+          },
+        ),
       );
 
       setLoading(false);
-      uniswapDappSharedLogic.loading.subscribe((loading) => {
-        setLoading(loading);
-      });
+      subcriptions.push(
+        uniswapDappSharedLogic.loading.subscribe((loading) => {
+          setLoading(loading);
+        }),
+      );
     })();
+
+    return () => {
+      for (let i = 0; i < subcriptions.length; i++) {
+        subcriptions[i].unsubscribe();
+      }
+    };
   }, []);
 
   const changeInputTradePrice = async (amount: string) => {
@@ -345,8 +415,14 @@ const UniswapReact = ({
 
                   <SwapQuoteInfo
                     uniswapDappSharedLogic={uniswapDappSharedLogic}
+                    tradeContext={tradeContext}
                   />
-                  <Approval uniswapDappSharedLogic={uniswapDappSharedLogic} />
+                  <Approval
+                    uniswapDappSharedLogic={uniswapDappSharedLogic}
+                    tradeContext={tradeContext}
+                    miningTransaction={miningTransaction}
+                    miningTransactionStatus={miningTransactionStatus}
+                  />
 
                   <div className="uni-ic__swap-button-container">
                     <button
@@ -403,11 +479,19 @@ const UniswapReact = ({
               setInputValue(swapCompleted.inputValue);
               setOutputValue(swapCompleted.outputValue);
             }}
+            selectorOpenFrom={selectorOpenFrom!}
+            tradeContext={tradeContext}
           />
 
-          <ConfirmSwap uniswapDappSharedLogic={uniswapDappSharedLogic} />
-
-          <TransactionModal uniswapDappSharedLogic={uniswapDappSharedLogic} />
+          <ConfirmSwap
+            uniswapDappSharedLogic={uniswapDappSharedLogic}
+            tradeContext={tradeContext}
+          />
+          <TransactionModal
+            uniswapDappSharedLogic={uniswapDappSharedLogic}
+            miningTransaction={miningTransaction}
+            miningTransactionStatus={miningTransactionStatus}
+          />
         </div>
       )}
     </div>

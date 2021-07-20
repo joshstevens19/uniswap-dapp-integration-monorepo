@@ -1,14 +1,19 @@
 import React from 'react';
-import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
+import {
+  TradeContext,
+  UniswapDappSharedLogic,
+} from 'uniswap-dapp-integration-shared';
 
 const SwapQuoteInfo = ({
   uniswapDappSharedLogic,
+  tradeContext,
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
+  tradeContext: TradeContext | undefined;
 }): JSX.Element => {
   return (
     <div>
-      {uniswapDappSharedLogic.tradeContext && (
+      {tradeContext && (
         <div className="uni-ic__swap-quote">
           <div className="uni-ic__swap-quote-container">
             <div className="uni-ic__swap-quote-price">
@@ -20,10 +25,7 @@ const SwapQuoteInfo = ({
                   fontSize: '14px',
                 }}
               >
-                <span>
-                  Best rate on{' '}
-                  {uniswapDappSharedLogic.tradeContext.uniswapVersion}
-                </span>
+                <span>Best rate on {tradeContext.uniswapVersion}</span>
               </div>
               <div
                 color="text"
@@ -36,9 +38,9 @@ const SwapQuoteInfo = ({
                 }}
               >
                 <span>
-                  1 {uniswapDappSharedLogic.tradeContext!.fromToken.symbol} ={' '}
+                  1 {tradeContext!.fromToken.symbol} ={' '}
                   {uniswapDappSharedLogic.workOutOneEqualTo()}{' '}
-                  {uniswapDappSharedLogic.tradeContext!.toToken.symbol}
+                  {tradeContext!.toToken.symbol}
                 </span>
                 <div className="uni-ic__swap-quote-price-text-info">
                   <div
@@ -80,14 +82,8 @@ const SwapQuoteInfo = ({
                             </div>
                           </div>
                           <div className="uni-ic__tooltip__item__value">
-                            {
-                              uniswapDappSharedLogic.tradeContext
-                                .liquidityProviderFee
-                            }{' '}
-                            {
-                              uniswapDappSharedLogic.tradeContext.fromToken
-                                .symbol
-                            }
+                            {tradeContext.liquidityProviderFee}{' '}
+                            {tradeContext.fromToken.symbol}
                           </div>
                         </div>
                         <div className="uni-ic__tooltip__item">
@@ -97,11 +93,10 @@ const SwapQuoteInfo = ({
                             </div>
                           </div>
                           <div className="uni-ic__tooltip__item__value">
-                            {uniswapDappSharedLogic.tradeContext.routeText}
+                            {tradeContext.routeText}
                           </div>
                         </div>
-                        {uniswapDappSharedLogic.tradeContext
-                          .minAmountConvertQuote && (
+                        {tradeContext.minAmountConvertQuote && (
                           <div className="uni-ic__tooltip__item">
                             <div className="uni-ic__tooltip__item__title">
                               <div className="uni-ic__tooltip__item__title__content">
@@ -109,18 +104,12 @@ const SwapQuoteInfo = ({
                               </div>
                             </div>
                             <div className="uni-ic__tooltip__item__value">
-                              {
-                                uniswapDappSharedLogic.tradeContext
-                                  .minAmountConvertQuote
-                              }{' '}
-                              {
-                                uniswapDappSharedLogic.tradeContext.toToken
-                                  .symbol
-                              }
+                              {tradeContext.minAmountConvertQuote}{' '}
+                              {tradeContext.toToken.symbol}
                             </div>
                           </div>
                         )}
-                        {uniswapDappSharedLogic.tradeContext.maximumSent && (
+                        {tradeContext.maximumSent && (
                           <div className="uni-ic__tooltip__item">
                             <div className="uni-ic__tooltip__item__title">
                               <div className="uni-ic__tooltip__item__title__content">
@@ -128,11 +117,8 @@ const SwapQuoteInfo = ({
                               </div>
                             </div>
                             <div className="uni-ic__tooltip__item__value">
-                              {uniswapDappSharedLogic.tradeContext.maximumSent}{' '}
-                              {
-                                uniswapDappSharedLogic.tradeContext.fromToken
-                                  .symbol
-                              }
+                              {tradeContext.maximumSent}{' '}
+                              {tradeContext.fromToken.symbol}
                             </div>
                           </div>
                         )}

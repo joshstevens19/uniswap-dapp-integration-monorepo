@@ -2,6 +2,7 @@ import React from 'react';
 import {
   SelectTokenActionFrom,
   SwapSwitchResponse,
+  TradeContext,
   UniswapDappSharedLogic,
   Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
@@ -10,9 +11,13 @@ import TokenIcon from './tokenIcon';
 const TokensModal = ({
   uniswapDappSharedLogic,
   switchSwapCompleted,
+  selectorOpenFrom,
+  tradeContext,
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
   switchSwapCompleted: (swapSwitchResponse: SwapSwitchResponse) => void;
+  selectorOpenFrom: SelectTokenActionFrom;
+  tradeContext: TradeContext | undefined;
 }): JSX.Element => {
   const [searchToken, setSearchToken] = React.useState('');
 
@@ -22,20 +27,14 @@ const TokensModal = ({
   };
 
   const changeSelectToken = async (contractAddress: string) => {
-    switch (uniswapDappSharedLogic.selectorOpenFrom) {
+    switch (selectorOpenFrom) {
       case SelectTokenActionFrom.input:
-        if (
-          uniswapDappSharedLogic.tradeContext?.fromToken.contractAddress ===
-          contractAddress
-        ) {
+        if (tradeContext?.fromToken.contractAddress === contractAddress) {
           uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
 
-        if (
-          uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
-          contractAddress
-        ) {
+        if (tradeContext?.toToken.contractAddress === contractAddress) {
           const swapResponse = await uniswapDappSharedLogic.swapSwitch();
           switchSwapCompleted(swapResponse);
           uniswapDappSharedLogic.hideTokenSelector();
@@ -44,18 +43,12 @@ const TokensModal = ({
         await uniswapDappSharedLogic.changeToken(contractAddress);
         return;
       case SelectTokenActionFrom.output:
-        if (
-          uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
-          contractAddress
-        ) {
+        if (tradeContext?.toToken.contractAddress === contractAddress) {
           uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
 
-        if (
-          uniswapDappSharedLogic.tradeContext?.fromToken.contractAddress ===
-          contractAddress
-        ) {
+        if (tradeContext?.fromToken.contractAddress === contractAddress) {
           const swapResponse = await uniswapDappSharedLogic.swapSwitch();
           switchSwapCompleted(swapResponse);
           uniswapDappSharedLogic.hideTokenSelector();
@@ -115,13 +108,11 @@ const TokensModal = ({
                             (token.contractAddress ===
                               uniswapDappSharedLogic.inputToken
                                 .contractAddress &&
-                              uniswapDappSharedLogic.selectorOpenFrom ===
-                                'input') ||
+                              selectorOpenFrom === 'input') ||
                             (token.contractAddress ===
                               uniswapDappSharedLogic.outputToken
                                 ?.contractAddress &&
-                              uniswapDappSharedLogic.selectorOpenFrom ===
-                                'output')
+                              selectorOpenFrom === 'output')
                               ? 'selected'
                               : ''
                           }`}

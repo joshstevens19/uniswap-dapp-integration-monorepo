@@ -2,8 +2,10 @@ export {
   ChainId,
   ETH,
   Token,
+  TradeContext,
   TradeDirection,
   Transaction,
+  UniswapSubscription,
   WETHContract,
 } from 'simple-uniswap-sdk';
 export * from './models';

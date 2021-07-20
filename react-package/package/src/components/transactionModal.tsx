@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   MiningTransaction,
   TransactionStatus,
@@ -7,26 +7,13 @@ import {
 
 const TransactionModal = ({
   uniswapDappSharedLogic,
+  miningTransaction,
+  miningTransactionStatus,
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
+  miningTransaction: MiningTransaction | undefined;
+  miningTransactionStatus: TransactionStatus | undefined;
 }): JSX.Element => {
-  const [miningTransaction, setMiningTransaction] = React.useState<
-    MiningTransaction | undefined
-  >(uniswapDappSharedLogic.miningTransaction);
-
-  const [miningTransactionStatus, setMiningTransactionStatus] = React.useState<
-    TransactionStatus | undefined
-  >();
-
-  useEffect(() => {
-    uniswapDappSharedLogic.miningTransaction$.subscribe(
-      (_miningTransaction) => {
-        setMiningTransaction(_miningTransaction);
-        setMiningTransactionStatus(_miningTransaction?.status);
-      },
-    );
-  }, []);
-
   const transactionStatus = TransactionStatus;
   const viewOnEtherscan = () => {
     if (miningTransaction?.blockExplorerLink) {

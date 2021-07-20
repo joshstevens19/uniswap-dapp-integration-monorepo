@@ -37,6 +37,7 @@ export class UniswapDappSharedLogic {
   public outputToken$: Subject<ExtendedToken> = new Subject();
   public factory: UniswapPairFactory | undefined;
   public tradeContext: TradeContext | undefined;
+  public tradeContext$: Subject<TradeContext | undefined> = new Subject();
   public newPriceTradeContext: TradeContext | undefined;
   // this is used to alert the UI to change the framework
   // binded values
@@ -47,6 +48,8 @@ export class UniswapDappSharedLogic {
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
   public uniswapPairSettings$: Subject<UniswapPairSettings> = new Subject();
   public selectorOpenFrom: SelectTokenActionFrom | undefined;
+  public selectorOpenFrom$: Subject<SelectTokenActionFrom | undefined> =
+    new Subject();
   public chainId!: number;
   public chainId$: Subject<number> = new Subject();
   public supportedNetwork = false;
@@ -286,16 +289,18 @@ export class UniswapDappSharedLogic {
    * Open token selector from
    */
   public openTokenSelectorFrom(): void {
-    this.selectorOpenFrom = SelectTokenActionFrom.input;
     this._theming.showTokenSelector();
+    this.selectorOpenFrom = SelectTokenActionFrom.input;
+    this.selectorOpenFrom$.next(this.selectorOpenFrom);
   }
 
   /**
    * Open token selector to
    */
   public openTokenSelectorTo(): void {
-    this.selectorOpenFrom = SelectTokenActionFrom.output;
     this._theming.showTokenSelector();
+    this.selectorOpenFrom = SelectTokenActionFrom.output;
+    this.selectorOpenFrom$.next(this.selectorOpenFrom);
   }
 
   /**
@@ -431,6 +436,7 @@ export class UniswapDappSharedLogic {
   public acceptPriceChange(): void {
     if (this.newPriceTradeContext) {
       this.tradeContext = this.newPriceTradeContext;
+      this.tradeContext$.next(this.tradeContext);
     }
     this.newPriceTradeContext = undefined;
     this.userAcceptedPriceChange = true;
@@ -667,6 +673,7 @@ export class UniswapDappSharedLogic {
     if (amount.isGreaterThan(0)) {
       const context = await this.factory!.trade(amount.toFixed(), direction);
       this.tradeContext = this.formatTradeContext(context);
+      this.tradeContext$.next(this.tradeContext);
 
       this._quoteSubscription = this.tradeContext?.quoteChanged$.subscribe(
         (quote) => {
@@ -683,6 +690,7 @@ export class UniswapDappSharedLogic {
               this.newPriceTradeContext = formattedQuote;
             } else {
               this.tradeContext = formattedQuote;
+              this.tradeContext$.next(this.tradeContext);
               this.newPriceTradeContextAvailable.next(formattedQuote);
             }
           }
