@@ -111,9 +111,9 @@ const ConfirmSwap = ({
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="#565A69"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <polyline points="19 12 12 19 5 12"></polyline>
@@ -357,24 +357,24 @@ const ConfirmSwap = ({
                     {uniswapDappSharedLogic.tradeContext
                       .minAmountConvertQuote && (
                       <span>
-                        Output is estimated. You will receive at least
+                        Output is estimated. You will receive at least{' '}
                         <b>
                           {
                             uniswapDappSharedLogic.tradeContext
                               .minAmountConvertQuote
-                          }
+                          }{' '}
                           {uniswapDappSharedLogic.tradeContext.toToken.symbol}
-                        </b>
+                        </b>{' '}
                         or the transaction will revert.
                       </span>
                     )}
                     {uniswapDappSharedLogic.tradeContext.maximumSent && (
                       <span>
-                        Input is estimated. You will sell at most
+                        Input is estimated. You will sell at most{' '}
                         <b>
-                          {uniswapDappSharedLogic.tradeContext.maximumSent}
+                          {uniswapDappSharedLogic.tradeContext.maximumSent}{' '}
                           {uniswapDappSharedLogic.tradeContext.fromToken.symbol}
-                        </b>
+                        </b>{' '}
                         or the transaction will revert.
                       </span>
                     )}
