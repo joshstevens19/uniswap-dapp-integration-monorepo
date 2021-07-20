@@ -267,6 +267,7 @@
         -webkit-box-pack: start;
         justify-content: flex-start;
         width: fit-content;
+        height: 17px;
 
         &-text {
           box-sizing: border-box;
@@ -274,6 +275,8 @@
           min-width: 0px;
           font-weight: 400;
           font-size: 14px;
+          display: inline;
+          cursor: pointer;
         }
       }
 
@@ -461,6 +464,18 @@
           font-weight: 400;
           line-height: 1.5;
           font-size: 14px;
+          padding: 0.1rem 0.5rem 0.1rem 0.35rem;
+          justify-content: center;
+          align-items: center;
+          display: 'flex';
+
+          &-info {
+            &__container {
+              padding: 0.25rem;
+              line-height: 0;
+              display: inline-block;
+            }
+          }
         }
       }
 
@@ -541,6 +556,7 @@
     display: grid;
     grid-auto-rows: auto;
     row-gap: 12px;
+    padding: 1rem;
 
     &-container {
       min-width: 20.125rem;
@@ -793,6 +809,7 @@
             position: relative;
             padding: 0px 0.75rem;
             flex: 1 1 0%;
+            width: 80px;
           }
 
           &-input {
@@ -814,6 +831,7 @@
             min-width: 0px;
             font-weight: 400;
             font-size: 14px;
+            padding-left: 8px;
           }
         }
       }
@@ -1014,6 +1032,7 @@
           -webkit-box-pack: start;
           justify-content: flex-start;
           width: fit-content;
+          justify-self: flex-end;
 
           &-value {
             box-sizing: border-box;
@@ -1052,6 +1071,7 @@
           border-radius: 16px;
           padding: 0.75rem 1rem;
           background-color: RGB(237, 238, 242);
+          margin-bottom: 0.25rem;
         }
 
         &-header {
@@ -1118,6 +1138,7 @@
               height: 20px;
               box-shadow: RGB(0 0 0 / 8%) 0px 6px 10px;
               border-radius: 24px;
+              margin-right: 12px;
             }
 
             &__label {
@@ -1133,13 +1154,14 @@
             box-sizing: border-box;
             min-width: 0px;
             display: flex;
-            padding: 0px;
+            padding: 0px 1rem;
             -webkit-box-align: center;
             align-items: center;
             -webkit-box-pack: start;
             justify-content: flex-start;
             width: fit-content;
             margin: 0px;
+            margin-top: 0.25rem;
 
             &-text {
               box-sizing: border-box;
@@ -1223,10 +1245,11 @@
         &-container {
           box-sizing: border-box;
           margin: 0px;
+          margin-top: 0.5rem;
           min-width: 0px;
           width: 100%;
           border-radius: 16px;
-          padding: 1rem;
+          padding: 0.75rem;
           border: 1px solid RGB(237, 238, 242);
           background-color: RGB(247, 248, 250);
         }
@@ -1279,17 +1302,20 @@
       &__output-info {
         box-sizing: border-box;
         margin: 0px;
-        min-width: 0px;
+        min-width: 24px;
         font-weight: 400;
         font-size: 12px;
         font-style: italic;
         text-align: left;
+        width: 100%;
 
         &-container {
           display: grid;
           grid-auto-rows: auto;
           row-gap: 8px;
           justify-items: flex-start;
+          padding: 0.75rem 1rem;
+          min-width: 24px;
         }
       }
 
@@ -1338,6 +1364,7 @@
           transform: perspective(1px) translateZ(0px);
           background-color: RGB(255, 0, 122);
           color: white;
+          margin: 10px 0px 0px;
 
           &:disabled {
             background-color: RGB(255, 0, 122);
@@ -1396,6 +1423,11 @@
           justify-content: flex-start;
           width: fit-content;
 
+          svg {
+            margin-right: 8px;
+            min-width: 24px;
+          }
+
           &-content {
             box-sizing: border-box;
             margin: 0px;
@@ -1406,8 +1438,8 @@
         }
 
         &__action {
-          padding: 16px;
-          width: 100%;
+          padding: 0.5rem;
+          width: fit-content;
           font-weight: 500;
           text-align: center;
           border-radius: 20px;
@@ -1434,6 +1466,8 @@
           appearance: none;
           display: inline-block;
           line-height: inherit;
+          border-radius: 12px;
+          font-size: 12px;
         }
       }
     }
@@ -1547,6 +1581,8 @@
           grid-auto-rows: auto;
           row-gap: 24px;
           justify-items: center;
+          margin-top: 20px;
+          padding: 2rem 0px;
 
           &-text {
             box-sizing: border-box;
@@ -1555,6 +1591,9 @@
             font-weight: 500;
             font-size: 16px;
             color: RGB(218, 45, 43);
+            text-align: center;
+            width: 85%;
+            word-break: break-word;
           }
         }
 
@@ -1619,6 +1658,7 @@
       border-radius: 8px;
       position: absolute;
       margin-left: 30px;
+      right: 10px;
     }
 
     &-container {

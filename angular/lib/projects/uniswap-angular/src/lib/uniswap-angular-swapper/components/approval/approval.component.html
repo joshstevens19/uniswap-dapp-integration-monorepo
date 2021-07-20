@@ -1,5 +1,4 @@
 <button
-  width="100%"
   class="uni-ic__swap-allow uni-ic__theme-background-button"
   *ngIf="
     uniswapDappSharedLogic.tradeContext?.approvalTransaction &&
@@ -8,7 +7,7 @@
   (click)="uniswapDappSharedLogic.approveAllowance()"
 >
   <div class="uni-ic__swap-allow-container">
-    <span style="display: flex; align-items: center">
+    <span>
       <img
         *ngIf="!uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg"
         [src]="uniswapDappSharedLogic.inputToken.tokenImageContext.image"

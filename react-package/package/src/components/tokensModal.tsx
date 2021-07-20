@@ -144,10 +144,7 @@ const TokensModal = ({
 
                               <span></span>
 
-                              <div
-                                className="uni-ic__modal-tokens-item-balance-content"
-                                style={{ justifySelf: 'flex-end' }}
-                              >
+                              <div className="uni-ic__modal-tokens-item-balance-content">
                                 <div className="uni-ic__modal-tokens-item-balance-content-value">
                                   {utils.toPrecision(token.balance)}
                                 </div>

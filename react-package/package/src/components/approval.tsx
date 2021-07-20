@@ -17,12 +17,11 @@ const Approval = ({
       {uniswapDappSharedLogic.tradeContext?.approvalTransaction &&
         uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough && (
           <button
-            style={{ width: '100%' }}
             className="uni-ic__swap-allow uni-ic__theme-background-button"
             onClick={() => uniswapDappSharedLogic.approveAllowance()}
           >
             <div className="uni-ic__swap-allow-container">
-              <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span>
                 <TokenIcon
                   classes="uni-ic__swap-allow-icon"
                   tokenImageContext={

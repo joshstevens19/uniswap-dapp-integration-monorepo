@@ -4,6 +4,7 @@ import {
   UniswapDappSharedLogic,
   Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
+import TokenIcon from './tokenIcon';
 
 const ConfirmSwap = ({
   uniswapDappSharedLogic,
@@ -49,29 +50,12 @@ const ConfirmSwap = ({
                     </div>
                     <div className="uni-ic__modal-confirm-swap__input-main">
                       <div className="uni-ic__modal-confirm-swap__input-main__symbol">
-                        {!uniswapDappSharedLogic.inputToken.tokenImageContext
-                          .isSvg && (
-                          <img
-                            src={
-                              uniswapDappSharedLogic.inputToken
-                                .tokenImageContext.image
-                            }
-                            className="uni-ic__modal-confirm-swap__input-main__symbol__image"
-                            style={{ marginRight: '12px' }}
-                          />
-                        )}
-                        {uniswapDappSharedLogic.inputToken.tokenImageContext
-                          .isSvg && (
-                          <div
-                            className="uni-ic__modal-confirm-swap__input-main__symbol__image"
-                            style={{ marginRight: '12px' }}
-                          >
-                            {
-                              uniswapDappSharedLogic.inputToken
-                                .tokenImageContext.image
-                            }
-                          </div>
-                        )}
+                        <TokenIcon
+                          classes="uni-ic__modal-confirm-swap__input-main__symbol__image"
+                          tokenImageContext={
+                            uniswapDappSharedLogic.inputToken.tokenImageContext
+                          }
+                        />
                         <div className="uni-ic__modal-confirm-swap__input-main__symbol__label">
                           {uniswapDappSharedLogic.tradeContext.fromToken.symbol}
                         </div>
@@ -119,10 +103,7 @@ const ConfirmSwap = ({
                     <polyline points="19 12 12 19 5 12"></polyline>
                   </svg>
                 </div>
-                <div
-                  className="uni-ic__modal-confirm-swap__output-container uni-ic__theme-panel"
-                  style={{ marginBottom: '0.25rem' }}
-                >
+                <div className="uni-ic__modal-confirm-swap__output-container uni-ic__theme-panel">
                   <div className="uni-ic__modal-confirm-swap__output">
                     <div className="uni-ic__modal-confirm-swap__output-header">
                       <div className="uni-ic__modal-confirm-swap__output-header__text">
@@ -144,30 +125,13 @@ const ConfirmSwap = ({
                     </div>
                     <div className="uni-ic__modal-confirm-swap__output-main">
                       <div className="uni-ic__modal-confirm-swap__output-main__symbol">
-                        {!uniswapDappSharedLogic.outputToken!.tokenImageContext
-                          .isSvg && (
-                          <img
-                            className="uni-ic__modal-confirm-swap__output-main__symbol__image"
-                            src={
-                              uniswapDappSharedLogic.outputToken!
-                                .tokenImageContext.image
-                            }
-                            style={{ marginRight: '12px' }}
-                          />
-                        )}
-
-                        {uniswapDappSharedLogic.outputToken!.tokenImageContext
-                          .isSvg && (
-                          <div
-                            className="uni-ic__modal-confirm-swap__output-main__symbol__image"
-                            style={{ marginRight: '12px' }}
-                          >
-                            {
-                              uniswapDappSharedLogic.outputToken!
-                                .tokenImageContext.image
-                            }
-                          </div>
-                        )}
+                        <TokenIcon
+                          classes="uni-ic__modal-confirm-swap__output-main__symbol__image"
+                          tokenImageContext={
+                            uniswapDappSharedLogic.outputToken!
+                              .tokenImageContext
+                          }
+                        />
 
                         <div className="uni-ic__modal-confirm-swap__output-main__symbol__label">
                           {uniswapDappSharedLogic.tradeContext.toToken.symbol}
@@ -199,33 +163,21 @@ const ConfirmSwap = ({
                     </div>
                   </div>
                 </div>
-                <div
-                  className="uni-ic__modal-confirm-swap__price"
-                  style={{ marginTop: '0.25rem', padding: '0px 1rem' }}
-                >
+                <div className="uni-ic__modal-confirm-swap__price">
                   <div className="uni-ic__modal-confirm-swap__price__title">
                     Price
                   </div>
                   <button className="uni-ic__modal-confirm-swap__price__rate-button">
-                    <div
-                      style={{
-                        alignItems: 'center',
-                        display: 'flex',
-                        width: 'fit-content',
-                      }}
-                    >
-                      <div className="uni-ic__modal-confirm-swap__price__rate">
-                        1{uniswapDappSharedLogic.tradeContext.fromToken.symbol}{' '}
-                        ={uniswapDappSharedLogic.workOutOneEqualTo()}
+                    <div className="uni-ic__modal-confirm-swap__price__rate">
+                      <span>
+                        1 {uniswapDappSharedLogic.tradeContext.fromToken.symbol}{' '}
+                        = {uniswapDappSharedLogic.workOutOneEqualTo()}{' '}
                         {uniswapDappSharedLogic.tradeContext.toToken.symbol}
-                      </div>
+                      </span>
                     </div>
                   </button>
                 </div>
-                <div
-                  className="uni-ic__modal-confirm-swap__info-container uni-ic__theme-panel"
-                  style={{ marginTop: '0.5rem', padding: '0.75rem' }}
-                >
+                <div className="uni-ic__modal-confirm-swap__info-container uni-ic__theme-panel">
                   <div className="uni-ic__modal-confirm-swap__info">
                     <div className="uni-ic__modal-confirm-swap__info__item">
                       <div className="uni-ic__modal-confirm-swap__info__item__title">
@@ -319,7 +271,6 @@ const ConfirmSwap = ({
                           strokeWidth="2"
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          style={{ marginRight: '8px', minWidth: '24px' }}
                         >
                           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                           <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -334,26 +285,14 @@ const ConfirmSwap = ({
                         onClick={() =>
                           uniswapDappSharedLogic!.acceptPriceChange()
                         }
-                        style={{
-                          padding: '0.5rem',
-                          width: 'fit-content',
-                          fontSize: '0.825rem',
-                          borderRadius: '12px',
-                        }}
                       >
                         Accept
                       </button>
                     </div>
                   </div>
                 )}
-                <div
-                  className="uni-ic__modal-confirm-swap__output-info-container"
-                  style={{ padding: '0.75rem 1rem', minWidth: '24px' }}
-                >
-                  <div
-                    className="uni-ic__modal-confirm-swap__output-info"
-                    style={{ width: '100%', minWidth: '24px' }}
-                  >
+                <div className="uni-ic__modal-confirm-swap__output-info-container">
+                  <div className="uni-ic__modal-confirm-swap__output-info">
                     {uniswapDappSharedLogic.tradeContext
                       .minAmountConvertQuote && (
                       <span>
@@ -387,7 +326,6 @@ const ConfirmSwap = ({
                   <button
                     id="confirm-swap-or-send"
                     className="uni-ic__modal-confirm-swap__action__button uni-ic__theme-background-button"
-                    style={{ margin: '10px 0px 0px' }}
                     disabled={
                       uniswapDappSharedLogic.newPriceTradeContext !== undefined
                     }

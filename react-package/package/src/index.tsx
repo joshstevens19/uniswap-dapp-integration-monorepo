@@ -187,14 +187,8 @@ const UniswapReact = ({
                         </div>
                         <div className="uni-ic__swap-content-balance-and-price-container">
                           <div className="uni-ic__swap-content-balance-and-price">
-                            <div
-                              className="uni-ic__swap-content-balance-and-price__balance"
-                              style={{ height: '17px' }}
-                            >
-                              <div
-                                className="uni-ic__swap-content-balance-and-price__balance-text"
-                                style={{ display: 'inline', cursor: 'pointer' }}
-                              >
+                            <div className="uni-ic__swap-content-balance-and-price__balance">
+                              <div className="uni-ic__swap-content-balance-and-price__balance-text">
                                 <span>
                                   Balance:{' '}
                                   {utils.toPrecision(inputToken.balance)}{' '}
@@ -312,17 +306,8 @@ const UniswapReact = ({
                         {outputToken && (
                           <div className="uni-ic__swap-content-balance-and-price-container">
                             <div className="uni-ic__swap-content-balance-and-price">
-                              <div
-                                className="uni-ic__swap-content-balance-and-price__balance"
-                                style={{ height: '17px' }}
-                              >
-                                <div
-                                  className="uni-ic__swap-content-balance-and-price__balance-text"
-                                  style={{
-                                    display: 'inline',
-                                    cursor: 'pointer',
-                                  }}
-                                >
+                              <div className="uni-ic__swap-content-balance-and-price__balance">
+                                <div className="uni-ic__swap-content-balance-and-price__balance-text">
                                   <span>
                                     Balance:{' '}
                                     {utils.toPrecision(outputToken!.balance)}{' '}

@@ -70,7 +70,7 @@ const Header = ({
           </button>
 
           <span className="uni-ic__settings-container uni-ic-hidden uni-ic__theme-panel">
-            <div className="uni-ic__settings" style={{ padding: '1rem' }}>
+            <div className="uni-ic__settings">
               <div className="uni-ic__settings-transaction-title">
                 Transaction Settings
               </div>
@@ -212,10 +212,7 @@ const Header = ({
                     </span>
                   </div>
                   <div className="uni-ic__settings-transaction-deadline-minute">
-                    <button
-                      className="uni-ic__settings-transaction-deadline-minute-button"
-                      style={{ width: '80px' }}
-                    >
+                    <button className="uni-ic__settings-transaction-deadline-minute-button">
                       <input
                         placeholder="20"
                         className="uni-ic__settings-transaction-deadline-minute-input"
@@ -228,10 +225,7 @@ const Header = ({
                         }}
                       />
                     </button>
-                    <div
-                      className="uni-ic__settings-transaction-deadline-minute-label"
-                      style={{ paddingLeft: '8px' }}
-                    >
+                    <div className="uni-ic__settings-transaction-deadline-minute-label">
                       minutes
                     </div>
                   </div>

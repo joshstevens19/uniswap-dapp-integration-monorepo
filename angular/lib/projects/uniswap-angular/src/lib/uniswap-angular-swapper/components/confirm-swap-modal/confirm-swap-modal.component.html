@@ -51,7 +51,6 @@
                   uniswapDappSharedLogic.inputToken.tokenImageContext.image
                 "
                 class="uni-ic__modal-confirm-swap__input-main__symbol__image"
-                style="margin-right: 12px"
               />
               <div
                 *ngIf="
@@ -62,7 +61,6 @@
                   uniswapDappSharedLogic.inputToken.tokenImageContext.image
                     | safe
                 "
-                style="margin-right: 12px"
               ></div>
               <div
                 class="uni-ic__modal-confirm-swap__input-main__symbol__label"
@@ -115,7 +113,6 @@
       </div>
       <div
         class="uni-ic__modal-confirm-swap__output-container uni-ic__theme-panel"
-        style="margin-bottom: 0.25rem"
       >
         <div class="uni-ic__modal-confirm-swap__output">
           <div class="uni-ic__modal-confirm-swap__output-header">
@@ -146,7 +143,6 @@
                 [src]="
                   uniswapDappSharedLogic.outputToken!.tokenImageContext.image
                 "
-                style="margin-right: 12px"
               />
               <div
                 *ngIf="
@@ -157,7 +153,6 @@
                   uniswapDappSharedLogic.outputToken!.tokenImageContext.image
                     | safe
                 "
-                style="margin-right: 12px"
               ></div>
 
               <div
@@ -192,25 +187,19 @@
           </div>
         </div>
       </div>
-      <div
-        class="uni-ic__modal-confirm-swap__price"
-        style="margin-top: 0.25rem; padding: 0px 1rem"
-      >
+      <div class="uni-ic__modal-confirm-swap__price">
         <div class="uni-ic__modal-confirm-swap__price__title">Price</div>
         <button class="uni-ic__modal-confirm-swap__price__rate-button">
-          <div style="align-items: center; display: flex; width: fit-content">
-            <div class="uni-ic__modal-confirm-swap__price__rate">
-              1
-              {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }} =
-              {{ uniswapDappSharedLogic.workOutOneEqualTo() }}
-              {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}
-            </div>
+          <div class="uni-ic__modal-confirm-swap__price__rate">
+            1
+            {{ uniswapDappSharedLogic.tradeContext.fromToken.symbol }} =
+            {{ uniswapDappSharedLogic.workOutOneEqualTo() }}
+            {{ uniswapDappSharedLogic.tradeContext.toToken.symbol }}
           </div>
         </button>
       </div>
       <div
         class="uni-ic__modal-confirm-swap__info-container uni-ic__theme-panel"
-        style="padding: 0.75rem; margin-top: 0.5rem"
       >
         <div class="uni-ic__modal-confirm-swap__info">
           <div class="uni-ic__modal-confirm-swap__info__item">
@@ -324,7 +313,6 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              style="margin-right: 8px; min-width: 24px"
             >
               <path
                 d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
@@ -344,25 +332,13 @@
               uni-ic__theme-background-button
             "
             (click)="uniswapDappSharedLogic.acceptPriceChange()"
-            style="
-              padding: 0.5rem;
-              width: fit-content;
-              font-size: 0.825rem;
-              border-radius: 12px;
-            "
           >
             Accept
           </button>
         </div>
       </div>
-      <div
-        class="uni-ic__modal-confirm-swap__output-info-container"
-        style="padding: 0.75rem 1rem"
-      >
-        <div
-          class="uni-ic__modal-confirm-swap__output-info"
-          style="width: 100%"
-        >
+      <div class="uni-ic__modal-confirm-swap__output-info-container">
+        <div class="uni-ic__modal-confirm-swap__output-info">
           <span
             *ngIf="uniswapDappSharedLogic.tradeContext.minAmountConvertQuote"
           >
@@ -393,7 +369,6 @@
             uni-ic__modal-confirm-swap__action__button
             uni-ic__theme-background-button
           "
-          style="margin: 10px 0px 0px"
           [disabled]="uniswapDappSharedLogic.newPriceTradeContext"
           (click)="uniswapDappSharedLogic.swapTransaction()"
         >
