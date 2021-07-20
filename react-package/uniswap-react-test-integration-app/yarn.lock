@@ -11247,14 +11247,9 @@ unique-string@^1.0.0:
   dependencies:
     crypto-random-string "^1.0.0"
 
-"uniswap-dapp-integration-shared@file:uniswap-dapp-integration-shared-1.0.0.tgz":
-  version "1.0.0"
-  resolved "file:uniswap-dapp-integration-shared-1.0.0.tgz#5513e2c9821c235c5ba1ea54bc10386c6a01bc2c"
-  dependencies:
-    bignumber.js "^9.0.1"
-    ethers "^5.4.0"
-    rxjs "^7.1.0"
-    simple-uniswap-sdk "^3.0.0"
+"uniswap-dapp-integration-shared@link:../../shared":
+  version "0.0.0"
+  uid ""
 
 "uniswap-react@link:../package":
   version "0.0.0"

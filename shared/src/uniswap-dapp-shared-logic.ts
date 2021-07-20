@@ -32,7 +32,9 @@ import { Utils } from './utils';
 
 export class UniswapDappSharedLogic {
   public inputToken!: ExtendedToken;
+  public inputToken$: Subject<ExtendedToken> = new Subject();
   public outputToken: ExtendedToken | undefined;
+  public outputToken$: Subject<ExtendedToken> = new Subject();
   public factory: UniswapPairFactory | undefined;
   public tradeContext: TradeContext | undefined;
   public newPriceTradeContext: TradeContext | undefined;
@@ -40,9 +42,10 @@ export class UniswapDappSharedLogic {
   // binded values
   public newPriceTradeContextAvailable = new Subject<TradeContext>();
   public loading = new BehaviorSubject<boolean>(false);
-  public supportedTokenBalances!: SupportedTokenResult[];
+  public supportedTokenBalances: SupportedTokenResult[] = [];
   public userAcceptedPriceChange = true;
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
+  public uniswapPairSettings$: Subject<UniswapPairSettings> = new Subject();
   public selectorOpenFrom: SelectTokenActionFrom | undefined;
   public chainId!: number;
   public supportedNetwork = false;
@@ -76,6 +79,8 @@ export class UniswapDappSharedLogic {
     if (this._context.settings) {
       this.uniswapPairSettings = this._context.settings;
     }
+
+    this.uniswapPairSettings$.next(this.uniswapPairSettings);
   }
 
   /**
@@ -112,8 +117,9 @@ export class UniswapDappSharedLogic {
       inputToken,
       this._context.ethereumProvider,
     );
+    this.inputToken$.next(this.inputToken);
 
-    this.getBalances();
+    await this.getBalances();
     this._blockStream = this.subscribeToBlockStream();
     this._theming.apply();
 
@@ -127,6 +133,7 @@ export class UniswapDappSharedLogic {
         inputToken,
         this._context.ethereumProvider,
       );
+      this.inputToken$.next(this.inputToken);
     }
 
     // resync once got context so ordering of tokens
@@ -433,6 +440,7 @@ export class UniswapDappSharedLogic {
    */
   public async setDisableMultihops(disableMultihops: boolean): Promise<void> {
     this.uniswapPairSettings.disableMultihops = disableMultihops;
+    this.uniswapPairSettings$.next(this.uniswapPairSettings);
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
@@ -451,6 +459,9 @@ export class UniswapDappSharedLogic {
     } else {
       this.uniswapPairSettings.deadlineMinutes = Number(deadlineMinutes);
     }
+
+    this.uniswapPairSettings$.next(this.uniswapPairSettings);
+
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
@@ -467,6 +478,9 @@ export class UniswapDappSharedLogic {
     } else {
       this.uniswapPairSettings.slippage = Number(slippage) / 100;
     }
+
+    this.uniswapPairSettings$.next(this.uniswapPairSettings);
+
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
@@ -477,13 +491,15 @@ export class UniswapDappSharedLogic {
    * Search for tokens
    * @param search The search term
    */
-  public searchToken(search: string): void {
+  public searchToken(search: string): SupportedTokenResult[] {
     this.currentTokenSearch = search;
 
     this.supportedTokenBalances = this._tokenService.searchToken(
       search,
       this.supportedTokenBalances,
     );
+
+    return this.supportedTokenBalances;
   }
 
   /**
@@ -579,11 +595,13 @@ export class UniswapDappSharedLogic {
       await this.factory.getFromTokenBalance(),
       fiatPrices,
     );
+    this.inputToken$.next(this.inputToken);
     this.outputToken = await this._tokenService.buildExtendedToken(
       this.factory.toToken,
       await this.factory.getToTokenBalance(),
       fiatPrices,
     );
+    this.outputToken$.next(this.outputToken);
     if (executeTrade) {
       await this.trade(this._inputAmount, TradeDirection.input);
     }

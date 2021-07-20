@@ -8,14 +8,20 @@ import {
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
+import { ExtendedToken } from 'uniswap-dapp-integration-shared/dist/token/models/extended-token';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import Approval from './components/approval';
 import ConfirmSwap from './components/confirmSwap';
 import Header from './components/header';
 import Loading from './components/loading';
 import SwapQuoteInfo from './components/swapQuoteInfo';
+import TokensModal from './components/tokensModal';
 
 let uniswapDappSharedLogic: undefined | UniswapDappSharedLogic;
+
+setInterval(() => {
+  console.log(uniswapDappSharedLogic);
+}, 2000);
 
 const UniswapReact = ({
   uniswapDappSharedLogicContext,
@@ -23,7 +29,9 @@ const UniswapReact = ({
   uniswapDappSharedLogicContext: UniswapDappSharedLogicContext;
 }): JSX.Element => {
   const [loading, setLoading] = React.useState(true);
+  const [inputToken, setInputToken] = React.useState<ExtendedToken>();
   const [inputValue, setInputValue] = React.useState('');
+  const [outputToken, setOutputToken] = React.useState<ExtendedToken>();
   const [outputValue, setOutputValue] = React.useState('');
 
   const utils = UniswapUtils;
@@ -34,14 +42,13 @@ const UniswapReact = ({
         uniswapDappSharedLogicContext,
       );
 
-      console.log(sharedLogic);
-
       if (uniswapDappSharedLogicContext.defaultInputValue) {
         setInputValue(uniswapDappSharedLogicContext.defaultInputValue);
       }
 
       try {
         await sharedLogic!.init();
+        console.log(sharedLogic);
       } catch (error) {
         if (error.message.includes('unsupported network')) {
           setLoading(false);
@@ -55,8 +62,15 @@ const UniswapReact = ({
 
       uniswapDappSharedLogic = sharedLogic;
 
+      uniswapDappSharedLogic.inputToken$.subscribe((token) => {
+        setInputToken(token);
+      });
+
+      uniswapDappSharedLogic.outputToken$.subscribe((token) => {
+        setOutputToken(token);
+      });
+
       setLoading(false);
-      console.log(inputValue, outputValue, uniswapDappSharedLogic);
     })();
   }, []);
 
@@ -99,7 +113,7 @@ const UniswapReact = ({
     <div className="uniswap-dapp-react">
       {loading && <Loading />}
 
-      {!loading && uniswapDappSharedLogic && (
+      {!loading && uniswapDappSharedLogic && inputToken && (
         <div>
           <div className="uni-ic uni-ic__theme-background">
             <Header uniswapDappSharedLogic={uniswapDappSharedLogic} />
@@ -116,28 +130,24 @@ const UniswapReact = ({
                           }
                         >
                           <span className="uni-ic__swap-input-content-main-from-currency">
-                            {!uniswapDappSharedLogic.inputToken
-                              .tokenImageContext.isSvg && (
+                            {!inputToken.tokenImageContext.isSvg && (
                               <img
-                                src={
-                                  uniswapDappSharedLogic.inputToken
-                                    .tokenImageContext.image
-                                }
+                                src={inputToken.tokenImageContext.image}
                                 className="uni-ic__swap-input-content-main-from-currency-icon"
                               />
                             )}
-                            {uniswapDappSharedLogic.inputToken.tokenImageContext
-                              .isSvg && (
+                            {inputToken.tokenImageContext.isSvg && (
                               <div className="uni-ic__swap-input-content-main-from-currency-icon">
-                                {
-                                  uniswapDappSharedLogic.inputToken
-                                    .tokenImageContext.image
-                                }
+                                <span
+                                  dangerouslySetInnerHTML={{
+                                    __html: inputToken.tokenImageContext.image,
+                                  }}
+                                ></span>
                               </div>
                             )}
 
                             <span className="uni-ic__swap-input-content-main-from-currency-symbol">
-                              {uniswapDappSharedLogic.inputToken.symbol}
+                              {inputToken.symbol}
                             </span>
                             <svg
                               width="12"
@@ -161,7 +171,7 @@ const UniswapReact = ({
                           step="any"
                           placeholder="0.0"
                           // onInput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                          maxLength={uniswapDappSharedLogic.inputToken.decimals}
+                          maxLength={inputToken.decimals}
                           value={inputValue}
                           onChange={(e) => {
                             changeInputTradePrice(e.target.value);
@@ -179,26 +189,23 @@ const UniswapReact = ({
                               className="uni-ic__swap-content-balance-and-price__balance-text"
                               style={{ display: 'inline', cursor: 'pointer' }}
                             >
-                              Balance:
-                              {utils.toPrecision(
-                                uniswapDappSharedLogic.inputToken.balance,
-                              )}
-                              {uniswapDappSharedLogic.inputToken.symbol}
+                              <span>
+                                Balance:
+                                {utils.toPrecision(inputToken.balance)}
+                                {inputToken.symbol}
+                              </span>
                             </div>
                           </div>
-                          {inputValue &&
-                            uniswapDappSharedLogic.inputToken!.fiatPrice && (
-                              <div className="uni-ic__swap-content-balance-and-price__price">
-                                ~$
-                                <span className="uni-ic__swap-content-balance-and-price__price-text">
-                                  {utils.toPrecision(
-                                    uniswapDappSharedLogic.inputToken!.fiatPrice.times(
-                                      inputValue,
-                                    ),
-                                  )}
-                                </span>
-                              </div>
-                            )}
+                          {inputValue && inputToken!.fiatPrice && (
+                            <div className="uni-ic__swap-content-balance-and-price__price">
+                              ~$
+                              <span className="uni-ic__swap-content-balance-and-price__price-text">
+                                {utils.toPrecision(
+                                  inputToken!.fiatPrice.times(inputValue),
+                                )}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -233,7 +240,7 @@ const UniswapReact = ({
                             uniswapDappSharedLogic!.openTokenSelectorTo()
                           }
                         >
-                          {!uniswapDappSharedLogic.outputToken && (
+                          {!outputToken && (
                             <span className="uni-ic__swap-output-content-main-select-content">
                               <span className="uni-ic__swap-output-content-main-select-content-title">
                                 Select a token
@@ -253,31 +260,23 @@ const UniswapReact = ({
                             </span>
                           )}
 
-                          {uniswapDappSharedLogic.outputToken && (
+                          {outputToken && (
                             <span className="uni-ic__swap-input-content-main-from-currency">
-                              {!uniswapDappSharedLogic.outputToken
-                                .tokenImageContext.isSvg && (
+                              {!outputToken.tokenImageContext.isSvg && (
                                 <img
-                                  src={
-                                    uniswapDappSharedLogic.outputToken
-                                      .tokenImageContext.image
-                                  }
+                                  src={outputToken.tokenImageContext.image}
                                   className="uni-ic__swap-input-content-main-from-currency-icon"
                                 />
                               )}
 
-                              {uniswapDappSharedLogic.outputToken
-                                .tokenImageContext.isSvg && (
+                              {outputToken.tokenImageContext.isSvg && (
                                 <div className="uni-ic__swap-input-content-main-from-currency-icon">
-                                  {
-                                    uniswapDappSharedLogic.outputToken
-                                      .tokenImageContext.image
-                                  }
+                                  {outputToken.tokenImageContext.image}
                                 </div>
                               )}
 
                               <span className="uni-ic__swap-input-content-main-from-currency-symbol">
-                                {uniswapDappSharedLogic.outputToken.symbol}
+                                {outputToken.symbol}
                               </span>
                               <svg
                                 width="12"
@@ -302,9 +301,7 @@ const UniswapReact = ({
                           step="any"
                           placeholder="0.0"
                           // oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                          maxLength={
-                            uniswapDappSharedLogic.outputToken?.decimals
-                          }
+                          maxLength={outputToken?.decimals}
                           value={outputValue}
                           onChange={(e) => {
                             changeOutputTradePrice(e.target.value);
@@ -312,7 +309,7 @@ const UniswapReact = ({
                           spellCheck="false"
                         />
                       </div>
-                      {uniswapDappSharedLogic.outputToken && (
+                      {outputToken && (
                         <div className="uni-ic__swap-content-balance-and-price-container">
                           <div className="uni-ic__swap-content-balance-and-price">
                             <div
@@ -321,28 +318,26 @@ const UniswapReact = ({
                             >
                               <div
                                 className="uni-ic__swap-content-balance-and-price__balance-text"
-                                style={{ display: 'inline', cursor: 'pointer' }}
+                                style={{
+                                  display: 'inline',
+                                  cursor: 'pointer',
+                                }}
                               >
                                 Balance:
-                                {utils.toPrecision(
-                                  uniswapDappSharedLogic.outputToken!.balance,
-                                )}
-                                {uniswapDappSharedLogic.outputToken!.symbol}
+                                {utils.toPrecision(outputToken!.balance)}
+                                {outputToken!.symbol}
                               </div>
                             </div>
-                            {outputValue &&
-                              uniswapDappSharedLogic.outputToken!.fiatPrice && (
-                                <div className="uni-ic__swap-content-balance-and-price__price">
-                                  ~$
-                                  <span className="uni-ic__swap-content-balance-and-price__price-text">
-                                    {utils.toPrecision(
-                                      uniswapDappSharedLogic.outputToken.fiatPrice.times(
-                                        outputValue,
-                                      ),
-                                    )}
-                                  </span>
-                                </div>
-                              )}
+                            {outputValue && outputToken!.fiatPrice && (
+                              <div className="uni-ic__swap-content-balance-and-price__price">
+                                ~$
+                                <span className="uni-ic__swap-content-balance-and-price__price-text">
+                                  {utils.toPrecision(
+                                    outputToken.fiatPrice.times(outputValue),
+                                  )}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -405,6 +400,14 @@ const UniswapReact = ({
               </div>
             )}
           </div>
+
+          <TokensModal
+            uniswapDappSharedLogic={uniswapDappSharedLogic}
+            switchSwapCompleted={(swapCompleted) => {
+              setInputValue(swapCompleted.inputValue);
+              setOutputValue(swapCompleted.outputValue);
+            }}
+          />
           <ConfirmSwap uniswapDappSharedLogic={uniswapDappSharedLogic} />
         </div>
       )}
