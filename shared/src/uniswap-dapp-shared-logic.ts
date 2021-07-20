@@ -50,6 +50,8 @@ export class UniswapDappSharedLogic {
   public chainId!: number;
   public supportedNetwork = false;
   public miningTransaction: MiningTransaction | undefined;
+  public miningTransaction$: BehaviorSubject<MiningTransaction | undefined> =
+    new BehaviorSubject<MiningTransaction | undefined>(undefined);
   public currentTokenSearch: string | undefined;
   public blockNumber: number | undefined;
 
@@ -232,6 +234,7 @@ export class UniswapDappSharedLogic {
       status: TransactionStatus.waitingForConfirmation,
       miningAction: MiningAction.approval,
     };
+    this.miningTransaction$.next(this.miningTransaction);
 
     await this.handleTransaction(
       this.tradeContext!.approvalTransaction!,
@@ -240,6 +243,7 @@ export class UniswapDappSharedLogic {
 
     if (this.miningTransaction.status === TransactionStatus.completed) {
       this.miningTransaction = undefined;
+      this.miningTransaction$.next(this.miningTransaction);
       this.tradeContext!.approvalTransaction = undefined;
       this.tradeContext!.hasEnoughAllowance = true;
     }
@@ -253,6 +257,7 @@ export class UniswapDappSharedLogic {
       status: TransactionStatus.waitingForConfirmation,
       miningAction: MiningAction.swap,
     };
+    this.miningTransaction$.next(this.miningTransaction);
 
     this.showTransaction();
 
@@ -325,6 +330,7 @@ export class UniswapDappSharedLogic {
   public hideTransaction(): void {
     this._theming.hideTransaction();
     this.miningTransaction = undefined;
+    this.miningTransaction$.next(this.miningTransaction);
     this.hideConfirmSwap();
   }
 
@@ -521,6 +527,8 @@ export class UniswapDappSharedLogic {
           txHash,
         );
 
+      this.miningTransaction$.next(miningTransaction);
+
       let blockStream = Subscription.EMPTY;
 
       await new Promise<void>((resolve, reject) => {
@@ -533,6 +541,7 @@ export class UniswapDappSharedLogic {
             if (receipt) {
               resolve();
               this.miningTransaction!.status = TransactionStatus.completed;
+              this.miningTransaction$.next(miningTransaction);
             }
           } catch (error) {
             blockStream.unsubscribe();
@@ -544,6 +553,7 @@ export class UniswapDappSharedLogic {
       blockStream.unsubscribe();
     } catch (error) {
       miningTransaction.status = TransactionStatus.rejected;
+      this.miningTransaction$.next(miningTransaction);
     }
   }
 
