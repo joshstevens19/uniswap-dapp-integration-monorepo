@@ -16,12 +16,9 @@ import Header from './components/header';
 import Loading from './components/loading';
 import SwapQuoteInfo from './components/swapQuoteInfo';
 import TokensModal from './components/tokensModal';
+import TransactionModal from './components/transactionModal';
 
 let uniswapDappSharedLogic: undefined | UniswapDappSharedLogic;
-
-setInterval(() => {
-  console.log(uniswapDappSharedLogic);
-}, 2000);
 
 const UniswapReact = ({
   uniswapDappSharedLogicContext,
@@ -48,7 +45,6 @@ const UniswapReact = ({
 
       try {
         await sharedLogic!.init();
-        console.log(sharedLogic);
       } catch (error) {
         if (error.message.includes('unsupported network')) {
           setLoading(false);
@@ -62,10 +58,12 @@ const UniswapReact = ({
 
       uniswapDappSharedLogic = sharedLogic;
 
+      setInputToken(uniswapDappSharedLogic.inputToken);
       uniswapDappSharedLogic.inputToken$.subscribe((token) => {
         setInputToken(token);
       });
 
+      setOutputToken(uniswapDappSharedLogic.outputToken);
       uniswapDappSharedLogic.outputToken$.subscribe((token) => {
         setOutputToken(token);
       });
@@ -190,8 +188,7 @@ const UniswapReact = ({
                               style={{ display: 'inline', cursor: 'pointer' }}
                             >
                               <span>
-                                Balance:
-                                {utils.toPrecision(inputToken.balance)}
+                                Balance: {utils.toPrecision(inputToken.balance)}{' '}
                                 {inputToken.symbol}
                               </span>
                             </div>
@@ -323,9 +320,11 @@ const UniswapReact = ({
                                   cursor: 'pointer',
                                 }}
                               >
-                                Balance:
-                                {utils.toPrecision(outputToken!.balance)}
-                                {outputToken!.symbol}
+                                <span>
+                                  Balance:{' '}
+                                  {utils.toPrecision(outputToken!.balance)}{' '}
+                                  {outputToken!.symbol}
+                                </span>
                               </div>
                             </div>
                             {outputValue && outputToken!.fiatPrice && (
@@ -375,11 +374,11 @@ const UniswapReact = ({
                         !uniswapDappSharedLogic.tradeContext?.fromBalance
                           ?.hasEnough && (
                           <span>
-                            Insufficient
+                            Insufficient{' '}
                             {
                               uniswapDappSharedLogic.tradeContext?.fromToken
                                 ?.symbol
-                            }
+                            }{' '}
                             balance
                           </span>
                         )}
@@ -408,7 +407,10 @@ const UniswapReact = ({
               setOutputValue(swapCompleted.outputValue);
             }}
           />
+
           <ConfirmSwap uniswapDappSharedLogic={uniswapDappSharedLogic} />
+
+          <TransactionModal uniswapDappSharedLogic={uniswapDappSharedLogic} />
         </div>
       )}
     </div>
