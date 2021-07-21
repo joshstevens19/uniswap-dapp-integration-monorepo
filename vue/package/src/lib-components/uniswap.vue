@@ -1,6 +1,6 @@
 <script>
 import { defineComponent } from 'vue';
-import { Loading, Header } from '../internal-components';
+import { Loading, Header, TokenIcon } from '../internal-components';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import {
   UniswapDappSharedLogic,
@@ -16,6 +16,7 @@ export default defineComponent({
   components: {
     Loading,
     Header,
+    TokenIcon,
   },
   props: ['uniswapDappSharedLogicContext'],
   data() {
@@ -178,12 +179,17 @@ export default defineComponent({
                     class="uni-ic__swap-input-content-main-from-currency-container uni-ic__theme-panel"
                     v-on:click="logic.openTokenSelectorFrom()"
                   >
-                    <span class="uni-ic__swap-input-content-main-from-currency"
-                      ><img
+                    <span class="uni-ic__swap-input-content-main-from-currency">
+                      <TokenIcon
+                        classes="uni-ic__swap-input-content-main-from-currency-icon"
+                        :context="logic.inputToken.tokenImageContext"
+                      />
+
+                      <!-- <img
                         v-if="!logic.inputToken.tokenImageContext.isSvg"
                         v-bind:src="logic.inputToken.tokenImageContext.image"
                         class="uni-ic__swap-input-content-main-from-currency-icon"
-                      />
+                      /> -->
                       <!-- <div
                         v-if="
                       logic.inputToken.tokenImageContext.isSvg
