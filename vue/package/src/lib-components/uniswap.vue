@@ -24,7 +24,7 @@ export default defineComponent({
       loading: true,
       inputValue: '',
       outputValue: '',
-      logic: null,
+      // logic: null,
     };
   },
   methods: {
@@ -33,6 +33,7 @@ export default defineComponent({
     },
     async switchSwap() {
       const swapState = await this.logic.swapSwitch();
+      console.log(swapState);
       this.switchSwapCompleted(swapState);
     },
     switchSwapCompleted(response) {
@@ -42,25 +43,24 @@ export default defineComponent({
     toPrecision(value) {
       return this.utils().toPrecision(value);
     },
-  },
-  watch: {
-    inputValue: async function(amount) {
-      this.inputValue = amount;
+    async changeInputTradePrice() {
       if (!this.inputValue || new BigNumber(this.inputValue).isEqualTo(0)) {
         this.outputValue = '';
         return;
       }
 
-      await this.logic.changeTradePrice(amount, TradeDirection.input);
+      await this.logic.changeTradePrice(this.inputValue, TradeDirection.input);
       this.outputValue = this.logic.tradeContext.expectedConvertQuote;
     },
-    outputValue: async function(amount) {
-      this.outputValue = amount;
+    async changeOutputTradePrice() {
       if (!this.outputValue || new BigNumber(this.outputValue).isEqualTo(0)) {
         this.inputValue = '';
         return;
       }
-      await this.logic.changeTradePrice(amount, TradeDirection.output);
+      await this.logic.changeTradePrice(
+        this.outputValue,
+        TradeDirection.output,
+      );
       this.inputValue = this.logic.tradeContext.expectedConvertQuote;
     },
   },
@@ -211,6 +211,7 @@ export default defineComponent({
                     v-bind:maxlength="logic.inputToken.decimals"
                     spellcheck="false"
                     v-model="inputValue"
+                    v-on:change="changeInputTradePrice"
                   />
                 </div>
                 <div class="uni-ic__swap-content-balance-and-price-container">
@@ -343,6 +344,7 @@ export default defineComponent({
                     v-bind:maxlength="logic.outputToken?.decimals"
                     spellcheck="false"
                     v-model="outputValue"
+                    @input="changeOutputTradePrice"
                   />
                 </div>
                 <div
