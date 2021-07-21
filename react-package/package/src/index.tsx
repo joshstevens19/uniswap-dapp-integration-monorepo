@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import {
   MiningTransaction,
   SelectTokenActionFrom,
-  Subscription,
   SwapSwitchResponse,
   TradeContext,
   TradeDirection,
@@ -24,7 +23,7 @@ import TokensModal from './components/tokensModal';
 import TransactionModal from './components/transactionModal';
 
 let uniswapDappSharedLogic: undefined | UniswapDappSharedLogic;
-const subcriptions: Subscription[] = [];
+const subcriptions: any[] = [];
 
 const UniswapReact = ({
   uniswapDappSharedLogicContext,
@@ -74,12 +73,6 @@ const UniswapReact = ({
       subcriptions.push(
         sharedLogic.tradeContext$.subscribe((context) => {
           setTradeContext(context);
-          if (context?.expectedConvertQuote) {
-            setOutputValue(context.expectedConvertQuote);
-          }
-          if (context?.expectedConvertQuote) {
-            setInputValue(context.baseConvertRequest);
-          }
         }),
       );
 
@@ -175,32 +168,68 @@ const UniswapReact = ({
   }, []);
 
   const changeInputTradePrice = async (amount: string) => {
-    setInputValue(amount);
-    if (!amount || new BigNumber(amount).isEqualTo(0)) {
-      setOutputValue('');
-      return;
-    }
+    if (isValidDecimalLength(amount, inputToken!)) {
+      setInputValue(amount);
+      if (!amount || new BigNumber(amount).isEqualTo(0)) {
+        setOutputValue('');
+        return;
+      }
 
-    await uniswapDappSharedLogic!.changeTradePrice(
-      amount,
-      TradeDirection.input,
-    );
-    setOutputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
+      await uniswapDappSharedLogic!.changeTradePrice(
+        amount,
+        TradeDirection.input,
+      );
+      setOutputValue(
+        uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
+      );
+    }
   };
 
   const changeOutputTradePrice = async (amount: string) => {
+    // debounce(async () => {
+    //   console.log('here');
+    //   if (isValidDecimalLength(amount, outputToken!)) {
+    //     setOutputValue(amount);
+    //     if (!amount || new BigNumber(amount).isEqualTo(0)) {
+    //       setInputValue('');
+    //       return;
+    //     }
+    //     await uniswapDappSharedLogic!.changeTradePrice(
+    //       amount,
+    //       TradeDirection.output,
+    //     );
+    //     setInputValue(
+    //       uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
+    //     );
+    //   }
+    // }, 200);
+    // console.log(amount);
+    // useCallback(debounce(hey, 200), []);
+
+    // if (isValidDecimalLength(amount, outputToken!)) {
     setOutputValue(amount);
     if (!amount || new BigNumber(amount).isEqualTo(0)) {
       setInputValue('');
       return;
     }
-
     await uniswapDappSharedLogic!.changeTradePrice(
       amount,
       TradeDirection.output,
     );
-
     setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
+    // }
+  };
+
+  const isValidDecimalLength = (value: string, token: ExtendedToken) => {
+    const decimals = value.split('.');
+    if (!decimals[1]) {
+      return true;
+    }
+    if (value.length > token.decimals) {
+      return false;
+    }
+
+    return true;
   };
 
   const switchSwap = async () => {
@@ -260,7 +289,6 @@ const UniswapReact = ({
                             type="number"
                             step="any"
                             placeholder="0.0"
-                            // onInput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                             maxLength={inputToken.decimals}
                             value={inputValue}
                             onChange={(e) => {
@@ -376,7 +404,6 @@ const UniswapReact = ({
                             type="number"
                             step="any"
                             placeholder="0.0"
-                            // oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                             maxLength={outputToken?.decimals}
                             value={outputValue}
                             onChange={(e) => {
