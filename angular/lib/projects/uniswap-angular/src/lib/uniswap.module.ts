@@ -12,9 +12,10 @@ import { TokensModalComponent } from './uniswap-angular-swapper/components/token
 import { SwapQuoteInfoComponent } from './uniswap-angular-swapper/components/swap-quote-info/swap-quote-info.component';
 import { ApprovalComponent } from './uniswap-angular-swapper/components/approval/approval.component';
 import { SafePipe } from './pipes/safe.pipe';
+import { TokenIconComponent } from './uniswap-angular-swapper/components/token-icon/token-icon.component';
 
 @NgModule({
-  declarations: [UniswapAngularSwapperComponent, LoadingComponent, HeaderComponent, ConfirmSwapModalComponent, TransactionModalComponent, ErrorComponent, TokensModalComponent, SwapQuoteInfoComponent, ApprovalComponent, SafePipe],
+  declarations: [UniswapAngularSwapperComponent, LoadingComponent, HeaderComponent, ConfirmSwapModalComponent, TransactionModalComponent, ErrorComponent, TokensModalComponent, SwapQuoteInfoComponent, ApprovalComponent, SafePipe, TokenIconComponent],
   imports: [CommonModule, FormsModule, BrowserModule],
   exports: [UniswapAngularSwapperComponent],
 })

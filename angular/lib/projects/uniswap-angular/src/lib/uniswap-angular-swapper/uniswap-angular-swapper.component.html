@@ -19,26 +19,13 @@
                 "
                 (click)="uniswapDappSharedLogic.openTokenSelectorFrom()"
               >
-                <span class="uni-ic__swap-input-content-main-from-currency"
-                  ><img
-                    *ngIf="
-                      !uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg
+                <span class="uni-ic__swap-input-content-main-from-currency">
+                  <lib-token-icon
+                    classes="uni-ic__swap-input-content-main-from-currency-icon"
+                    [tokenImageContext]="
+                      uniswapDappSharedLogic.inputToken.tokenImageContext
                     "
-                    [src]="
-                      uniswapDappSharedLogic.inputToken.tokenImageContext.image
-                    "
-                    class="uni-ic__swap-input-content-main-from-currency-icon"
-                  />
-                  <div
-                    *ngIf="
-                      uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg
-                    "
-                    class="uni-ic__swap-input-content-main-from-currency-icon"
-                    [innerHTML]="
-                      uniswapDappSharedLogic.inputToken.tokenImageContext.image
-                        | safe
-                    "
-                  ></div>
+                  ></lib-token-icon>
 
                   <span
                     class="uni-ic__swap-input-content-main-from-currency-symbol"
@@ -163,26 +150,13 @@
                 <span
                   class="uni-ic__swap-input-content-main-from-currency"
                   *ngIf="uniswapDappSharedLogic.outputToken"
-                  ><img
-                    *ngIf="
-                      !uniswapDappSharedLogic.outputToken.tokenImageContext
-                        .isSvg
+                >
+                  <lib-token-icon
+                    classes="uni-ic__swap-input-content-main-from-currency-icon"
+                    [tokenImageContext]="
+                      uniswapDappSharedLogic.outputToken.tokenImageContext
                     "
-                    [src]="
-                      uniswapDappSharedLogic.outputToken.tokenImageContext.image
-                    "
-                    class="uni-ic__swap-input-content-main-from-currency-icon"
-                  />
-                  <div
-                    *ngIf="
-                      uniswapDappSharedLogic.outputToken.tokenImageContext.isSvg
-                    "
-                    class="uni-ic__swap-input-content-main-from-currency-icon"
-                    [innerHTML]="
-                      uniswapDappSharedLogic.outputToken.tokenImageContext.image
-                        | safe
-                    "
-                  ></div>
+                  ></lib-token-icon>
 
                   <span
                     class="uni-ic__swap-input-content-main-from-currency-symbol"

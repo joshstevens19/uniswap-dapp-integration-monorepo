@@ -8,11 +8,13 @@
 >
   <div class="uni-ic__swap-allow-container">
     <span>
-      <img
-        *ngIf="!uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg"
-        [src]="uniswapDappSharedLogic.inputToken.tokenImageContext.image"
-        class="uni-ic__swap-allow-icon"
-      />
+      <lib-token-icon
+        classes="uni-ic__swap-allow-icon"
+        [tokenImageContext]="
+          uniswapDappSharedLogic.inputToken.tokenImageContext
+        "
+      ></lib-token-icon>
+
       <span
         *ngIf="
           uniswapDappSharedLogic.miningTransaction === undefined ||

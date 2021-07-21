@@ -43,25 +43,12 @@
           </div>
           <div class="uni-ic__modal-confirm-swap__input-main">
             <div class="uni-ic__modal-confirm-swap__input-main__symbol">
-              <img
-                *ngIf="
-                  !uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg
+              <lib-token-icon
+                classes="uni-ic__modal-confirm-swap__input-main__symbol__image"
+                [tokenImageContext]="
+                  uniswapDappSharedLogic.inputToken.tokenImageContext
                 "
-                [src]="
-                  uniswapDappSharedLogic.inputToken.tokenImageContext.image
-                "
-                class="uni-ic__modal-confirm-swap__input-main__symbol__image"
-              />
-              <div
-                *ngIf="
-                  uniswapDappSharedLogic.inputToken.tokenImageContext.isSvg
-                "
-                class="uni-ic__modal-confirm-swap__input-main__symbol__image"
-                [innerHTML]="
-                  uniswapDappSharedLogic.inputToken.tokenImageContext.image
-                    | safe
-                "
-              ></div>
+              ></lib-token-icon>
               <div
                 class="uni-ic__modal-confirm-swap__input-main__symbol__label"
               >
@@ -135,25 +122,12 @@
           </div>
           <div class="uni-ic__modal-confirm-swap__output-main">
             <div class="uni-ic__modal-confirm-swap__output-main__symbol">
-              <img
-                *ngIf="
-                  !uniswapDappSharedLogic.outputToken!.tokenImageContext.isSvg
+              <lib-token-icon
+                classes="uni-ic__modal-confirm-swap__output-main__symbol__image"
+                [tokenImageContext]="
+                  uniswapDappSharedLogic.outputToken!.tokenImageContext
                 "
-                class="uni-ic__modal-confirm-swap__output-main__symbol__image"
-                [src]="
-                  uniswapDappSharedLogic.outputToken!.tokenImageContext.image
-                "
-              />
-              <div
-                *ngIf="
-                  uniswapDappSharedLogic.outputToken!.tokenImageContext.isSvg
-                "
-                class="uni-ic__modal-confirm-swap__output-main__symbol__image"
-                [innerHTML]="
-                  uniswapDappSharedLogic.outputToken!.tokenImageContext.image
-                    | safe
-                "
-              ></div>
+              ></lib-token-icon>
 
               <div
                 class="uni-ic__modal-confirm-swap__output-main__symbol__label"

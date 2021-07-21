@@ -1,0 +1,10 @@
+<img
+  *ngIf="!tokenImageContext.isSvg"
+  [src]="tokenImageContext.image"
+  [ngClass]="classes"
+/>
+<div
+  *ngIf="tokenImageContext.isSvg"
+  [ngClass]="classes"
+  [innerHTML]="tokenImageContext.image | safe"
+></div>

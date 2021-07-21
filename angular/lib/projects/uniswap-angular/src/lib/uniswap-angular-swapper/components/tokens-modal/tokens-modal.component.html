@@ -53,16 +53,10 @@
               }"
             >
               <div class="uni-ic__modal-tokens-item" *ngIf="token.canShow">
-                <img
-                  *ngIf="!token.tokenImageContext.isSvg"
-                  [src]="token.tokenImageContext.image"
-                  class="uni-ic__modal-tokens-item-icon"
-                />
-                <div
-                  *ngIf="token.tokenImageContext.isSvg"
-                  class="uni-ic__modal-tokens-item-icon"
-                  [innerHTML]="token.tokenImageContext.image | safe"
-                ></div>
+                <lib-token-icon
+                  classes="uni-ic__modal-tokens-item-icon"
+                  [tokenImageContext]="token.tokenImageContext"
+                ></lib-token-icon>
 
                 <div class="uni-ic__modal-tokens-item-content">
                   <div class="uni-ic__modal-tokens-item-content-symbol">
