@@ -28,7 +28,7 @@ export default defineComponent({
     };
   },
   methods: {
-    get utils() {
+    utils() {
       return UniswapUtils;
     },
     async switchSwap() {
@@ -38,6 +38,9 @@ export default defineComponent({
     switchSwapCompleted(response) {
       this.inputValue = response.inputValue;
       this.outputValue = response.outputValue;
+    },
+    toPrecision(value) {
+      return this.utils().toPrecision(value);
     },
   },
   watch: {
@@ -59,11 +62,6 @@ export default defineComponent({
       }
       await this.logic.changeTradePrice(amount, TradeDirection.output);
       this.inputValue = this.logic.tradeContext.expectedConvertQuote;
-    },
-  },
-  filters: {
-    toPrecision: function(value) {
-      return this.utils.toPrecision(value);
     },
   },
   async mounted() {
@@ -185,22 +183,6 @@ export default defineComponent({
                         :context="logic.inputToken.tokenImageContext"
                       />
 
-                      <!-- <img
-                        v-if="!logic.inputToken.tokenImageContext.isSvg"
-                        v-bind:src="logic.inputToken.tokenImageContext.image"
-                        class="uni-ic__swap-input-content-main-from-currency-icon"
-                      /> -->
-                      <!-- <div
-                        v-if="
-                      logic.inputToken.tokenImageContext.isSvg
-                    "
-                        class="uni-ic__swap-input-content-main-from-currency-icon"
-                        [innerHTML]="
-                      logic.inputToken.tokenImageContext.image
-                        | safe
-                    "
-                      ></div> -->
-
                       <span
                         class="uni-ic__swap-input-content-main-from-currency-symbol"
                         >{{ logic.inputToken.symbol }}</span
@@ -240,7 +222,7 @@ export default defineComponent({
                         class="uni-ic__swap-content-balance-and-price__balance-text"
                       >
                         Balance:
-                        {{ logic.inputToken.balance | toPrecision }}
+                        {{ toPrecision(logic.inputToken.balance) }}
                         {{ logic.inputToken.symbol }}
                       </div>
                     </div>
@@ -252,8 +234,9 @@ export default defineComponent({
                       <span
                         class="uni-ic__swap-content-balance-and-price__price-text"
                         >{{
-                          logic.inputToken.fiatPrice.times(inputValue)
-                            | toPrecision
+                          toPrecision(
+                            logic.inputToken.fiatPrice.times(inputValue),
+                          )
                         }}</span
                       >
                     </div>
@@ -374,7 +357,7 @@ export default defineComponent({
                         class="uni-ic__swap-content-balance-and-price__balance-text"
                       >
                         Balance:
-                        {{ logic.outputToken.balance | toPrecision }}
+                        {{ toPrecision(logic.outputToken.balance) }}
                         {{ logic.outputToken.symbol }}
                       </div>
                     </div>
@@ -385,9 +368,11 @@ export default defineComponent({
                       ~$
                       <span
                         class="uni-ic__swap-content-balance-and-price__price-text"
-                        >{{
-                          logic.outputToken.fiatPrice.times(outputValue)
-                            | toPrecision
+                      >
+                        {{
+                          toPrecision(
+                            logic.outputToken.fiatPrice.times(outputValue),
+                          )
                         }}</span
                       >
                     </div>
