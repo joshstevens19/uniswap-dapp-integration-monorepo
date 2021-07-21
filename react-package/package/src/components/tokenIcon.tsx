@@ -8,20 +8,20 @@ const TokenIcon = ({
   classes: string;
   tokenImageContext: TokenImage;
 }): JSX.Element => (
-  <div>
+  <span>
     {!tokenImageContext.isSvg && (
       <img src={tokenImageContext.image} className={classes} />
     )}
     {tokenImageContext.isSvg && (
-      <div className={classes}>
+      <span className={classes}>
         <span
           dangerouslySetInnerHTML={{
             __html: tokenImageContext.image,
           }}
         ></span>
-      </div>
+      </span>
     )}
-  </div>
+  </span>
 );
 
 export default TokenIcon;
