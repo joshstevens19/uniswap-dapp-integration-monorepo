@@ -2,23 +2,24 @@
   <div class="uni-ic__swap-quote" v-if="tradeContext">
     <div class="uni-ic__swap-quote-container">
       <div class="uni-ic__swap-quote-price">
-        <div
-          font-size="14px"
-          color="text"
-          class="uni-ic__swap-quote-price-text"
-        >
+        <div class="uni-ic__swap-quote-price-text">
           Best rate on
           {{ tradeContext.uniswapVersion }}
         </div>
         <div
-          font-size="14px"
-          color="text"
           class="uni-ic__swap-quote-price-text"
+          style="
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          font-size: 14px;
+        "
         >
-          1
-          {{ tradeContext.fromToken.symbol }} =
-          {{ logic.workOutOneEqualTo() }}
-          {{ tradeContext.toToken.symbol }}
+          <span
+            >1 {{ tradeContext.fromToken.symbol }} =
+            {{ logic.workOutOneEqualTo() }}
+            {{ tradeContext.toToken.symbol }}
+          </span>
           <div class="uni-ic__swap-quote-price-text-info">
             <div class="uni-ic__swap-quote-price-text-info__container">
               <svg
