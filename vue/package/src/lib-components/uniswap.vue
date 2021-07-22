@@ -8,6 +8,7 @@ import {
   Approval,
   ConfirmSwap,
   TransactionModal,
+  TokenModal,
 } from '../internal-components';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import {
@@ -29,6 +30,7 @@ export default defineComponent({
     Approval,
     ConfirmSwap,
     TransactionModal,
+    TokenModal,
   },
   props: ['uniswapDappSharedLogicContext'],
   data() {
@@ -466,11 +468,21 @@ export default defineComponent({
         </div>
       </div>
 
-      <!-- token modals here -->
+      <TokenModal
+        v-if="logic && logic.supportedNetwork"
+        :logic="logic"
+        :tradeContext="tradeContext"
+        :selectorOpenFrom="selectorOpenFrom"
+      />
 
-      <ConfirmSwap :logic="logic" :tradeContext="tradeContext" />
+      <ConfirmSwap
+        v-if="logic && logic.supportedNetwork"
+        :logic="logic"
+        :tradeContext="tradeContext"
+      />
 
       <TransactionModal
+        v-if="logic && logic.supportedNetwork"
         :logic="logic"
         :miningTransaction="miningTransaction"
         :miningTransactionStatus="miningTransactionStatus"
