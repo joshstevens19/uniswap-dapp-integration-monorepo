@@ -5,6 +5,7 @@ import {
   Header,
   TokenIcon,
   SwapQuoteInfo,
+  Approval,
 } from '../internal-components';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import {
@@ -23,6 +24,7 @@ export default defineComponent({
     Header,
     TokenIcon,
     SwapQuoteInfo,
+    Approval,
   },
   props: ['uniswapDappSharedLogicContext'],
   data() {
@@ -396,6 +398,8 @@ export default defineComponent({
           </div>
 
           <SwapQuoteInfo :logic="logic" :tradeContext="tradeContext" />
+
+          <Approval :logic="logic" :tradeContext="tradeContext" />
         </div>
       </div>
     </div>
