@@ -211,7 +211,7 @@ export default defineComponent({
                     v-bind:maxlength="logic.inputToken.decimals"
                     spellcheck="false"
                     v-model="inputValue"
-                    v-on:change="changeInputTradePrice"
+                    v-on:input="changeInputTradePrice"
                   />
                 </div>
                 <div class="uni-ic__swap-content-balance-and-price-container">
@@ -332,9 +332,7 @@ export default defineComponent({
                     </span>
                   </button>
                   <input
-                    class="
-                  uni-ic__swap-output-content-main-from uni-ic__theme-panel
-                "
+                    class="uni-ic__swap-output-content-main-from uni-ic__theme-panel"
                     autocomplete="off"
                     autocorrect="off"
                     type="number"
@@ -344,7 +342,7 @@ export default defineComponent({
                     v-bind:maxlength="logic.outputToken?.decimals"
                     spellcheck="false"
                     v-model="outputValue"
-                    @input="changeOutputTradePrice"
+                    v-on:input="changeOutputTradePrice"
                   />
                 </div>
                 <div
