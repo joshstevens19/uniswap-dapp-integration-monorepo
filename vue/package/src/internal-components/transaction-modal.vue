@@ -157,8 +157,8 @@ export default {
   },
   methods: {
     viewOnEtherscan() {
-      if (miningTransaction?.blockExplorerLink) {
-        window.open(miningTransaction.blockExplorerLink, '_blank');
+      if (this.miningTransaction?.blockExplorerLink) {
+        window.open(this.miningTransaction?.blockExplorerLink, '_blank');
       }
     },
   },
