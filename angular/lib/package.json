@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "build": "ng build",
-    "publish-angular-uniswap": "cd ./projects/uniswap-angular && npm run publish"
+    "publish-angular-uniswap": "cd ./projects/uniswap-angular && npm run publish",
+    "postinstall": "npm link ../../shared"
   },
   "private": true,
   "dependencies": {
@@ -18,7 +19,6 @@
     "bignumber.js": "^9.0.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
-    "uniswap-dapp-integration-shared": "file:uniswap-dapp-integration-shared-1.0.0.tgz",
     "zone.js": "~0.11.3"
   },
   "devDependencies": {
