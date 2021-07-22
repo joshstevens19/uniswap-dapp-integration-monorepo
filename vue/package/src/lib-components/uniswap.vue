@@ -6,6 +6,7 @@ import {
   TokenIcon,
   SwapQuoteInfo,
   Approval,
+  ConfirmSwap,
 } from '../internal-components';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import {
@@ -25,6 +26,7 @@ export default defineComponent({
     TokenIcon,
     SwapQuoteInfo,
     Approval,
+    ConfirmSwap,
   },
   props: ['uniswapDappSharedLogicContext'],
   data() {
@@ -442,6 +444,13 @@ export default defineComponent({
           </p>
         </div>
       </div>
+
+      <!-- token modals here -->
+
+      <!-- confirm swap here -->
+      <ConfirmSwap :logic="logic" :tradeContext="tradeContext" />
+
+      <!-- transaction modal here -->
     </div>
   </div>
 </template>
