@@ -38,14 +38,13 @@ export default defineComponent({
       loading: true,
       inputValue: '',
       inputToken: undefined,
-      inputBalance: undefined,
       outputValue: '',
       outputToken: undefined,
-      outputBalance: undefined,
       tradeContext: undefined,
       subscriptions: [],
       miningTransaction: undefined,
       miningTransactionStatus: undefined,
+      selectorOpenFrom: undefined,
     };
   },
   methods: {
@@ -170,6 +169,27 @@ export default defineComponent({
       ),
     );
 
+    this.selectorOpenFrom = uniswapDappSharedLogic.selectorOpenFrom;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.selectorOpenFrom$.subscribe(openFrom => {
+        this.selectorOpenFrom = openFrom;
+      }),
+    );
+
+    this.inputToken = uniswapDappSharedLogic.inputToken;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.inputToken$.subscribe(token => {
+        this.inputToken = token;
+      }),
+    );
+
+    this.outputToken = uniswapDappSharedLogic.outputToken;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.outputToken$.subscribe(token => {
+        this.outputToken = token;
+      }),
+    );
+
     // this._loadingUniswapSubscription =
     //   this.logic.loading.subscribe((_loading) => {
     //     this.loading = _loading;
@@ -223,12 +243,12 @@ export default defineComponent({
                     <span class="uni-ic__swap-input-content-main-from-currency">
                       <TokenIcon
                         classes="uni-ic__swap-input-content-main-from-currency-icon"
-                        :context="logic.inputToken.tokenImageContext"
+                        :context="inputToken.tokenImageContext"
                       />
 
                       <span
                         class="uni-ic__swap-input-content-main-from-currency-symbol"
-                        >{{ logic.inputToken.symbol }}</span
+                        >{{ inputToken.symbol }}</span
                       ><svg
                         width="12"
                         height="7"
@@ -251,7 +271,7 @@ export default defineComponent({
                     step="any"
                     placeholder="0.0"
                     oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                    v-bind:maxlength="logic.inputToken.decimals"
+                    v-bind:maxlength="inputToken.decimals"
                     spellcheck="false"
                     v-model="inputValue"
                     v-on:input="changeInputTradePrice"
@@ -266,21 +286,19 @@ export default defineComponent({
                         class="uni-ic__swap-content-balance-and-price__balance-text"
                       >
                         Balance:
-                        {{ toPrecision(logic.inputToken.balance) }}
-                        {{ logic.inputToken.symbol }}
+                        {{ toPrecision(inputToken.balance) }}
+                        {{ inputToken.symbol }}
                       </div>
                     </div>
                     <div
                       class="uni-ic__swap-content-balance-and-price__price"
-                      v-if="inputValue && logic.inputToken.fiatPrice"
+                      v-if="inputValue && inputToken.fiatPrice"
                     >
                       ~$
                       <span
                         class="uni-ic__swap-content-balance-and-price__price-text"
                         >{{
-                          toPrecision(
-                            logic.inputToken.fiatPrice.times(inputValue),
-                          )
+                          toPrecision(inputToken.fiatPrice.times(inputValue))
                         }}</span
                       >
                     </div>
@@ -320,7 +338,7 @@ export default defineComponent({
                   >
                     <span
                       class="uni-ic__swap-output-content-main-select-content"
-                      v-if="!logic.outputToken"
+                      v-if="!outputToken"
                       ><span
                         class="
                       uni-ic__swap-output-content-main-select-content-title
@@ -342,16 +360,16 @@ export default defineComponent({
 
                     <span
                       class="uni-ic__swap-input-content-main-from-currency"
-                      v-if="logic.outputToken"
+                      v-if="outputToken"
                     >
                       <TokenIcon
                         classes="uni-ic__swap-input-content-main-from-currency-icon"
-                        :context="logic.outputToken.tokenImageContext"
+                        :context="outputToken.tokenImageContext"
                       />
 
                       <span
                         class="uni-ic__swap-input-content-main-from-currency-symbol"
-                        >{{ logic.outputToken.symbol }}</span
+                        >{{ outputToken.symbol }}</span
                       ><svg
                         width="12"
                         height="7"
@@ -374,7 +392,7 @@ export default defineComponent({
                     step="any"
                     placeholder="0.0"
                     oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                    v-bind:maxlength="logic.outputToken?.decimals"
+                    v-bind:maxlength="outputToken?.decimals"
                     spellcheck="false"
                     v-model="outputValue"
                     v-on:input="changeOutputTradePrice"
@@ -382,7 +400,7 @@ export default defineComponent({
                 </div>
                 <div
                   class="uni-ic__swap-content-balance-and-price-container"
-                  v-if="logic.outputToken"
+                  v-if="outputToken"
                 >
                   <div class="uni-ic__swap-content-balance-and-price">
                     <div
@@ -392,22 +410,20 @@ export default defineComponent({
                         class="uni-ic__swap-content-balance-and-price__balance-text"
                       >
                         Balance:
-                        {{ toPrecision(logic.outputToken.balance) }}
-                        {{ logic.outputToken.symbol }}
+                        {{ toPrecision(outputToken.balance) }}
+                        {{ outputToken.symbol }}
                       </div>
                     </div>
                     <div
                       class="uni-ic__swap-content-balance-and-price__price"
-                      v-if="outputValue && logic.outputToken.fiatPrice"
+                      v-if="outputValue && outputToken.fiatPrice"
                     >
                       ~$
                       <span
                         class="uni-ic__swap-content-balance-and-price__price-text"
                       >
                         {{
-                          toPrecision(
-                            logic.outputToken.fiatPrice.times(outputValue),
-                          )
+                          toPrecision(outputToken.fiatPrice.times(outputValue))
                         }}</span
                       >
                     </div>

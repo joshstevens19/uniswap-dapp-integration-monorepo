@@ -6,7 +6,9 @@
       <span class="uni-ic__modal__close" v-on:click="logic.hideTokenSelector()"
         >&times;</span
       >
-      <p class="uni-ic__modal-tokens-title">Select a token</p>
+      <p class="uni-ic__modal-tokens-title">
+        Select a token
+      </p>
       <div class="uni-ic__modal-tokens-search">
         <input
           type="text"
@@ -65,7 +67,7 @@
                     <div
                       class="uni-ic__modal-tokens-item-balance-content-value"
                     >
-                      <!-- {{ utils().toPrecision(token.balance) }} -->
+                      {{ utils().toPrecision(token.balance) }}
                     </div>
                   </div>
                 </div>
@@ -85,11 +87,11 @@
 </template>
 
 <script>
-import { default as TokenIcon } from './token-icon.vue';
 import {
   SelectTokenActionFrom,
-  UniswapUtils,
+  Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
+import { default as TokenIcon } from './token-icon.vue';
 
 export default {
   name: 'TokenModal',
@@ -104,12 +106,8 @@ export default {
     };
   },
   methods: {
-    utils() {
-      return UniswapUtils;
-    },
-    searchForToken(search) {
-      this.search = search;
-      this.logic.search(search);
+    searchForToken() {
+      this.logic.search(this.searchToken);
     },
     async changeSelectToken(contractAddress) {
       switch (this.selectorOpenFrom) {
@@ -122,11 +120,11 @@ export default {
           }
 
           if (this.tradeContext?.toToken.contractAddress === contractAddress) {
-            const swapResponse = await uniswapDappSharedLogic.swapSwitch();
-            // switchSwapCompleted(swapResponse);
+            await this.logic.swapSwitch();
             this.logic.hideTokenSelector();
             return;
           }
+
           await this.logic.changeToken(contractAddress);
           return;
         case this.SelectTokenActionFrom.output:
@@ -138,14 +136,16 @@ export default {
           if (
             this.tradeContext?.fromToken.contractAddress === contractAddress
           ) {
-            const swapResponse = await uniswapDappSharedLogic.swapSwitch();
-            // switchSwapCompleted(swapResponse);
+            await this.logic.swapSwitch();
             this.logic.hideTokenSelector();
             return;
           }
 
           await this.logic.changeToken(contractAddress);
       }
+    },
+    utils() {
+      return UniswapUtils;
     },
   },
 };
