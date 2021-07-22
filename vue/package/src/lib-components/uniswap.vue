@@ -400,6 +400,46 @@ export default defineComponent({
           <SwapQuoteInfo :logic="logic" :tradeContext="tradeContext" />
 
           <Approval :logic="logic" :tradeContext="tradeContext" />
+
+          <div class="uni-ic__swap-button-container">
+            <button
+              class="uni-ic__swap-button uni-ic__theme-background-button"
+              v-on:click="logic.showConfirmSwap()"
+              :disabled="
+                utils().isZero(outputValue) ||
+                  tradeContext?.hasEnoughAllowance === false ||
+                  tradeContext?.fromBalance?.hasEnough === false
+              "
+            >
+              <div class="uni-ic__swap-button-text">
+                <span v-if="utils().isZero(outputValue)">Enter an amount</span>
+                <span
+                  v-if="
+                    !utils().isZero(outputValue) &&
+                      tradeContext?.fromBalance?.hasEnough
+                  "
+                  >Swap</span
+                >
+                <span
+                  v-if="
+                    !utils().isZero(outputValue) &&
+                      !tradeContext?.fromBalance?.hasEnough
+                  "
+                  >Insufficient
+                  {{ tradeContext?.fromToken?.symbol }}
+                  balance</span
+                >
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="uni-ic__error" v-if="!logic.supportedNetwork">
+          <p>
+            <strong
+              >Chain id {{ logic.chainId }} is a unsupported network.</strong
+            >
+          </p>
         </div>
       </div>
     </div>
