@@ -42,7 +42,7 @@ export class UniswapDappSharedLogic {
   // this is used to alert the UI to change the framework
   // binded values
   public newPriceTradeContextAvailable = new Subject<TradeContext>();
-  public loading = new BehaviorSubject<boolean>(false);
+  public loading$ = new BehaviorSubject<boolean>(false);
   public supportedTokenBalances: SupportedTokenResult[] = [];
   public userAcceptedPriceChange = true;
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
@@ -95,7 +95,7 @@ export class UniswapDappSharedLogic {
    * Init the shared logic
    */
   public async init(): Promise<void> {
-    this.loading.next(true);
+    this.loading$.next(true);
     this.supportedNetwork = false;
     this.supportedNetwork$.next(this.supportedNetwork);
     this._quoteSubscription.unsubscribe();
@@ -103,7 +103,7 @@ export class UniswapDappSharedLogic {
 
     await this.setupEthereumContext();
     if (!this.supportedNetwork) {
-      this.loading.next(false);
+      this.loading$.next(false);
       return;
     }
 
@@ -152,7 +152,7 @@ export class UniswapDappSharedLogic {
     // resync once got context so ordering of tokens
     // can sync
     this.getBalances();
-    this.loading.next(false);
+    this.loading$.next(false);
   }
 
   /**
@@ -828,7 +828,6 @@ export class UniswapDappSharedLogic {
         !this.inputToken.balance.isEqualTo(newInputBalance)
       ) {
         this.inputToken.balance = newInputBalance;
-        console.log('here input', newInputBalance.toFixed());
         this.inputToken$.next(this.inputToken);
       }
 

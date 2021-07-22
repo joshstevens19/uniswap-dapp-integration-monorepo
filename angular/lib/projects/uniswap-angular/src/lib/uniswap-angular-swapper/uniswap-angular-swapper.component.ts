@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import { Observable, Subscription } from 'rxjs';
 import {
   SwapSwitchResponse,
+  TradeContext,
   TradeDirection,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
@@ -58,7 +59,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
 
     this._newPriceTradeContextAvailableSubscription =
       this.uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
-        (tradeContext) => {
+        (tradeContext: TradeContext) => {
           if (tradeContext.quoteDirection === TradeDirection.input) {
             this.outputValue = tradeContext.expectedConvertQuote;
           } else {
@@ -73,7 +74,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     }
 
     this._loadingUniswapSubscription =
-      this.uniswapDappSharedLogic.loading.subscribe((_loading) => {
+      this.uniswapDappSharedLogic.loading$.subscribe((_loading: boolean) => {
         this.loading = _loading;
       });
 

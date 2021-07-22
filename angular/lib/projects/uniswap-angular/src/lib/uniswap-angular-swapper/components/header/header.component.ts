@@ -13,4 +13,15 @@ export class HeaderComponent {
   public transactionDeadline: number | undefined;
 
   constructor() {}
+
+  /**
+   * Set custom slippage
+   */
+  public setCustomSlippage(value: number): void {
+    if (!value) {
+      this.uniswapDappSharedLogic.setSlippage(0.5);
+    } else {
+      this.uniswapDappSharedLogic.setSlippage(value);
+    }
+  }
 }

@@ -125,9 +125,7 @@
                       step="any"
                       class="uni-ic__settings-transaction-slippage-manual-input"
                       [ngModel]="slippageCustom"
-                      (ngModelChange)="
-                        uniswapDappSharedLogic.setSlippage($event)
-                      "
+                      (ngModelChange)="setCustomSlippage($event)"
                     />%
                   </div>
                 </button>
