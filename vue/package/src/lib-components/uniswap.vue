@@ -7,6 +7,7 @@ import {
   SwapQuoteInfo,
   Approval,
   ConfirmSwap,
+  TransactionModal,
 } from '../internal-components';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import {
@@ -27,6 +28,7 @@ export default defineComponent({
     SwapQuoteInfo,
     Approval,
     ConfirmSwap,
+    TransactionModal,
   },
   props: ['uniswapDappSharedLogicContext'],
   data() {
@@ -40,6 +42,8 @@ export default defineComponent({
       outputBalance: undefined,
       tradeContext: undefined,
       subscriptions: [],
+      miningTransaction: undefined,
+      miningTransactionStatus: undefined,
     };
   },
   methods: {
@@ -129,13 +133,6 @@ export default defineComponent({
 
     await uniswapDappSharedLogic.init();
 
-    this.tradeContext = uniswapDappSharedLogic.tradeContext;
-    this.subscriptions.push(
-      uniswapDappSharedLogic.tradeContext$.subscribe(context => {
-        this.tradeContext = context;
-      }),
-    );
-
     // this._newPriceTradeContextAvailableSubscription =
     //   this.logic.newPriceTradeContextAvailable.subscribe(
     //     (tradeContext) => {
@@ -151,6 +148,25 @@ export default defineComponent({
       this.outputValue =
         uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
     }
+
+    this.tradeContext = uniswapDappSharedLogic.tradeContext;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.tradeContext$.subscribe(context => {
+        this.tradeContext = context;
+      }),
+    );
+
+    this.miningTransaction = uniswapDappSharedLogic.miningTransaction;
+    this.miningTransactionStatus =
+      uniswapDappSharedLogic.miningTransaction?.status;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.miningTransaction$.subscribe(
+        _miningTransaction => {
+          this.miningTransaction = _miningTransaction;
+          this.miningTransactionStatus = _miningTransaction?.status;
+        },
+      ),
+    );
 
     // this._loadingUniswapSubscription =
     //   this.logic.loading.subscribe((_loading) => {
@@ -447,10 +463,13 @@ export default defineComponent({
 
       <!-- token modals here -->
 
-      <!-- confirm swap here -->
       <ConfirmSwap :logic="logic" :tradeContext="tradeContext" />
 
-      <!-- transaction modal here -->
+      <TransactionModal
+        :logic="logic"
+        :miningTransaction="miningTransaction"
+        :miningTransactionStatus="miningTransactionStatus"
+      />
     </div>
   </div>
 </template>
