@@ -16,4 +16,4 @@ Full docs for the react integration please go [here](https://github.com/uniswap-
 
 ## VUE
 
-Link coming
+Full docs for the vue integration please go [here](https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo/tree/master/vue)
