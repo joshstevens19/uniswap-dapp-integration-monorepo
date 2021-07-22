@@ -1,12 +1,23 @@
 <script>
 import { default as TokenIcon } from './token-icon.vue';
+import { TransactionStatus } from 'uniswap-dapp-integration-shared';
 
 export default {
   name: 'Approval',
   components: {
     TokenIcon,
   },
-  props: ['logic', 'tradeContext'],
+  props: [
+    'logic',
+    'tradeContext',
+    'miningTransaction',
+    'miningTransactionStatus',
+  ],
+  data() {
+    return {
+      TransactionStatus,
+    };
+  },
 };
 </script>
 
@@ -29,8 +40,8 @@ export default {
 
         <span
           v-if="
-            logic.miningTransaction === undefined ||
-              logic.miningTransaction?.status === transactionStatus.rejected
+            miningTransaction === undefined ||
+              miningTransactionStatus === TransactionStatus.rejected
           "
           >You must give the Uniswap smart contract permisson to use your
           {{ tradeContext.fromToken.symbol }}. You only have to do this once per
@@ -39,13 +50,11 @@ export default {
 
         <span
           v-if="
-            logic.miningTransaction?.status ===
-              transactionStatus.waitingForConfirmation
+            miningTransactionStatus === TransactionStatus.waitingForConfirmation
           "
           >Waiting for confirmation....</span
         >
-        <span
-          v-if="logic.miningTransaction?.status === transactionStatus.mining"
+        <span v-if="miningTransactionStatus === TransactionStatus.mining"
           >Waiting for your transaction to be mined...</span
         >
       </span>

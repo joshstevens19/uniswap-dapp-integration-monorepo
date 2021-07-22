@@ -417,7 +417,12 @@ export default defineComponent({
 
           <SwapQuoteInfo :logic="logic" :tradeContext="tradeContext" />
 
-          <Approval :logic="logic" :tradeContext="tradeContext" />
+          <Approval
+            :logic="logic"
+            :tradeContext="tradeContext"
+            :miningTransaction="miningTransaction"
+            :miningTransactionStatus="miningTransactionStatus"
+          />
 
           <div class="uni-ic__swap-button-container">
             <button
