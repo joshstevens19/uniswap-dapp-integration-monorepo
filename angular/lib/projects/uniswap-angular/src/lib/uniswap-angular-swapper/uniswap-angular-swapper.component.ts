@@ -6,7 +6,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import BigNumber from 'bignumber.js';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   SwapSwitchResponse,
   TradeContext,
@@ -39,8 +40,18 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
 
   public utils = UniswapUtils;
 
+  public inputTradePriceChanged: Subject<string> = new Subject<string>();
+  public outputTradePriceChanged: Subject<string> = new Subject<string>();
+
+  private _inputTradePriceChangedSubscription: Subscription =
+    Subscription.EMPTY;
+  private _outputTradePriceChangedSubscription: Subscription =
+    Subscription.EMPTY;
   private _newPriceTradeContextAvailableSubscription: any = Subscription.EMPTY;
   private _loadingUniswapSubscription: any = Subscription.EMPTY;
+
+  // milliseconds
+  private readonly DEBOUNCE_DELAY = 250;
 
   constructor() {}
 
@@ -94,6 +105,18 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
       );
     }
 
+    this._inputTradePriceChangedSubscription = this.inputTradePriceChanged
+      .pipe(debounceTime(this.DEBOUNCE_DELAY), distinctUntilChanged())
+      .subscribe((amount) => {
+        this.changeInputTradePrice(amount);
+      });
+
+    this._outputTradePriceChangedSubscription = this.outputTradePriceChanged
+      .pipe(debounceTime(this.DEBOUNCE_DELAY), distinctUntilChanged())
+      .subscribe((amount) => {
+        this.changeOutputTradePrice(amount);
+      });
+
     this.loading = false;
   }
 
@@ -102,6 +125,8 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    */
   public ngOnDestroy(): void {
     this.uniswapDappSharedLogic.destroy();
+    this._inputTradePriceChangedSubscription.unsubscribe();
+    this._outputTradePriceChangedSubscription.unsubscribe();
     this._newPriceTradeContextAvailableSubscription.unsubscribe();
     this._loadingUniswapSubscription.unsubscribe();
     this._accountChangedSubscription?.unsubscribe();
@@ -109,10 +134,26 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Switch the swap
+   */
+  public async switchSwap(): Promise<void> {
+    const swapState = await this.uniswapDappSharedLogic.swapSwitch();
+    this.switchSwapCompleted(swapState);
+  }
+
+  /**
+   * Switch the swap completed
+   */
+  public switchSwapCompleted(response: SwapSwitchResponse): void {
+    this.inputValue = response.inputValue;
+    this.outputValue = response.outputValue;
+  }
+
+  /**
    * Change input trade price
    * @param amount The amount
    */
-  public async changeInputTradePrice(amount: string): Promise<void> {
+  private async changeInputTradePrice(amount: string): Promise<void> {
     this.inputValue = amount;
     if (!this.inputValue || new BigNumber(this.inputValue).isEqualTo(0)) {
       this.outputValue = '';
@@ -131,7 +172,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    * Change output trade price
    * @param amount The amount
    */
-  public async changeOutputTradePrice(amount: string): Promise<void> {
+  private async changeOutputTradePrice(amount: string): Promise<void> {
     this.outputValue = amount;
     if (!this.outputValue || new BigNumber(this.outputValue).isEqualTo(0)) {
       this.inputValue = '';
@@ -143,22 +184,6 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     );
     this.inputValue =
       this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
-  }
-
-  /**
-   * Switch the swap
-   */
-  public async switchSwap(): Promise<void> {
-    const swapState = await this.uniswapDappSharedLogic.swapSwitch();
-    this.switchSwapCompleted(swapState);
-  }
-
-  /**
-   * Switch the swap completed
-   */
-  public switchSwapCompleted(response: SwapSwitchResponse): void {
-    this.inputValue = response.inputValue;
-    this.outputValue = response.outputValue;
   }
 
   /**

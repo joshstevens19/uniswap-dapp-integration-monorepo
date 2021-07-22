@@ -55,7 +55,7 @@
                 [attr.maxlength]="uniswapDappSharedLogic.inputToken.decimals"
                 spellcheck="false"
                 [(ngModel)]="inputValue"
-                (ngModelChange)="changeInputTradePrice($event)"
+                (ngModelChange)="inputTradePriceChanged.next($event)"
               />
             </div>
             <div class="uni-ic__swap-content-balance-and-price-container">
@@ -188,7 +188,7 @@
                 [attr.maxlength]="uniswapDappSharedLogic.outputToken?.decimals"
                 spellcheck="false"
                 [(ngModel)]="outputValue"
-                (ngModelChange)="changeOutputTradePrice($event)"
+                (ngModelChange)="outputTradePriceChanged.next($event)"
               />
             </div>
             <div
