@@ -45,6 +45,8 @@ export default defineComponent({
       miningTransaction: undefined,
       miningTransactionStatus: undefined,
       selectorOpenFrom: undefined,
+      supportedNetwork: false,
+      chainId: undefined,
     };
   },
   methods: {
@@ -157,6 +159,20 @@ export default defineComponent({
       }),
     );
 
+    this.supportedNetwork = uniswapDappSharedLogic.supportedNetwork;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.supportedNetwork$.subscribe(supported => {
+        this.supportedNetwork = supported;
+      }),
+    );
+
+    this.chainId = uniswapDappSharedLogic.chainId;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.chainId$.subscribe(chainId => {
+        this.chainId = chainId;
+      }),
+    );
+
     this.miningTransaction = uniswapDappSharedLogic.miningTransaction;
     this.miningTransactionStatus =
       uniswapDappSharedLogic.miningTransaction?.status;
@@ -226,11 +242,11 @@ export default defineComponent({
     <Loading v-if="loading" />
     <div v-else>
       <div class="uni-ic uni-ic__theme-background">
-        <Header v-if="logic && logic.supportedNetwork" :logic="logic" />
+        <Header v-if="logic && supportedNetwork && inputToken" :logic="logic" />
 
         <div
           class="uni-ic__swap-container"
-          v-if="logic && logic.supportedNetwork"
+          v-if="logic && supportedNetwork && inputToken"
         >
           <div class="uni-ic__swap-content">
             <div class="uni-ic__swap-input-container">
@@ -475,30 +491,28 @@ export default defineComponent({
           </div>
         </div>
 
-        <div class="uni-ic__error" v-if="!logic.supportedNetwork">
+        <div class="uni-ic__error" v-if="!supportedNetwork">
           <p>
-            <strong
-              >Chain id {{ logic.chainId }} is a unsupported network.</strong
-            >
+            <strong>Chain id {{ chainId }} is a unsupported network.</strong>
           </p>
         </div>
       </div>
 
       <TokenModal
-        v-if="logic && logic.supportedNetwork"
+        v-if="logic && supportedNetwork"
         :logic="logic"
         :tradeContext="tradeContext"
         :selectorOpenFrom="selectorOpenFrom"
       />
 
       <ConfirmSwap
-        v-if="logic && logic.supportedNetwork"
+        v-if="logic && supportedNetwork"
         :logic="logic"
         :tradeContext="tradeContext"
       />
 
       <TransactionModal
-        v-if="logic && logic.supportedNetwork"
+        v-if="logic && supportedNetwork"
         :logic="logic"
         :miningTransaction="miningTransaction"
         :miningTransactionStatus="miningTransactionStatus"
