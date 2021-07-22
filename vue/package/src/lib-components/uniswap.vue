@@ -206,7 +206,7 @@ export default defineComponent({
     <Loading v-if="loading" />
     <div v-else>
       <div class="uni-ic uni-ic__theme-background">
-        <Header :logic="logic" />
+        <Header v-if="logic && logic.supportedNetwork" :logic="logic" />
 
         <div
           class="uni-ic__swap-container"

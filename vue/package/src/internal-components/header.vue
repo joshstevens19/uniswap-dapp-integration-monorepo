@@ -1,5 +1,5 @@
 <template>
-  <div class="uni-ic__header-container" v-if="logic.supportedNetwork">
+  <div class="uni-ic__header-container">
     <div class="uni-ic__header-content">
       <div class="uni-ic__header-content-title">Swap</div>
       <div class="uni-ic__header-content-settings">
@@ -75,25 +75,25 @@
                 <div class="uni-ic__settings-transaction-slippage-options">
                   <button
                     class="uni-ic__settings-transaction-slippage-option"
-                    v-on:click="logic.setSlippage(0.1)"
+                    v-on:click="setUniswapSlippage(0.1)"
                     v-bind:class="{
-                      selected: logic.slippage === 0.001,
+                      selected: slippage === 0.001,
                     }"
                   >
                     0.1%</button
                   ><button
                     class="uni-ic__settings-transaction-slippage-option"
-                    v-on:click="logic.setSlippage(0.5)"
+                    v-on:click="setUniswapSlippage(0.5)"
                     v-bind:class="{
-                      selected: logic.slippage === 0.005,
+                      selected: slippage === 0.005,
                     }"
                   >
                     0.5%</button
                   ><button
                     class="uni-ic__settings-transaction-slippage-option"
-                    v-on:click="logic.setSlippage(1)"
+                    v-on:click="setUniswapSlippage(1)"
                     v-bind:class="{
-                      selected: logic.slippage === 0.01,
+                      selected: slippage === 0.01,
                     }"
                   >
                     1%</button
@@ -102,9 +102,9 @@
                     class="uni-ic__settings-transaction-slippage-manual"
                     v-bind:class="{
                       selected:
-                        logic.slippage !== 0.01 &&
-                        logic.slippage !== 0.005 &&
-                        logic.slippage !== 0.001,
+                        slippage !== 0.01 &&
+                        slippage !== 0.005 &&
+                        slippage !== 0.001,
                     }"
                   >
                     <div
@@ -116,15 +116,16 @@
                         step="any"
                         class="uni-ic__settings-transaction-slippage-manual-input"
                         v-model="slippageCustom"
+                        v-on:input="setCustomSlippage"
                       />%
                     </div>
                   </button>
                 </div>
                 <div class="uni-ic__settings-transaction-slippage-warning">
-                  <span v-if="logic.slippage > 0.01"
+                  <span v-if="slippage > 0.01"
                     >Your transaction may be frontrun</span
                   >
-                  <span v-if="0.0005 > logic.slippage"
+                  <span v-if="0.0005 > slippage"
                     >Your transaction may fail</span
                   >
                 </div>
@@ -178,6 +179,7 @@
                       min="1"
                       step="1"
                       v-model="transactionDeadline"
+                      v-on:input="setTransactionDeadline"
                     />
                   </button>
                   <div
@@ -228,17 +230,17 @@
               <button class="uni-ic__settings-interface-multihops-actions">
                 <span
                   class="uni-ic__settings-interface-multihops-actions-on"
-                  v-on:click="logic.setDisableMultihops(true)"
+                  v-on:click="setDisableMultihops(true)"
                   v-bind:class="{
-                    selected: logic.disableMultihops,
+                    selected: disableMultihops,
                   }"
                   >On</span
                 ><span
                   class="uni-ic__settings-interface-multihops-actions-off"
                   v-bind:class="{
-                    selected: !logic.disableMultihops,
+                    selected: !disableMultihops,
                   }"
-                  v-on:click="logic.setDisableMultihops(false)"
+                  v-on:click="setDisableMultihops(false)"
                   >Off</span
                 >
               </button>
@@ -258,14 +260,30 @@ export default {
     return {
       slippageCustom: undefined,
       transactionDeadline: undefined,
+      disableMultihops: this.logic.uniswapPairSettings.disableMultihops,
+      slippage: this.logic.uniswapPairSettings.slippage,
     };
   },
-  watch: {
-    slippageCustom: function(val) {
-      this.logic.setSlippage(val);
+  methods: {
+    setDisableMultihops(value) {
+      this.logic.setDisableMultihops(value);
+      this.disableMultihops = value;
     },
-    transactionDeadline: function(val) {
-      this.logic.setTransactionDeadline(val);
+    async setUniswapSlippage(slippageAmount, isCustom) {
+      if (slippageAmount === 0) {
+        slippageAmount = 0.5;
+      }
+      await this.logic.setSlippage(slippageAmount);
+      this.slippage = slippageAmount / 100;
+      if (isCustom) {
+        this.slippageCustom = slippageAmount;
+      }
+    },
+    async setCustomSlippage() {
+      await this.setUniswapSlippage(Number(this.slippageCustom), true);
+    },
+    async setTransactionDeadline() {
+      await this.logic.setTransactionDeadline(deadline);
     },
   },
 };
