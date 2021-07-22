@@ -1,6 +1,11 @@
 <script>
 import { defineComponent } from 'vue';
-import { Loading, Header, TokenIcon } from '../internal-components';
+import {
+  Loading,
+  Header,
+  TokenIcon,
+  SwapQuoteInfo,
+} from '../internal-components';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import {
   UniswapDappSharedLogic,
@@ -17,14 +22,20 @@ export default defineComponent({
     Loading,
     Header,
     TokenIcon,
+    SwapQuoteInfo,
   },
   props: ['uniswapDappSharedLogicContext'],
   data() {
     return {
       loading: true,
       inputValue: '',
+      inputToken: undefined,
+      inputBalance: undefined,
       outputValue: '',
-      // logic: null,
+      outputToken: undefined,
+      outputBalance: undefined,
+      tradeContext: undefined,
+      subscriptions: [],
     };
   },
   methods: {
@@ -114,6 +125,13 @@ export default defineComponent({
 
     await uniswapDappSharedLogic.init();
 
+    this.tradeContext = uniswapDappSharedLogic.tradeContext;
+    this.subscriptions.push(
+      uniswapDappSharedLogic.tradeContext$.subscribe(context => {
+        this.tradeContext = context;
+      }),
+    );
+
     // this._newPriceTradeContextAvailableSubscription =
     //   this.logic.newPriceTradeContextAvailable.subscribe(
     //     (tradeContext) => {
@@ -154,6 +172,9 @@ export default defineComponent({
     this.logic = uniswapDappSharedLogic;
 
     this.loading = false;
+  },
+  unmounted() {
+    this.subscriptions.forEach(subscription => subscription.unsubscribe());
   },
 });
 </script>
@@ -300,19 +321,11 @@ export default defineComponent({
                     <span
                       class="uni-ic__swap-input-content-main-from-currency"
                       v-if="logic.outputToken"
-                      ><img
-                        v-if="!logic.outputToken.tokenImageContext.isSvg"
-                        v-bind:src="logic.outputToken.tokenImageContext.image"
-                        class="uni-ic__swap-input-content-main-from-currency-icon"
+                    >
+                      <TokenIcon
+                        classes="uni-ic__swap-input-content-main-from-currency-icon"
+                        :context="logic.outputToken.tokenImageContext"
                       />
-                      <!-- <div
-                        v-if="logic.outputToken.tokenImageContext.isSvg"
-                        class="uni-ic__swap-input-content-main-from-currency-icon"
-                        [innerHTML]="
-                      logic.outputToken.tokenImageContext.image
-                        | safe
-                    "
-                      ></div> -->
 
                       <span
                         class="uni-ic__swap-input-content-main-from-currency-symbol"
@@ -381,6 +394,8 @@ export default defineComponent({
               </div>
             </div>
           </div>
+
+          <SwapQuoteInfo :logic="logic" :tradeContext="tradeContext" />
         </div>
       </div>
     </div>
