@@ -23,7 +23,7 @@ import TokensModal from './components/tokensModal';
 import TransactionModal from './components/transactionModal';
 
 let uniswapDappSharedLogic: undefined | UniswapDappSharedLogic;
-const subcriptions: any[] = [];
+const subscriptions: any[] = [];
 
 const UniswapReact = ({
   uniswapDappSharedLogicContext,
@@ -70,7 +70,7 @@ const UniswapReact = ({
       await sharedLogic!.init();
 
       setTradeContext(sharedLogic!.tradeContext);
-      subcriptions.push(
+      subscriptions.push(
         sharedLogic.tradeContext$.subscribe((context) => {
           setTradeContext(context);
         }),
@@ -83,14 +83,14 @@ const UniswapReact = ({
       uniswapDappSharedLogic = sharedLogic;
 
       setSupportedNetwork(uniswapDappSharedLogic.supportedNetwork);
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.supportedNetwork$.subscribe((supported) => {
           setSupportedNetwork(supported);
         }),
       );
 
       setChainId(uniswapDappSharedLogic.chainId);
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.chainId$.subscribe((chainId) => {
           setChainId(chainId);
         }),
@@ -100,7 +100,7 @@ const UniswapReact = ({
       setInputBalance(
         utils.toPrecision(uniswapDappSharedLogic.inputToken.balance),
       );
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.inputToken$.subscribe((token) => {
           setInputToken(token);
           setInputBalance(utils.toPrecision(token.balance));
@@ -113,14 +113,14 @@ const UniswapReact = ({
           utils.toPrecision(uniswapDappSharedLogic.outputToken.balance),
         );
       }
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.outputToken$.subscribe((token) => {
           setOutputToken(token);
           setOutputBalance(utils.toPrecision(token.balance));
         }),
       );
 
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
           (tradeContext) => {
             if (tradeContext.quoteDirection === TradeDirection.input) {
@@ -133,7 +133,7 @@ const UniswapReact = ({
       );
 
       setSelectorOpenFrom(uniswapDappSharedLogic.selectorOpenFrom);
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.selectorOpenFrom$.subscribe((openFrom) => {
           setSelectorOpenFrom(openFrom);
         }),
@@ -143,7 +143,7 @@ const UniswapReact = ({
       setMiningTransactionStatus(
         uniswapDappSharedLogic.miningTransaction?.status,
       );
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.miningTransaction$.subscribe(
           (_miningTransaction) => {
             setMiningTransaction(_miningTransaction);
@@ -153,7 +153,7 @@ const UniswapReact = ({
       );
 
       setLoading(false);
-      subcriptions.push(
+      subscriptions.push(
         uniswapDappSharedLogic.loading.subscribe((loading) => {
           setLoading(loading);
         }),
@@ -161,8 +161,8 @@ const UniswapReact = ({
     })();
 
     return () => {
-      for (let i = 0; i < subcriptions.length; i++) {
-        subcriptions[i].unsubscribe();
+      for (let i = 0; i < subscriptions.length; i++) {
+        subscriptions[i].unsubscribe();
       }
     };
   }, []);
