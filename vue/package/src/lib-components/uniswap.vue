@@ -206,10 +206,11 @@ export default defineComponent({
       }),
     );
 
-    // this._loadingUniswapSubscription =
-    //   this.logic.loading.subscribe((_loading) => {
-    //     this.loading = _loading;
-    //   });
+    this.subscriptions.push(
+      uniswapDappSharedLogic.loading.subscribe(_loading => {
+        this.loading = _loading;
+      }),
+    );
 
     // if (this.accountChanged) {
     //   this._accountChangedSubscription = this.accountChanged.subscribe(
