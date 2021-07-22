@@ -1,5 +1,5 @@
 <script>
-import { TokenIcon } from './token-icon';
+import { default as TokenIcon } from './token-icon.vue';
 
 export default {
   name: 'Approval',
