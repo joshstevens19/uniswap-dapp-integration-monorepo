@@ -21,7 +21,7 @@ const TokensModal = ({
 }): JSX.Element => {
   const [searchToken, setSearchToken] = React.useState('');
 
-  const searchForToken = async (search: string) => {
+  const searchForToken = (search: string) => {
     setSearchToken(search);
     uniswapDappSharedLogic.searchToken(search);
   };
