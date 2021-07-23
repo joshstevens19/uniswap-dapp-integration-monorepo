@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
+  ErrorCodes,
   SwapSwitchResponse,
   TradeContext,
   TradeDirection,
@@ -30,9 +31,9 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   @Input() chainChanged: Observable<any> | undefined;
   private _chainChangedSubscription: Subscription | undefined;
 
-  public uniswapDappSharedLogic!: UniswapDappSharedLogic;
-
   public loading = true;
+  public uniswapDappSharedLogic!: UniswapDappSharedLogic;
+  public noLiquidityFound = false;
 
   // ng models
   public inputValue = '';
@@ -47,6 +48,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     Subscription.EMPTY;
   private _outputTradePriceChangedSubscription: Subscription =
     Subscription.EMPTY;
+  private _tradeContextSubscription: any = Subscription.EMPTY;
   private _newPriceTradeContextAvailableSubscription: any = Subscription.EMPTY;
   private _loadingUniswapSubscription: any = Subscription.EMPTY;
 
@@ -67,6 +69,19 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     }
 
     await this.uniswapDappSharedLogic.init();
+
+    this._tradeContextSubscription =
+      this.uniswapDappSharedLogic.tradeContext$.subscribe(
+        (tradeContext: TradeContext | undefined) => {
+          if (tradeContext) {
+            if (tradeContext.quoteDirection === TradeDirection.input) {
+              this.outputValue = tradeContext.expectedConvertQuote;
+            } else {
+              this.inputValue = tradeContext.expectedConvertQuote;
+            }
+          }
+        },
+      );
 
     this._newPriceTradeContextAvailableSubscription =
       this.uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
@@ -127,6 +142,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     this.uniswapDappSharedLogic.destroy();
     this._inputTradePriceChangedSubscription.unsubscribe();
     this._outputTradePriceChangedSubscription.unsubscribe();
+    this._tradeContextSubscription.unsubscribe();
     this._newPriceTradeContextAvailableSubscription.unsubscribe();
     this._loadingUniswapSubscription.unsubscribe();
     this._accountChangedSubscription?.unsubscribe();
@@ -150,6 +166,13 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * The token has been changed successfully
+   */
+  public changedTokenCompleted(): void {
+    this.noLiquidityFound = false;
+  }
+
+  /**
    * Change input trade price
    * @param amount The amount
    */
@@ -160,12 +183,13 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.uniswapDappSharedLogic.changeTradePrice(
-      amount,
-      TradeDirection.input,
-    );
-    this.outputValue =
-      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    const success = await this.changeTradePrice(amount, TradeDirection.input);
+    if (success) {
+      this.outputValue =
+        this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    } else {
+      this.outputValue = '';
+    }
   }
 
   /**
@@ -178,12 +202,39 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
       this.inputValue = '';
       return;
     }
-    await this.uniswapDappSharedLogic.changeTradePrice(
-      amount,
-      TradeDirection.output,
-    );
-    this.inputValue =
-      this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    const success = await this.changeTradePrice(amount, TradeDirection.output);
+    if (success) {
+      this.inputValue =
+        this.uniswapDappSharedLogic.tradeContext!.expectedConvertQuote;
+    } else {
+      this.inputValue = '';
+    }
+  }
+
+  /**
+   * Change trade price
+   * @param amount The amount
+   * @param tradeDirection The trade direction
+   */
+  private async changeTradePrice(
+    amount: string,
+    tradeDirection: TradeDirection,
+  ): Promise<boolean> {
+    try {
+      await this.uniswapDappSharedLogic.changeTradePrice(
+        amount,
+        tradeDirection,
+      );
+    } catch (error) {
+      if (error.code === ErrorCodes.noRoutesFound) {
+        this.noLiquidityFound = true;
+        return false;
+      }
+    }
+
+    this.noLiquidityFound = false;
+
+    return true;
   }
 
   /**

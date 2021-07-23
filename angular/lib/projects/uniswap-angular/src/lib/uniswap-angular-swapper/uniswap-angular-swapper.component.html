@@ -249,14 +249,18 @@
             utils.isZero(outputValue) ||
             uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false ||
             uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough ===
-              false
+              false ||
+            noLiquidityFound
           "
         >
           <div class="uni-ic__swap-button-text">
-            <span *ngIf="utils.isZero(outputValue)">Enter an amount</span>
+            <span *ngIf="utils.isZero(outputValue) && !noLiquidityFound"
+              >Enter an amount</span
+            >
             <span
               *ngIf="
                 !utils.isZero(outputValue) &&
+                !noLiquidityFound &&
                 uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Swap</span
@@ -264,11 +268,15 @@
             <span
               *ngIf="
                 !utils.isZero(outputValue) &&
+                !noLiquidityFound &&
                 !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
               "
               >Insufficient
               {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }}
               balance</span
+            >
+            <span *ngIf="noLiquidityFound"
+              >Insufficient liquidity for this trade</span
             >
           </div>
         </button>
@@ -286,6 +294,7 @@
   <lib-tokens-modal
     [uniswapDappSharedLogic]="uniswapDappSharedLogic"
     (switchSwapCompleted)="switchSwapCompleted($event)"
+    (changedTokenCompleted)="changedTokenCompleted()"
   ></lib-tokens-modal>
 
   <lib-confirm-swap-modal

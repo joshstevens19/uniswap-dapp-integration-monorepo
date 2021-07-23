@@ -14,6 +14,7 @@ import {
 export class TokensModalComponent {
   @Input() public uniswapDappSharedLogic!: UniswapDappSharedLogic;
   @Output() public switchSwapCompleted = new EventEmitter<SwapSwitchResponse>();
+  @Output() public changedTokenCompleted = new EventEmitter<void>();
 
   public utils = UniswapUtils;
   public searchToken: string | undefined;
@@ -27,15 +28,15 @@ export class TokensModalComponent {
     switch (this.uniswapDappSharedLogic.selectorOpenFrom) {
       case SelectTokenActionFrom.input:
         if (
-          this.uniswapDappSharedLogic.tradeContext?.fromToken
-            .contractAddress === contractAddress
+          this.uniswapDappSharedLogic.inputToken.contractAddress ===
+          contractAddress
         ) {
           this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
 
         if (
-          this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
+          this.uniswapDappSharedLogic.outputToken?.contractAddress ===
           contractAddress
         ) {
           const swapResponse = await this.uniswapDappSharedLogic.swapSwitch();
@@ -44,10 +45,11 @@ export class TokensModalComponent {
           return;
         }
         await this.uniswapDappSharedLogic.changeToken(contractAddress);
+        this.changedTokenCompleted.emit();
         return;
       case SelectTokenActionFrom.output:
         if (
-          this.uniswapDappSharedLogic.tradeContext?.toToken.contractAddress ===
+          this.uniswapDappSharedLogic.outputToken?.contractAddress ===
           contractAddress
         ) {
           this.uniswapDappSharedLogic.hideTokenSelector();
@@ -55,8 +57,8 @@ export class TokensModalComponent {
         }
 
         if (
-          this.uniswapDappSharedLogic.tradeContext?.fromToken
-            .contractAddress === contractAddress
+          this.uniswapDappSharedLogic.inputToken.contractAddress ===
+          contractAddress
         ) {
           const swapResponse = await this.uniswapDappSharedLogic.swapSwitch();
           this.switchSwapCompleted.emit(swapResponse);
@@ -64,6 +66,7 @@ export class TokensModalComponent {
           return;
         }
         await this.uniswapDappSharedLogic.changeToken(contractAddress);
+        this.changedTokenCompleted.emit();
     }
   }
 }
