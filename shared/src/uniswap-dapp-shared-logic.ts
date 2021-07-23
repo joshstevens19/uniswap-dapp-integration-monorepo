@@ -576,8 +576,10 @@ export class UniswapDappSharedLogic {
    * @param contractAddress The contract address
    */
   private async changeInputToken(contractAddress: string): Promise<void> {
-    this.hideTokenSelector();
-    await this.buildFactory(contractAddress, this.outputToken!.contractAddress);
+    await this.changeTokenHandler(
+      contractAddress,
+      this.outputToken!.contractAddress,
+    );
   }
 
   /**
@@ -585,8 +587,31 @@ export class UniswapDappSharedLogic {
    * @param contractAddress The contract address
    */
   private async changeOutputToken(contractAddress: string): Promise<void> {
+    await this.changeTokenHandler(
+      this.inputToken.contractAddress,
+      contractAddress,
+    );
+  }
+
+  /**
+   * Change token handler
+   * @param inputToken The input token
+   * @param outputToken The output token
+   */
+  private async changeTokenHandler(
+    inputToken: string,
+    outputToken: string,
+  ): Promise<void> {
     this.hideTokenSelector();
-    await this.buildFactory(this.inputToken.contractAddress, contractAddress);
+    await this.buildFactory(inputToken, outputToken, false);
+    if (this.tradeContext?.quoteDirection === TradeDirection.output) {
+      await this.trade(
+        new BigNumber(Utils.deepClone(this.tradeContext.baseConvertRequest)),
+        TradeDirection.output,
+      );
+    } else {
+      await this.trade(this._inputAmount, TradeDirection.input);
+    }
   }
 
   /**
@@ -698,6 +723,12 @@ export class UniswapDappSharedLogic {
       );
 
       console.log('first quote', this.tradeContext);
+
+      if (this.tradeContext.quoteDirection === TradeDirection.output) {
+        this._inputAmount = new BigNumber(
+          Utils.deepClone(this.tradeContext.expectedConvertQuote),
+        );
+      }
     }
   }
 
