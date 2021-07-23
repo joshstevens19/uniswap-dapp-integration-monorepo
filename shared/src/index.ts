@@ -1,5 +1,6 @@
 export {
   ChainId,
+  ErrorCodes,
   ETH,
   Token,
   TradeContext,
