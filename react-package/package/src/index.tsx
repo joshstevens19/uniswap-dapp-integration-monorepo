@@ -154,7 +154,7 @@ const UniswapReact = ({
 
       setLoading(false);
       subscriptions.push(
-        uniswapDappSharedLogic.loading.subscribe((loading) => {
+        uniswapDappSharedLogic.loading$.subscribe((loading) => {
           setLoading(loading);
         }),
       );
