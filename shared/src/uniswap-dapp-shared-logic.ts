@@ -459,6 +459,10 @@ export class UniswapDappSharedLogic {
    * @param disableMultihops The status of disable multihops
    */
   public async setDisableMultihops(disableMultihops: boolean): Promise<void> {
+    if (disableMultihops === this.uniswapPairSettings.disableMultihops) {
+      return;
+    }
+
     this.uniswapPairSettings.disableMultihops = disableMultihops;
     this.uniswapPairSettings$.next(this.uniswapPairSettings);
     await this.buildFactory(
@@ -474,6 +478,10 @@ export class UniswapDappSharedLogic {
   public async setTransactionDeadline(
     deadlineMinutes: string | number,
   ): Promise<void> {
+    if (Number(deadlineMinutes) === this.uniswapPairSettings.deadlineMinutes) {
+      return;
+    }
+
     if (deadlineMinutes === '') {
       this.uniswapPairSettings.deadlineMinutes = 20;
     } else {
@@ -493,6 +501,10 @@ export class UniswapDappSharedLogic {
    * @param slippage The slippage the route can take
    */
   public async setSlippage(slippage: string | number): Promise<void> {
+    if (Number(slippage) / 100 === this.uniswapPairSettings.slippage) {
+      return;
+    }
+
     if (slippage === '') {
       this.uniswapPairSettings.slippage = 0.005;
     } else {
