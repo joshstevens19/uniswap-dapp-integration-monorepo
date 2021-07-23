@@ -888,7 +888,6 @@
             justify-content: center;
             padding: 0.2rem;
             border: none;
-            // background: none RGB(247, 248, 250);
             outline: none;
             cursor: default;
             border-radius: 36px;
@@ -917,6 +916,7 @@
             &.selected {
               background: RGB(255, 0, 122);
               color: white;
+              cursor: default;
             }
           }
         }
