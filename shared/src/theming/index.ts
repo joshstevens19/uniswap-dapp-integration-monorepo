@@ -1,6 +1,7 @@
 import { UniswapTheming } from './models/uniswap-theming';
 
 export class Theming {
+  private readonly WIDGET_ID = 'uniswap__716283642843643826';
   constructor(private _theming?: UniswapTheming) {}
 
   /**
@@ -108,6 +109,7 @@ export class Theming {
     this.hideSettings();
     const modal = document.getElementById('uni-ic__modal-token')!;
     modal.style.display = 'block';
+    this.renderModalWithCorrectPosition(modal, 100);
   }
 
   /**
@@ -125,6 +127,7 @@ export class Theming {
     this.hideSettings();
     const modal = document.getElementById('uni-ic__modal-confirm-swap')!;
     modal.style.display = 'block';
+    this.renderModalWithCorrectPosition(modal, 200);
   }
 
   /**
@@ -141,6 +144,7 @@ export class Theming {
   public showTransaction(): void {
     const modal = document.getElementById('uni-ic__modal-transaction')!;
     modal.style.display = 'block';
+    this.renderModalWithCorrectPosition(modal);
   }
 
   /**
@@ -159,5 +163,24 @@ export class Theming {
       'uni-ic__settings-container',
     )[0];
     settingsElement.classList.add('uni-ic-hidden');
+  }
+
+  /**
+   * render the modal in the correct place so it doesnt appear of screen
+   */
+  private renderModalWithCorrectPosition(
+    modal: HTMLElement,
+    minus: number = 0,
+  ): void {
+    console.log('hey');
+    const topBoundingClientRect = document
+      .getElementById(this.WIDGET_ID)!
+      .getBoundingClientRect().top;
+    let paddingNumber = topBoundingClientRect - minus;
+    if (paddingNumber < 0) {
+      paddingNumber = 20;
+    }
+    const paddingTop = paddingNumber.toString() + 'px';
+    modal.style.paddingTop = paddingTop;
   }
 }
