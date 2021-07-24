@@ -1,320 +1,344 @@
-<lib-loading *ngIf="loading"></lib-loading>
+<div id="uniswap__716283642843643826">
+  <lib-loading *ngIf="loading"></lib-loading>
 
-<ng-container *ngIf="!loading">
-  <div class="uni-ic uni-ic__theme-background">
-    <lib-header [uniswapDappSharedLogic]="uniswapDappSharedLogic"></lib-header>
+  <ng-container *ngIf="!loading">
+    <div class="uni-ic uni-ic__theme-background">
+      <lib-header
+        [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+      ></lib-header>
 
-    <div
-      class="uni-ic__swap-container"
-      *ngIf="uniswapDappSharedLogic.supportedNetwork"
-    >
-      <div class="uni-ic__swap-content">
-        <div class="uni-ic__swap-input-container">
-          <div class="uni-ic__swap-input-content uni-ic__theme-panel">
-            <div class="uni-ic__swap-input-content-main">
-              <button
-                class="
-                  uni-ic__swap-input-content-main-from-currency-container
-                  uni-ic__theme-panel
-                "
-                (click)="uniswapDappSharedLogic.openTokenSelectorFrom()"
-              >
-                <span class="uni-ic__swap-input-content-main-from-currency">
-                  <lib-token-icon
-                    classes="uni-ic__swap-input-content-main-from-currency-icon"
-                    [tokenImageContext]="
-                      uniswapDappSharedLogic.inputToken.tokenImageContext
-                    "
-                  ></lib-token-icon>
-
-                  <span
-                    class="uni-ic__swap-input-content-main-from-currency-symbol"
-                    >{{ uniswapDappSharedLogic.inputToken.symbol }}</span
-                  ><svg
-                    width="12"
-                    height="7"
-                    viewBox="0 0 12 7"
-                    fill="none"
-                    class="uni-ic__swap-input-content-main-from-currency-choose"
-                  >
-                    <path
-                      d="M0.97168 1L6.20532 6L11.439 1"
-                      stroke="#AEAEAE"
-                    ></path>
-                  </svg>
-                </span>
-              </button>
-              <input
-                class="uni-ic__swap-input-content-main-from uni-ic__theme-panel"
-                autocomplete="off"
-                autocorrect="off"
-                type="number"
-                step="any"
-                placeholder="0.0"
-                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                [attr.maxlength]="uniswapDappSharedLogic.inputToken.decimals"
-                spellcheck="false"
-                [(ngModel)]="inputValue"
-                (ngModelChange)="inputTradePriceChanged.next($event)"
-                [disabled]="uniswapDappSharedLogic.transactionInProcess()"
-              />
-            </div>
-            <div class="uni-ic__swap-content-balance-and-price-container">
-              <div class="uni-ic__swap-content-balance-and-price">
-                <div class="uni-ic__swap-content-balance-and-price__balance">
-                  <div
-                    class="uni-ic__swap-content-balance-and-price__balance-text"
-                  >
-                    Balance:
-                    {{
-                      utils.toPrecision(
-                        uniswapDappSharedLogic.inputToken.balance
-                      )
-                    }}
-                    {{ uniswapDappSharedLogic.inputToken.symbol }}
-                  </div>
-                </div>
-                <div
-                  class="uni-ic__swap-content-balance-and-price__price"
-                  *ngIf="
-                    inputValue && uniswapDappSharedLogic.inputToken!.fiatPrice
+      <div
+        class="uni-ic__swap-container"
+        *ngIf="uniswapDappSharedLogic.supportedNetwork"
+      >
+        <div class="uni-ic__swap-content">
+          <div class="uni-ic__swap-input-container">
+            <div class="uni-ic__swap-input-content uni-ic__theme-panel">
+              <div class="uni-ic__swap-input-content-main">
+                <button
+                  class="
+                    uni-ic__swap-input-content-main-from-currency-container
+                    uni-ic__theme-panel
                   "
+                  (click)="uniswapDappSharedLogic.openTokenSelectorFrom()"
                 >
-                  ~$
-                  <span
-                    class="uni-ic__swap-content-balance-and-price__price-text"
-                    >{{
-                      utils.formatCurrency(
+                  <span class="uni-ic__swap-input-content-main-from-currency">
+                    <lib-token-icon
+                      classes="uni-ic__swap-input-content-main-from-currency-icon"
+                      [tokenImageContext]="
+                        uniswapDappSharedLogic.inputToken.tokenImageContext
+                      "
+                    ></lib-token-icon>
+
+                    <span
+                      class="
+                        uni-ic__swap-input-content-main-from-currency-symbol
+                      "
+                      >{{ uniswapDappSharedLogic.inputToken.symbol }}</span
+                    ><svg
+                      width="12"
+                      height="7"
+                      viewBox="0 0 12 7"
+                      fill="none"
+                      class="
+                        uni-ic__swap-input-content-main-from-currency-choose
+                      "
+                    >
+                      <path
+                        d="M0.97168 1L6.20532 6L11.439 1"
+                        stroke="#AEAEAE"
+                      ></path>
+                    </svg>
+                  </span>
+                </button>
+                <input
+                  class="
+                    uni-ic__swap-input-content-main-from uni-ic__theme-panel
+                  "
+                  autocomplete="off"
+                  autocorrect="off"
+                  type="number"
+                  step="any"
+                  placeholder="0.0"
+                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                  [attr.maxlength]="uniswapDappSharedLogic.inputToken.decimals"
+                  spellcheck="false"
+                  [(ngModel)]="inputValue"
+                  (ngModelChange)="inputTradePriceChanged.next($event)"
+                  [disabled]="uniswapDappSharedLogic.transactionInProcess()"
+                />
+              </div>
+              <div class="uni-ic__swap-content-balance-and-price-container">
+                <div class="uni-ic__swap-content-balance-and-price">
+                  <div class="uni-ic__swap-content-balance-and-price__balance">
+                    <div
+                      class="
+                        uni-ic__swap-content-balance-and-price__balance-text
+                      "
+                    >
+                      Balance:
+                      {{
                         utils.toPrecision(
-                          uniswapDappSharedLogic.inputToken!.fiatPrice.times(
-                            inputValue
+                          uniswapDappSharedLogic.inputToken.balance
+                        )
+                      }}
+                      {{ uniswapDappSharedLogic.inputToken.symbol }}
+                    </div>
+                  </div>
+                  <div
+                    class="uni-ic__swap-content-balance-and-price__price"
+                    *ngIf="
+                      inputValue && uniswapDappSharedLogic.inputToken!.fiatPrice
+                    "
+                  >
+                    ~$
+                    <span
+                      class="uni-ic__swap-content-balance-and-price__price-text"
+                      >{{
+                        utils.formatCurrency(
+                          utils.toPrecision(
+                            uniswapDappSharedLogic.inputToken!.fiatPrice.times(
+                              inputValue
+                            )
                           )
                         )
-                      )
-                    }}</span
-                  >
+                      }}</span
+                    >
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div
-          class="uni-ic__swap-divider uni-ic__theme-panel"
-          (click)="switchSwap()"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#000000"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+          <div
+            class="uni-ic__swap-divider uni-ic__theme-panel"
+            (click)="switchSwap()"
           >
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <polyline points="19 12 12 19 5 12"></polyline>
-          </svg>
-        </div>
-
-        <div class="uni-ic__swap-output-container">
-          <div class="uni-ic__swap-output-content uni-ic__theme-panel">
-            <div class="uni-ic__swap-output-content-main">
-              <button
-                class="
-                  uni-ic__swap-output-content-main-select uni-ic__theme-panel
-                "
-                (click)="uniswapDappSharedLogic.openTokenSelectorTo()"
-              >
-                <span
-                  class="uni-ic__swap-output-content-main-select-content"
-                  *ngIf="!uniswapDappSharedLogic.outputToken"
-                  ><span
-                    class="
-                      uni-ic__swap-output-content-main-select-content-title
-                    "
-                    >Select a token</span
-                  ><svg
-                    width="12"
-                    height="7"
-                    viewBox="0 0 12 7"
-                    fill="none"
-                    class="uni-ic__swap-output-content-main-select-content-icon"
-                  >
-                    <path
-                      d="M0.97168 1L6.20532 6L11.439 1"
-                      stroke="#AEAEAE"
-                    ></path>
-                  </svg>
-                </span>
-
-                <span
-                  class="uni-ic__swap-input-content-main-from-currency"
-                  *ngIf="uniswapDappSharedLogic.outputToken"
-                >
-                  <lib-token-icon
-                    classes="uni-ic__swap-input-content-main-from-currency-icon"
-                    [tokenImageContext]="
-                      uniswapDappSharedLogic.outputToken.tokenImageContext
-                    "
-                  ></lib-token-icon>
-
-                  <span
-                    class="uni-ic__swap-input-content-main-from-currency-symbol"
-                    >{{ uniswapDappSharedLogic.outputToken.symbol }}</span
-                  ><svg
-                    width="12"
-                    height="7"
-                    viewBox="0 0 12 7"
-                    fill="none"
-                    class="uni-ic__swap-input-content-main-from-currency-choose"
-                  >
-                    <path
-                      d="M0.97168 1L6.20532 6L11.439 1"
-                      stroke="#AEAEAE"
-                    ></path>
-                  </svg>
-                </span>
-              </button>
-              <input
-                class="
-                  uni-ic__swap-output-content-main-from uni-ic__theme-panel
-                "
-                autocomplete="off"
-                autocorrect="off"
-                type="number"
-                step="any"
-                placeholder="0.0"
-                oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
-                [attr.maxlength]="uniswapDappSharedLogic.outputToken?.decimals"
-                spellcheck="false"
-                [(ngModel)]="outputValue"
-                (ngModelChange)="outputTradePriceChanged.next($event)"
-                [disabled]="uniswapDappSharedLogic.transactionInProcess()"
-              />
-            </div>
-            <div
-              class="uni-ic__swap-content-balance-and-price-container"
-              *ngIf="uniswapDappSharedLogic.outputToken"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#000000"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             >
-              <div class="uni-ic__swap-content-balance-and-price">
-                <div class="uni-ic__swap-content-balance-and-price__balance">
-                  <div
-                    class="uni-ic__swap-content-balance-and-price__balance-text"
-                  >
-                    Balance:
-                    {{
-                      utils.toPrecision(
-                        uniswapDappSharedLogic.outputToken!.balance
-                      )
-                    }}
-                    {{ uniswapDappSharedLogic.outputToken!.symbol }}
-                  </div>
-                </div>
-                <div
-                  class="uni-ic__swap-content-balance-and-price__price"
-                  *ngIf="
-                    outputValue && uniswapDappSharedLogic.outputToken!.fiatPrice
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+          </div>
+
+          <div class="uni-ic__swap-output-container">
+            <div class="uni-ic__swap-output-content uni-ic__theme-panel">
+              <div class="uni-ic__swap-output-content-main">
+                <button
+                  class="
+                    uni-ic__swap-output-content-main-select uni-ic__theme-panel
                   "
+                  (click)="uniswapDappSharedLogic.openTokenSelectorTo()"
                 >
-                  ~$
                   <span
-                    class="uni-ic__swap-content-balance-and-price__price-text"
-                    >{{
-                      utils.formatCurrency(
+                    class="uni-ic__swap-output-content-main-select-content"
+                    *ngIf="!uniswapDappSharedLogic.outputToken"
+                    ><span
+                      class="
+                        uni-ic__swap-output-content-main-select-content-title
+                      "
+                      >Select a token</span
+                    ><svg
+                      width="12"
+                      height="7"
+                      viewBox="0 0 12 7"
+                      fill="none"
+                      class="
+                        uni-ic__swap-output-content-main-select-content-icon
+                      "
+                    >
+                      <path
+                        d="M0.97168 1L6.20532 6L11.439 1"
+                        stroke="#AEAEAE"
+                      ></path>
+                    </svg>
+                  </span>
+
+                  <span
+                    class="uni-ic__swap-input-content-main-from-currency"
+                    *ngIf="uniswapDappSharedLogic.outputToken"
+                  >
+                    <lib-token-icon
+                      classes="uni-ic__swap-input-content-main-from-currency-icon"
+                      [tokenImageContext]="
+                        uniswapDappSharedLogic.outputToken.tokenImageContext
+                      "
+                    ></lib-token-icon>
+
+                    <span
+                      class="
+                        uni-ic__swap-input-content-main-from-currency-symbol
+                      "
+                      >{{ uniswapDappSharedLogic.outputToken.symbol }}</span
+                    ><svg
+                      width="12"
+                      height="7"
+                      viewBox="0 0 12 7"
+                      fill="none"
+                      class="
+                        uni-ic__swap-input-content-main-from-currency-choose
+                      "
+                    >
+                      <path
+                        d="M0.97168 1L6.20532 6L11.439 1"
+                        stroke="#AEAEAE"
+                      ></path>
+                    </svg>
+                  </span>
+                </button>
+                <input
+                  class="
+                    uni-ic__swap-output-content-main-from uni-ic__theme-panel
+                  "
+                  autocomplete="off"
+                  autocorrect="off"
+                  type="number"
+                  step="any"
+                  placeholder="0.0"
+                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                  [attr.maxlength]="
+                    uniswapDappSharedLogic.outputToken?.decimals
+                  "
+                  spellcheck="false"
+                  [(ngModel)]="outputValue"
+                  (ngModelChange)="outputTradePriceChanged.next($event)"
+                  [disabled]="uniswapDappSharedLogic.transactionInProcess()"
+                />
+              </div>
+              <div
+                class="uni-ic__swap-content-balance-and-price-container"
+                *ngIf="uniswapDappSharedLogic.outputToken"
+              >
+                <div class="uni-ic__swap-content-balance-and-price">
+                  <div class="uni-ic__swap-content-balance-and-price__balance">
+                    <div
+                      class="
+                        uni-ic__swap-content-balance-and-price__balance-text
+                      "
+                    >
+                      Balance:
+                      {{
                         utils.toPrecision(
-                          uniswapDappSharedLogic.outputToken!.fiatPrice.times(
-                            outputValue
+                          uniswapDappSharedLogic.outputToken!.balance
+                        )
+                      }}
+                      {{ uniswapDappSharedLogic.outputToken!.symbol }}
+                    </div>
+                  </div>
+                  <div
+                    class="uni-ic__swap-content-balance-and-price__price"
+                    *ngIf="
+                      outputValue &&
+                      uniswapDappSharedLogic.outputToken!.fiatPrice
+                    "
+                  >
+                    ~$
+                    <span
+                      class="uni-ic__swap-content-balance-and-price__price-text"
+                      >{{
+                        utils.formatCurrency(
+                          utils.toPrecision(
+                            uniswapDappSharedLogic.outputToken!.fiatPrice.times(
+                              outputValue
+                            )
                           )
                         )
-                      )
-                    }}</span
-                  >
+                      }}</span
+                    >
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <lib-swap-quote-info
-        [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-      ></lib-swap-quote-info>
+        <lib-swap-quote-info
+          [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+        ></lib-swap-quote-info>
 
-      <lib-approval
-        [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-      ></lib-approval>
+        <lib-approval
+          [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+        ></lib-approval>
 
-      <div class="uni-ic__swap-button-container">
-        <button
-          class="uni-ic__swap-button uni-ic__theme-background-button"
-          (click)="uniswapDappSharedLogic.showConfirmSwap()"
-          [disabled]="
-            utils.isZero(outputValue) ||
-            uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance === false ||
-            uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough ===
-              false ||
-            noLiquidityFound
-          "
-        >
-          <div class="uni-ic__swap-button-text">
-            <span *ngIf="utils.isZero(outputValue) && !noLiquidityFound"
-              >Enter an amount</span
-            >
-            <span
-              *ngIf="
-                !utils.isZero(outputValue) &&
-                !noLiquidityFound &&
-                uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
-              "
-              >Swap</span
-            >
-            <span
-              *ngIf="
-                !utils.isZero(outputValue) &&
-                !noLiquidityFound &&
-                !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
-              "
-              >Insufficient
-              {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }}
-              balance</span
-            >
-            <span *ngIf="noLiquidityFound"
-              >Insufficient liquidity for this trade
+        <div class="uni-ic__swap-button-container">
+          <button
+            class="uni-ic__swap-button uni-ic__theme-background-button"
+            (click)="uniswapDappSharedLogic.showConfirmSwap()"
+            [disabled]="
+              utils.isZero(outputValue) ||
+              uniswapDappSharedLogic.tradeContext?.hasEnoughAllowance ===
+                false ||
+              uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough ===
+                false ||
+              noLiquidityFound
+            "
+          >
+            <div class="uni-ic__swap-button-text">
+              <span *ngIf="utils.isZero(outputValue) && !noLiquidityFound"
+                >Enter an amount</span
+              >
               <span
                 *ngIf="
-                  uniswapDappSharedLogic.uniswapPairSettings.disableMultihops
+                  !utils.isZero(outputValue) &&
+                  !noLiquidityFound &&
+                  uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
                 "
+                >Swap</span
               >
-                Try enabling multi-hop trades.</span
-              ></span
-            >
-          </div>
-        </button>
+              <span
+                *ngIf="
+                  !utils.isZero(outputValue) &&
+                  !noLiquidityFound &&
+                  !uniswapDappSharedLogic.tradeContext?.fromBalance?.hasEnough
+                "
+                >Insufficient
+                {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }}
+                balance</span
+              >
+              <span *ngIf="noLiquidityFound"
+                >Insufficient liquidity for this trade
+                <span
+                  *ngIf="
+                    uniswapDappSharedLogic.uniswapPairSettings.disableMultihops
+                  "
+                >
+                  Try enabling multi-hop trades.</span
+                ></span
+              >
+            </div>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <lib-error
-      *ngIf="!uniswapDappSharedLogic.supportedNetwork"
-      error="
+      <lib-error
+        *ngIf="!uniswapDappSharedLogic.supportedNetwork"
+        error="
         Chain id {{ uniswapDappSharedLogic?.chainId }} is a unsupported network.
       "
-    ></lib-error>
-  </div>
+      ></lib-error>
+    </div>
 
-  <lib-tokens-modal
-    [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-    (switchSwapCompleted)="switchSwapCompleted($event)"
-    (changedTokenCompleted)="changedTokenCompleted()"
-  ></lib-tokens-modal>
+    <lib-tokens-modal
+      [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+      (switchSwapCompleted)="switchSwapCompleted($event)"
+      (changedTokenCompleted)="changedTokenCompleted()"
+    ></lib-tokens-modal>
 
-  <lib-confirm-swap-modal
-    [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-  ></lib-confirm-swap-modal>
+    <lib-confirm-swap-modal
+      [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+    ></lib-confirm-swap-modal>
 
-  <lib-transaction-modal
-    [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-  ></lib-transaction-modal>
-</ng-container>
+    <lib-transaction-modal
+      [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+    ></lib-transaction-modal>
+  </ng-container>
+</div>
