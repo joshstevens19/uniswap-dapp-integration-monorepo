@@ -120,17 +120,17 @@ const UniswapReact = ({
         }),
       );
 
-      subscriptions.push(
-        uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
-          (tradeContext) => {
-            if (tradeContext.quoteDirection === TradeDirection.input) {
-              setOutputValue(tradeContext.expectedConvertQuote);
-            } else {
-              setInputValue(tradeContext.expectedConvertQuote);
-            }
-          },
-        ),
-      );
+      // subscriptions.push(
+      //   uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
+      //     (tradeContext) => {
+      //       if (tradeContext.quoteDirection === TradeDirection.input) {
+      //         setOutputValue(tradeContext.expectedConvertQuote);
+      //       } else {
+      //         setInputValue(tradeContext.expectedConvertQuote);
+      //       }
+      //     },
+      //   ),
+      // );
 
       setSelectorOpenFrom(uniswapDappSharedLogic.selectorOpenFrom);
       subscriptions.push(
