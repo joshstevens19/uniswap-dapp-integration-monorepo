@@ -53,4 +53,12 @@ export class Utils {
     }
     return new BigNumber(amount).eq(0);
   }
+
+  /**
+   * Generate random id
+   */
+  public static randomId(): string {
+    const randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    return randLetter + Date.now();
+  }
 }
