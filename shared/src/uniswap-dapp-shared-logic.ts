@@ -39,9 +39,8 @@ export class UniswapDappSharedLogic {
   public tradeContext: TradeContext | undefined;
   public tradeContext$: Subject<TradeContext | undefined> = new Subject();
   public newPriceTradeContext: TradeContext | undefined;
-  // this is used to alert the UI to change the framework
-  // binded values
-  public newPriceTradeContextAvailable = new Subject<TradeContext>();
+  public newPriceTradeContext$: Subject<TradeContext | undefined> =
+    new Subject();
   public loading$ = new BehaviorSubject<boolean>(false);
   public supportedTokenBalances: SupportedTokenResult[] = [];
   public userAcceptedPriceChange = true;
@@ -742,24 +741,16 @@ export class UniswapDappSharedLogic {
       this.tradeContext = this.formatTradeContext(context);
       this.tradeContext$.next(this.tradeContext);
 
-      this._quoteSubscription = this.tradeContext?.quoteChanged$.subscribe(
+      this._quoteSubscription = this.tradeContext.quoteChanged$.subscribe(
         (quote) => {
-          // TEMP FIX UNTIL SORT THE SUBSCRIPTION LOGIC
-          if (
-            quote.toToken.contractAddress === this.inputToken.contractAddress &&
-            quote.fromToken.contractAddress ===
-              this.outputToken?.contractAddress &&
-            quote.transaction.from === this._ethereumProvider.address
-          ) {
-            console.log('price change', quote);
-            const formattedQuote = this.formatTradeContext(quote);
-            if (this._confirmSwapOpened) {
-              this.newPriceTradeContext = formattedQuote;
-            } else {
-              this.tradeContext = formattedQuote;
-              this.tradeContext$.next(this.tradeContext);
-              this.newPriceTradeContextAvailable.next(formattedQuote);
-            }
+          console.log('price change', quote);
+          const formattedQuote = this.formatTradeContext(quote);
+          if (this._confirmSwapOpened) {
+            this.newPriceTradeContext = formattedQuote;
+            this.newPriceTradeContext$.next(this.newPriceTradeContext);
+          } else {
+            this.tradeContext = formattedQuote;
+            this.tradeContext$.next(this.tradeContext);
           }
         },
       );
