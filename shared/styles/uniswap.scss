@@ -168,6 +168,9 @@
         flex: 1 1 auto;
         background-color: RGB(247, 248, 250);
         font-size: 24px;
+        @include xsm {
+          font-size: 18px;
+        }
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -192,6 +195,9 @@
           align-items: center;
           height: 2.2rem;
           font-size: 20px;
+          @include xsm {
+            font-size: 16px;
+          }
           font-weight: 500;
           background-color: RGB(255, 255, 255);
           color: RGB(0, 0, 0);
@@ -221,6 +227,9 @@
           &-symbol {
             margin: 0px 0.25rem 0px 0.75rem;
             font-size: 20px;
+            @include xsm {
+              font-size: 16px;
+            }
           }
 
           &-choose {
@@ -324,6 +333,10 @@
         border: 1px solid RGB(247, 248, 250);
         background-color: RGB(247, 248, 250);
 
+        @include xsm {
+          margin-top: 5px;
+        }
+
         &-main {
           display: flex;
           flex-flow: row nowrap;
@@ -341,6 +354,9 @@
             flex: 1 1 auto;
             background-color: RGB(247, 248, 250);
             font-size: 24px;
+            @include xsm {
+              font-size: 16px;
+            }
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1146,6 +1162,9 @@
               margin: 0px;
               min-width: 0px;
               font-size: 20px;
+              @include xsm {
+                font-size: 16px;
+              }
               font-weight: 500;
             }
           }
@@ -1168,6 +1187,9 @@
               margin: 0px;
               min-width: 0px;
               font-size: 24px;
+              @include xsm {
+                font-size: 16px;
+              }
               font-weight: 500;
               text-overflow: ellipsis;
               max-width: 220px;
@@ -1717,20 +1739,19 @@
     display: none;
     position: fixed;
     z-index: 3;
-    padding-top: 100px;
     padding-bottom: 100px;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     background-color: RGB(0, 0, 0);
     background-color: RGB(0, 0, 0, 0.4);
-    // max-width: 480px;
     max-height: 80vh;
     min-height: 80vh;
 
     &__content {
+      border-radius: 20px;
       background-color: #fefefe;
       margin: auto;
       padding: 20px;
