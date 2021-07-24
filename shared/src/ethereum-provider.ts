@@ -1,4 +1,4 @@
-import { providers } from 'ethers';
+import { providers, utils } from 'ethers';
 import { ETH, Transaction } from 'simple-uniswap-sdk';
 import { SupportedNetworkTokens } from './token/models/supported-network-token';
 
@@ -21,7 +21,7 @@ export class EthereumProvider {
    * Get the ethereum address
    */
   public get address(): string {
-    return this._address;
+    return utils.getAddress(this._address);
   }
 
   /**
