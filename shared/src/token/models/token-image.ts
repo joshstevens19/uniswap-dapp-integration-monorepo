@@ -1,4 +1,4 @@
 export interface TokenImage {
   image: string;
-  isSvg: boolean;
+  isSvg?: boolean | undefined;
 }
