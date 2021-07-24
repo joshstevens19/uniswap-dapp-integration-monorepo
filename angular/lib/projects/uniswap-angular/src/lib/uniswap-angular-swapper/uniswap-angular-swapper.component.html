@@ -276,7 +276,14 @@
               balance</span
             >
             <span *ngIf="noLiquidityFound"
-              >Insufficient liquidity for this trade</span
+              >Insufficient liquidity for this trade
+              <span
+                *ngIf="
+                  uniswapDappSharedLogic.uniswapPairSettings.disableMultihops
+                "
+              >
+                Try enabling multi-hop trades.</span
+              ></span
             >
           </div>
         </button>
