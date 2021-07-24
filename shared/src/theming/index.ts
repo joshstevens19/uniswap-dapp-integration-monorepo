@@ -154,7 +154,7 @@ export class Theming {
   /**
    * Hide the settings
    */
-  private hideSettings(): void {
+  public hideSettings(): void {
     const settingsElement = document.getElementsByClassName(
       'uni-ic__settings-container',
     )[0];

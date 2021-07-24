@@ -14,16 +14,4 @@ export class TransactionModalComponent {
 
   public transactionStatus = TransactionStatus;
   constructor() {}
-
-  /**
-   * View the tx on etherscan
-   */
-  public viewOnEtherscan(): void {
-    if (this.uniswapDappSharedLogic.miningTransaction?.blockExplorerLink) {
-      window.open(
-        this.uniswapDappSharedLogic.miningTransaction.blockExplorerLink,
-        '_blank',
-      );
-    }
-  }
 }

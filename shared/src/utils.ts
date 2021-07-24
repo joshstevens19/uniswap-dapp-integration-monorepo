@@ -26,6 +26,16 @@ export class Utils {
   }
 
   /**
+   * Format the currency
+   * @value The value to format
+   */
+  public static formatCurrency(value: string | number): string {
+    return Number(value)
+      .toFixed(2)
+      .replace(/\d(?=(\d{3})+\.)/g, '$&,');
+  }
+
+  /**
    * Deep clone a object
    * @param object The object
    */

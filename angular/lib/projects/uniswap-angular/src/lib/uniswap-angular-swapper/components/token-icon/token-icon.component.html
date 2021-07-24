@@ -3,8 +3,8 @@
   [src]="tokenImageContext.image"
   [ngClass]="classes"
 />
-<div
+<span
   *ngIf="tokenImageContext.isSvg"
   [ngClass]="classes"
   [innerHTML]="tokenImageContext.image | safe"
-></div>
+></span>

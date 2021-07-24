@@ -33,9 +33,11 @@
             >
               ~$
               <span class="uni-ic__modal-confirm-swap__input-header__price">{{
-                utils.toPrecision(
-                  uniswapDappSharedLogic.inputToken!.fiatPrice.times(
-                    uniswapDappSharedLogic.tradeContext.baseConvertRequest
+                utils.formatCurrency(
+                  utils.toPrecision(
+                    uniswapDappSharedLogic.inputToken!.fiatPrice.times(
+                      uniswapDappSharedLogic.tradeContext.baseConvertRequest
+                    )
                   )
                 )
               }}</span>
@@ -112,9 +114,11 @@
             >
               ~$
               <span class="uni-ic__modal-confirm-swap__output-header__price">{{
-                utils.toPrecision(
-                  uniswapDappSharedLogic.outputToken!.fiatPrice!.times(
-                    uniswapDappSharedLogic.tradeContext.expectedConvertQuote
+                utils.formatCurrency(
+                  utils.toPrecision(
+                    uniswapDappSharedLogic.outputToken!.fiatPrice!.times(
+                      uniswapDappSharedLogic.tradeContext.expectedConvertQuote
+                    )
                   )
                 )
               }}</span>

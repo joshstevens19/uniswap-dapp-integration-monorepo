@@ -56,6 +56,7 @@
                 spellcheck="false"
                 [(ngModel)]="inputValue"
                 (ngModelChange)="inputTradePriceChanged.next($event)"
+                [disabled]="uniswapDappSharedLogic.transactionInProcess()"
               />
             </div>
             <div class="uni-ic__swap-content-balance-and-price-container">
@@ -83,9 +84,11 @@
                   <span
                     class="uni-ic__swap-content-balance-and-price__price-text"
                     >{{
-                      utils.toPrecision(
-                        uniswapDappSharedLogic.inputToken!.fiatPrice.times(
-                          inputValue
+                      utils.formatCurrency(
+                        utils.toPrecision(
+                          uniswapDappSharedLogic.inputToken!.fiatPrice.times(
+                            inputValue
+                          )
                         )
                       )
                     }}</span
@@ -189,6 +192,7 @@
                 spellcheck="false"
                 [(ngModel)]="outputValue"
                 (ngModelChange)="outputTradePriceChanged.next($event)"
+                [disabled]="uniswapDappSharedLogic.transactionInProcess()"
               />
             </div>
             <div
@@ -219,9 +223,11 @@
                   <span
                     class="uni-ic__swap-content-balance-and-price__price-text"
                     >{{
-                      utils.toPrecision(
-                        uniswapDappSharedLogic.outputToken!.fiatPrice.times(
-                          outputValue
+                      utils.formatCurrency(
+                        utils.toPrecision(
+                          uniswapDappSharedLogic.outputToken!.fiatPrice.times(
+                            outputValue
+                          )
                         )
                       )
                     }}</span

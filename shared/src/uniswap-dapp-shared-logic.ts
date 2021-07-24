@@ -60,6 +60,7 @@ export class UniswapDappSharedLogic {
     new BehaviorSubject<MiningTransaction | undefined>(undefined);
   public currentTokenSearch: string | undefined;
   public blockNumber: number | undefined;
+  public tradeCompleted$ = new BehaviorSubject<boolean>(false);
 
   private _confirmSwapOpened = false;
   private _inputAmount = new BigNumber('0');
@@ -241,6 +242,7 @@ export class UniswapDappSharedLogic {
    * Send the approve allowance
    */
   public async approveAllowance(): Promise<void> {
+    this._theming.hideSettings();
     this.miningTransaction = {
       status: TransactionStatus.waitingForConfirmation,
       miningAction: MiningAction.approval,
@@ -282,7 +284,9 @@ export class UniswapDappSharedLogic {
    * Toggle showing and hiding the settings
    */
   public toggleSettings(): void {
-    this._theming.toggleSettings();
+    if (!this.transactionInProcess()) {
+      this._theming.toggleSettings();
+    }
   }
 
   /**
@@ -344,6 +348,12 @@ export class UniswapDappSharedLogic {
     this._theming.hideTransaction();
     this.miningTransaction = undefined;
     this.miningTransaction$.next(this.miningTransaction);
+    this.tradeContext = undefined;
+    this.tradeContext$.next(undefined);
+    this._inputAmount = new BigNumber(0);
+    // let the client know the swap all done to clear down the fields
+    this.tradeCompleted$.next(true);
+    this.tradeCompleted$.next(false);
     this.hideConfirmSwap();
   }
 
@@ -532,6 +542,26 @@ export class UniswapDappSharedLogic {
     );
 
     return this.supportedTokenBalances;
+  }
+
+  /**
+   * See if the transaction is in process
+   */
+  public transactionInProcess(): boolean {
+    return (
+      this.miningTransaction?.status ===
+        TransactionStatus.waitingForConfirmation ||
+      this.miningTransaction?.status === TransactionStatus.mining
+    );
+  }
+
+  /**
+   * View the tx on etherscan
+   */
+  public viewOnEtherscan(): void {
+    if (this.miningTransaction?.blockExplorerLink) {
+      window.open(this.miningTransaction.blockExplorerLink, '_blank');
+    }
   }
 
   /**

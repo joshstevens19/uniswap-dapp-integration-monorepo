@@ -50,6 +50,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     Subscription.EMPTY;
   private _tradeContextSubscription: any = Subscription.EMPTY;
   private _newPriceTradeContextAvailableSubscription: any = Subscription.EMPTY;
+  private _tradeCompletedSubscription: any = Subscription.EMPTY;
   private _loadingUniswapSubscription: any = Subscription.EMPTY;
 
   // milliseconds
@@ -90,6 +91,17 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
             this.outputValue = tradeContext.expectedConvertQuote;
           } else {
             this.inputValue = tradeContext.expectedConvertQuote;
+          }
+        },
+      );
+
+    this._tradeCompletedSubscription =
+      this.uniswapDappSharedLogic.tradeCompleted$.subscribe(
+        (completed: boolean) => {
+          if (completed) {
+            this.noLiquidityFound = false;
+            this.inputValue = '';
+            this.outputValue = '';
           }
         },
       );
@@ -144,6 +156,7 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     this._outputTradePriceChangedSubscription.unsubscribe();
     this._tradeContextSubscription.unsubscribe();
     this._newPriceTradeContextAvailableSubscription.unsubscribe();
+    this._tradeCompletedSubscription.unsubscribe();
     this._loadingUniswapSubscription.unsubscribe();
     this._accountChangedSubscription?.unsubscribe();
     this._chainChangedSubscription?.unsubscribe();
