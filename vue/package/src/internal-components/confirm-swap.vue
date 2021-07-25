@@ -30,9 +30,11 @@
               >
                 ~$
                 <span class="uni-ic__modal-confirm-swap__input-header__price">{{
-                  utils().toPrecision(
-                    logic.inputToken.fiatPrice.times(
-                      tradeContext.baseConvertRequest,
+                  utils().formatCurrency(
+                    utils().toPrecision(
+                      logic.inputToken.fiatPrice.times(
+                        tradeContext.baseConvertRequest,
+                      ),
                     ),
                   )
                 }}</span>
@@ -98,9 +100,11 @@
                 <span
                   class="uni-ic__modal-confirm-swap__output-header__price"
                   >{{
-                    utils().toPrecision(
-                      logic.outputToken.fiatPrice.times(
-                        tradeContext.expectedConvertQuote,
+                    utils().formatCurrency(
+                      utils().toPrecision(
+                        logic.outputToken.fiatPrice.times(
+                          tradeContext.expectedConvertQuote,
+                        ),
                       ),
                     )
                   }}</span
