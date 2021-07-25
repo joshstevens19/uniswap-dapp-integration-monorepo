@@ -680,6 +680,7 @@ export class UniswapDappSharedLogic {
     outputToken: string,
     executeTrade = true,
   ): Promise<void> {
+    this.tradeContext?.destroy();
     inputToken = getAddress(inputToken, true);
     outputToken = getAddress(outputToken, true);
     const uniswapPair = this.createUniswapPairContext(
