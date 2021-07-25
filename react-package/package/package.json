@@ -30,6 +30,6 @@
   "dependencies": {
     "bignumber.js": "^9.0.1",
     "lodash": "^4.17.21",
-    "rxjs": "^7.2.0"
+    "rxjs": "~6.6.0"
   }
 }
