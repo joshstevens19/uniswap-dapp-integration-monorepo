@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
 
 @Component({
@@ -8,6 +8,7 @@ import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
 })
 export class HeaderComponent {
   @Input() public uniswapDappSharedLogic!: UniswapDappSharedLogic;
+  @Output() public disableMultihopsCompleted = new EventEmitter<boolean>();
 
   public slippageCustom: number | undefined;
   public transactionDeadline: number | undefined;
@@ -23,5 +24,20 @@ export class HeaderComponent {
     } else {
       this.uniswapDappSharedLogic.setSlippage(value);
     }
+  }
+
+  /**
+   * Set disable multihops
+   * @params isDisabled - true or false
+   */
+  public async setDisableMultihops(isDisabled: boolean): Promise<void> {
+    let thrownError = false;
+    try {
+      await this.uniswapDappSharedLogic.setDisableMultihops(isDisabled);
+    } catch (error) {
+      thrownError = true;
+    }
+
+    this.disableMultihopsCompleted.emit(thrownError);
   }
 }

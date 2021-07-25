@@ -3,8 +3,10 @@ import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
 
 const Header = ({
   uniswapDappSharedLogic,
+  disableMultihopsCompleted
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
+  disableMultihopsCompleted: (noLiquidityFound: boolean) => void;
 }): JSX.Element => {
   const [slippageCustom, setSlippageCustom] = React.useState<
     undefined | number
@@ -39,8 +41,15 @@ const Header = ({
   };
 
   const setUniswapDisableMultihops = async (isDisabled: boolean) => {
-    await uniswapDappSharedLogic.setDisableMultihops(isDisabled);
+    let thrownError = false;
+    try {
+      await uniswapDappSharedLogic.setDisableMultihops(isDisabled);
+    } catch(error) {
+      thrownError = true;
+    }
     setDisableMultihops(isDisabled);
+
+    disableMultihopsCompleted(thrownError);
   };
 
   return (

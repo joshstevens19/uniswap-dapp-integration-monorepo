@@ -280,20 +280,34 @@ const UniswapReact = ({
       );
     } catch (error) {
       if (error.code === ErrorCodes.noRoutesFound) {
-        setNoLiquidityFound(true);
+        handleNoLiquidityFound(true, tradeDirection);
         return false;
       }
     }
 
-    setNoLiquidityFound(false);
+    handleNoLiquidityFound(false, tradeDirection);
 
     return true;
   }
 
   const switchSwap = async () => {
+     if (noLiquidityFound) {
+      return;
+    }
     const swapState = await uniswapDappSharedLogic!.swapSwitch();
     setInputValue(swapState.inputValue);
     setOutputValue(swapState.outputValue);
+  };
+
+  const handleNoLiquidityFound = (noLiquidityFound: boolean, tradeDirection: TradeDirection | undefined) => { 
+    setNoLiquidityFound(noLiquidityFound);
+    if (noLiquidityFound && tradeDirection) {
+      if (tradeDirection === TradeDirection.input) {
+        setOutputValue('');
+      } else {
+        setInputValue('');
+      }
+    }
   };
 
   return (
@@ -305,7 +319,13 @@ const UniswapReact = ({
           <div className="uni-ic uni-ic__theme-background">
             {supportedNetwork && inputToken && (
               <div>
-                <Header uniswapDappSharedLogic={uniswapDappSharedLogic} />
+                <Header 
+                  uniswapDappSharedLogic={uniswapDappSharedLogic} 
+                  disableMultihopsCompleted={(noLiquidityFound: boolean) => { 
+                    handleNoLiquidityFound(noLiquidityFound, tradeContext?.quoteDirection);
+                  }}
+                
+                />
                 <div className="uni-ic__swap-container">
                   <div className="uni-ic__swap-content">
                     <div className="uni-ic__swap-input-container">
@@ -499,19 +519,21 @@ const UniswapReact = ({
                       </div>
                     </div>
                   </div>
-                  {tradeContext && (                 
+                  {tradeContext && !noLiquidityFound && (      
+                   <React.Fragment>       
                     <SwapQuoteInfo
                       uniswapDappSharedLogic={uniswapDappSharedLogic}
                       tradeContext={tradeContext}
                     />
-                   )}
-                  <Approval
-                    uniswapDappSharedLogic={uniswapDappSharedLogic}
-                    tradeContext={tradeContext}
-                    miningTransaction={miningTransaction}
-                    miningTransactionStatus={miningTransactionStatus}
-                  />
-
+                   
+                    <Approval
+                      uniswapDappSharedLogic={uniswapDappSharedLogic}
+                      tradeContext={tradeContext}
+                      miningTransaction={miningTransaction}
+                      miningTransactionStatus={miningTransactionStatus}
+                    />
+                  </React.Fragment>
+                  )}  
                   <div className="uni-ic__swap-button-container">
                     <button
                       className="uni-ic__swap-button uni-ic__theme-background-button"
@@ -574,8 +596,8 @@ const UniswapReact = ({
               setInputValue(swapCompleted.inputValue);
               setOutputValue(swapCompleted.outputValue);
             }}
-            changeTokenCompleted={() => { 
-              setNoLiquidityFound(false);
+            changeTokenCompleted={(noLiquidityFound: boolean) => { 
+              handleNoLiquidityFound(noLiquidityFound, tradeContext?.quoteDirection);
             }}
             selectorOpenFrom={selectorOpenFrom!}
             inputToken={inputToken!}

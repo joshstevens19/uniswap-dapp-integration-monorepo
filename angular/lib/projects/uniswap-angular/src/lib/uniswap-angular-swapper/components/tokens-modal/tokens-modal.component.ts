@@ -14,7 +14,7 @@ import {
 export class TokensModalComponent {
   @Input() public uniswapDappSharedLogic!: UniswapDappSharedLogic;
   @Output() public switchSwapCompleted = new EventEmitter<SwapSwitchResponse>();
-  @Output() public changedTokenCompleted = new EventEmitter<void>();
+  @Output() public changedTokenCompleted = new EventEmitter<boolean>();
 
   public utils = UniswapUtils;
   public searchToken: string | undefined;
@@ -44,8 +44,15 @@ export class TokensModalComponent {
           this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
-        await this.uniswapDappSharedLogic.changeToken(contractAddress);
-        this.changedTokenCompleted.emit();
+        try {
+          await this.uniswapDappSharedLogic.changeToken(contractAddress);
+        } catch (e) {
+          this.changedTokenCompleted.emit(true);
+          return;
+        }
+
+        this.changedTokenCompleted.emit(false);
+
         return;
       case SelectTokenActionFrom.output:
         if (
@@ -65,8 +72,14 @@ export class TokensModalComponent {
           this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
-        await this.uniswapDappSharedLogic.changeToken(contractAddress);
-        this.changedTokenCompleted.emit();
+        try {
+          await this.uniswapDappSharedLogic.changeToken(contractAddress);
+        } catch (e) {
+          this.changedTokenCompleted.emit(true);
+          return;
+        }
+
+        this.changedTokenCompleted.emit(false);
     }
   }
 }

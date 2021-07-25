@@ -245,7 +245,7 @@
             <button class="uni-ic__settings-interface-multihops-actions">
               <span
                 class="uni-ic__settings-interface-multihops-actions-on"
-                (click)="uniswapDappSharedLogic.setDisableMultihops(true)"
+                (click)="setDisableMultihops(true)"
                 [ngClass]="{
                   selected:
                     uniswapDappSharedLogic.uniswapPairSettings.disableMultihops
@@ -257,7 +257,7 @@
                   selected:
                     !uniswapDappSharedLogic.uniswapPairSettings.disableMultihops
                 }"
-                (click)="uniswapDappSharedLogic.setDisableMultihops(false)"
+                (click)="setDisableMultihops(false)"
                 >Off</span
               >
             </button>

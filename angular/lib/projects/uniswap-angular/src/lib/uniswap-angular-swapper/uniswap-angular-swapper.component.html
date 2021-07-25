@@ -5,6 +5,7 @@
     <div class="uni-ic uni-ic__theme-background">
       <lib-header
         [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+        (disableMultihopsCompleted)="disableMultihopsCompleted($event)"
       ></lib-header>
 
       <div
@@ -261,13 +262,17 @@
           </div>
         </div>
 
-        <lib-swap-quote-info
-          [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-        ></lib-swap-quote-info>
+        <ng-container
+          *ngIf="uniswapDappSharedLogic.tradeContext && !noLiquidityFound"
+        >
+          <lib-swap-quote-info
+            [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+          ></lib-swap-quote-info>
 
-        <lib-approval
-          [uniswapDappSharedLogic]="uniswapDappSharedLogic"
-        ></lib-approval>
+          <lib-approval
+            [uniswapDappSharedLogic]="uniswapDappSharedLogic"
+          ></lib-approval>
+        </ng-container>
 
         <div class="uni-ic__swap-button-container">
           <button
@@ -305,7 +310,7 @@
                 balance</span
               >
               <span *ngIf="noLiquidityFound"
-                >Insufficient liquidity for this trade
+                >Insufficient liquidity for this trade.
                 <span
                   *ngIf="
                     uniswapDappSharedLogic.uniswapPairSettings.disableMultihops
@@ -330,7 +335,7 @@
     <lib-tokens-modal
       [uniswapDappSharedLogic]="uniswapDappSharedLogic"
       (switchSwapCompleted)="switchSwapCompleted($event)"
-      (changedTokenCompleted)="changedTokenCompleted()"
+      (changedTokenCompleted)="changedTokenCompleted($event)"
     ></lib-tokens-modal>
 
     <lib-confirm-swap-modal

@@ -18,7 +18,7 @@ const TokensModal = ({
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
   switchSwapCompleted: (swapSwitchResponse: SwapSwitchResponse) => void;
-  changeTokenCompleted: () => void;
+  changeTokenCompleted: (noLiquidityFound: boolean) => void;
   selectorOpenFrom: SelectTokenActionFrom;
   inputToken: ExtendedToken
   outputToken: ExtendedToken | undefined;
@@ -44,8 +44,13 @@ const TokensModal = ({
           uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
-        await uniswapDappSharedLogic.changeToken(contractAddress);
-        changeTokenCompleted();
+        try {
+          await uniswapDappSharedLogic.changeToken(contractAddress);
+        } catch(error) {
+           changeTokenCompleted(true);
+           return;
+        }
+        changeTokenCompleted(false);
         return;
       case SelectTokenActionFrom.output:
         if (outputToken?.contractAddress === contractAddress) {
@@ -60,8 +65,13 @@ const TokensModal = ({
           return;
         }
 
-        await uniswapDappSharedLogic.changeToken(contractAddress);
-        changeTokenCompleted();
+        try {
+          await uniswapDappSharedLogic.changeToken(contractAddress);
+        } catch(error) {
+           changeTokenCompleted(true);
+           return;
+        }
+        changeTokenCompleted(false);
     }
   };
 

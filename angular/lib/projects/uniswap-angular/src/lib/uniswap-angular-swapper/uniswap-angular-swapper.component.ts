@@ -153,6 +153,9 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
    * Switch the swap
    */
   public async switchSwap(): Promise<void> {
+    if (this.noLiquidityFound) {
+      return;
+    }
     const swapState = await this.uniswapDappSharedLogic.swapSwitch();
     this.switchSwapCompleted(swapState);
   }
@@ -167,9 +170,43 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
 
   /**
    * The token has been changed successfully
+   * @param noLiquidityFound If no liquidity has been found
    */
-  public changedTokenCompleted(): void {
-    this.noLiquidityFound = false;
+  public changedTokenCompleted(noLiquidityFound: boolean): void {
+    this.handleNoLiquidityFound(
+      noLiquidityFound,
+      this.uniswapDappSharedLogic.tradeContext?.quoteDirection,
+    );
+  }
+
+  /**
+   * Disable multihop completed
+   * @param noLiquidityFound If no liquidity has been found
+   */
+  public disableMultihopsCompleted(noLiquidityFound: boolean): void {
+    this.handleNoLiquidityFound(
+      noLiquidityFound,
+      this.uniswapDappSharedLogic.tradeContext?.quoteDirection,
+    );
+  }
+
+  /**
+   * Handle no liquidity found
+   * @param noLiquidityFound If no liquidity has been found
+   * @param tradeDirection The trade direction
+   */
+  private handleNoLiquidityFound(
+    noLiquidityFound: boolean,
+    tradeDirection: TradeDirection | undefined,
+  ): void {
+    this.noLiquidityFound = noLiquidityFound;
+    if (noLiquidityFound && tradeDirection) {
+      if (tradeDirection === TradeDirection.input) {
+        this.outputValue = '';
+      } else {
+        this.inputValue = '';
+      }
+    }
   }
 
   /**
