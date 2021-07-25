@@ -172,7 +172,6 @@ export class Theming {
     modal: HTMLElement,
     minus: number = 0,
   ): void {
-    console.log('hey');
     const topBoundingClientRect = document
       .getElementById(this.WIDGET_ID)!
       .getBoundingClientRect().top;
