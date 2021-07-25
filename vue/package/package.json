@@ -22,7 +22,8 @@
   "dependencies": {
     "bignumber.js": "^9.0.1",
     "es6-promise": "^4.2.8",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "rxjs": "~6.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
