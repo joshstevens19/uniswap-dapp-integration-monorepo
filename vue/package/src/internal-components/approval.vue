@@ -29,6 +29,7 @@ export default {
         tradeContext.approvalTransaction &&
         tradeContext.fromBalance?.hasEnough
     "
+    :disabled="logic.transactionInProcess()"
     v-on:click="logic.approveAllowance()"
   >
     <div class="uni-ic__swap-allow-container">

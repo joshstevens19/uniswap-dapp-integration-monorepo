@@ -242,6 +242,7 @@ export default defineComponent({
                     v-bind:maxlength="inputToken.decimals"
                     spellcheck="false"
                     v-model="inputValue"
+                    :disabled="logic.transactionInProcess()"
                     v-on:input="changeInputTradePrice"
                   />
                 </div>
@@ -364,6 +365,7 @@ export default defineComponent({
                     spellcheck="false"
                     v-model="outputValue"
                     v-on:input="changeOutputTradePrice"
+                    :disabled="logic.transactionInProcess()"
                   />
                 </div>
                 <div
