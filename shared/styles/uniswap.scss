@@ -1008,6 +1008,7 @@
           &.selected {
             background: RGB(255, 0, 122);
             color: white;
+            opacity: 0.6;
           }
         }
 
@@ -1025,6 +1026,7 @@
           flex-direction: column;
           -webkit-box-pack: start;
           justify-content: flex-start;
+          align-items: flex-start;
 
           &-symbol {
             box-sizing: border-box;
