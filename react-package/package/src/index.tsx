@@ -333,6 +333,7 @@ const UniswapReact = ({
                             onChange={(e) => {
                               changeInputTradePrice(e.target.value);
                             }}
+                            disabled={uniswapDappSharedLogic.transactionInProcess()}
                             spellCheck="false"
                           />
                         </div>
@@ -448,6 +449,7 @@ const UniswapReact = ({
                             onChange={(e) => {
                               changeOutputTradePrice(e.target.value);
                             }}
+                            disabled={uniswapDappSharedLogic.transactionInProcess()}
                             spellCheck="false"
                           />
                         </div>

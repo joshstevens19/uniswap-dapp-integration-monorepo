@@ -27,6 +27,7 @@ const Approval = ({
           <button
             className="uni-ic__swap-allow uni-ic__theme-background-button"
             onClick={() => uniswapDappSharedLogic.approveAllowance()}
+            disabled={uniswapDappSharedLogic.transactionInProcess()}
           >
             <div className="uni-ic__swap-allow-container">
               <span>
