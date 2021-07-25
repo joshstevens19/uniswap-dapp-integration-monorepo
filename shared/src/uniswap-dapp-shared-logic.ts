@@ -574,6 +574,7 @@ export class UniswapDappSharedLogic {
   ): Promise<void> {
     try {
       const txHash = await this._ethereumProvider.sendAsync(transaction);
+      this._quoteSubscription.unsubscribe();
       miningTransaction.status = TransactionStatus.mining;
       miningTransaction.txHash = txHash;
       miningTransaction.blockExplorerLink =

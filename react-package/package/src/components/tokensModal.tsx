@@ -11,12 +11,14 @@ import TokenIcon from './tokenIcon';
 const TokensModal = ({
   uniswapDappSharedLogic,
   switchSwapCompleted,
+  changeTokenCompleted,
   selectorOpenFrom,
   inputToken,
   outputToken,
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
   switchSwapCompleted: (swapSwitchResponse: SwapSwitchResponse) => void;
+  changeTokenCompleted: () => void;
   selectorOpenFrom: SelectTokenActionFrom;
   inputToken: ExtendedToken
   outputToken: ExtendedToken | undefined;
@@ -43,6 +45,7 @@ const TokensModal = ({
           return;
         }
         await uniswapDappSharedLogic.changeToken(contractAddress);
+        changeTokenCompleted();
         return;
       case SelectTokenActionFrom.output:
         if (outputToken?.contractAddress === contractAddress) {
@@ -58,6 +61,7 @@ const TokensModal = ({
         }
 
         await uniswapDappSharedLogic.changeToken(contractAddress);
+        changeTokenCompleted();
     }
   };
 

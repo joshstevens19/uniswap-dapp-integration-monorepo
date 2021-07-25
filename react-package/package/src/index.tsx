@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import React, { useEffect } from 'react';
 import {
+  ErrorCodes,
   MiningTransaction,
   SelectTokenActionFrom,
   SwapSwitchResponse,
@@ -54,6 +55,9 @@ const UniswapReact = ({
   const [miningTransactionStatus, setMiningTransactionStatus] = React.useState<
     TransactionStatus | undefined
   >();
+   const [noLiquidityFound, setNoLiquidityFound] = React.useState<
+    boolean
+  >(false);
 
   const utils = UniswapUtils;
 
@@ -75,6 +79,18 @@ const UniswapReact = ({
           setTradeContext(context);
         }),
       );
+
+      subscriptions.push(
+        sharedLogic.tradeCompleted$.subscribe(
+          (completed: boolean) => {
+            if (completed) {
+              setNoLiquidityFound(false);
+              setInputValue('');
+              setOutputValue('');
+            }
+          },
+      ));
+
 
       if (tradeContext?.expectedConvertQuote) {
         setOutputValue(tradeContext.expectedConvertQuote);
@@ -163,13 +179,17 @@ const UniswapReact = ({
         return;
       }
 
-      await uniswapDappSharedLogic!.changeTradePrice(
+      const success = await changeTradePrice(
         amount,
         TradeDirection.input,
       );
-      setOutputValue(
-        uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
-      );
+      if (success) {
+        setOutputValue(
+          uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
+        );
+      } else {
+        setOutputValue('');
+      }
     }
   };
 
@@ -200,11 +220,16 @@ const UniswapReact = ({
       setInputValue('');
       return;
     }
-    await uniswapDappSharedLogic!.changeTradePrice(
+    const success = await changeTradePrice(
       amount,
       TradeDirection.output,
     );
-    setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
+    
+    if (success) {
+      setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
+    } else {
+       setInputValue('');
+    }
     // }
   };
 
@@ -219,6 +244,32 @@ const UniswapReact = ({
 
     return true;
   };
+
+    /**
+   * Change trade price
+   * @param amount The amount
+   * @param tradeDirection The trade direction
+   */
+  const changeTradePrice = async (
+    amount: string,
+    tradeDirection: TradeDirection,
+  ) => {
+    try {
+      await uniswapDappSharedLogic!.changeTradePrice(
+        amount,
+        tradeDirection,
+      );
+    } catch (error) {
+      if (error.code === ErrorCodes.noRoutesFound) {
+        setNoLiquidityFound(true);
+        return false;
+      }
+    }
+
+    setNoLiquidityFound(false);
+
+    return true;
+  }
 
   const switchSwap = async () => {
     const swapState = await uniswapDappSharedLogic!.swapSwitch();
@@ -427,11 +478,12 @@ const UniswapReact = ({
                       </div>
                     </div>
                   </div>
-
-                  <SwapQuoteInfo
-                    uniswapDappSharedLogic={uniswapDappSharedLogic}
-                    tradeContext={tradeContext}
-                  />
+                  {tradeContext && (                 
+                    <SwapQuoteInfo
+                      uniswapDappSharedLogic={uniswapDappSharedLogic}
+                      tradeContext={tradeContext}
+                    />
+                   )}
                   <Approval
                     uniswapDappSharedLogic={uniswapDappSharedLogic}
                     tradeContext={tradeContext}
@@ -448,19 +500,22 @@ const UniswapReact = ({
                         uniswapDappSharedLogic.tradeContext
                           ?.hasEnoughAllowance === false ||
                         uniswapDappSharedLogic.tradeContext?.fromBalance
-                          ?.hasEnough === false
+                          ?.hasEnough === false ||
+                        noLiquidityFound
                       }
                     >
                       <div className="uni-ic__swap-button-text">
-                        {utils.isZero(outputValue) && (
+                        {utils.isZero(outputValue) && !noLiquidityFound && (
                           <span>Enter an amount</span>
                         )}
 
                         {!utils.isZero(outputValue) &&
+                         !noLiquidityFound &&
                           uniswapDappSharedLogic.tradeContext?.fromBalance
                             ?.hasEnough && <span>Swap</span>}
 
                         {!utils.isZero(outputValue) &&
+                         !noLiquidityFound &&
                           !uniswapDappSharedLogic.tradeContext?.fromBalance
                             ?.hasEnough && (
                             <span>
@@ -471,6 +526,10 @@ const UniswapReact = ({
                               }{' '}
                               balance
                             </span>
+                          )}
+
+                          {noLiquidityFound && (
+                            <span>Insufficient liquidity for this trade</span>
                           )}
                       </div>
                     </button>
@@ -493,6 +552,9 @@ const UniswapReact = ({
             switchSwapCompleted={(swapCompleted: SwapSwitchResponse) => {
               setInputValue(swapCompleted.inputValue);
               setOutputValue(swapCompleted.outputValue);
+            }}
+            changeTokenCompleted={() => { 
+              setNoLiquidityFound(false);
             }}
             selectorOpenFrom={selectorOpenFrom!}
             inputToken={inputToken!}
