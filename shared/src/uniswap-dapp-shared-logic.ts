@@ -43,7 +43,6 @@ export class UniswapDappSharedLogic {
     new Subject();
   public loading$ = new BehaviorSubject<boolean>(false);
   public supportedTokenBalances: SupportedTokenResult[] = [];
-  public userAcceptedPriceChange = true;
   public uniswapPairSettings: UniswapPairSettings = new UniswapPairSettings();
   public uniswapPairSettings$: Subject<UniswapPairSettings> = new Subject();
   public selectorOpenFrom: SelectTokenActionFrom | undefined;
@@ -449,7 +448,7 @@ export class UniswapDappSharedLogic {
       this.tradeContext$.next(this.tradeContext);
     }
     this.newPriceTradeContext = undefined;
-    this.userAcceptedPriceChange = true;
+    this.newPriceTradeContext$.next(undefined);
   }
 
   /**

@@ -48,6 +48,7 @@ const UniswapReact = ({
   const [tradeContext, setTradeContext] = React.useState<
     TradeContext | undefined
   >();
+  const [newPriceTradeContext, setNewPriceTradeContext] = React.useState<TradeContext | undefined>();
   const [miningTransaction, setMiningTransaction] = React.useState<
     MiningTransaction | undefined
   >();
@@ -74,11 +75,22 @@ const UniswapReact = ({
       await sharedLogic!.init();
 
       setTradeContext(sharedLogic!.tradeContext);
-      subscriptions.push(
+      subscriptions.push( 
         sharedLogic.tradeContext$.subscribe((context) => {
           setTradeContext(context);
+           if (context) {
+            if (context.quoteDirection === TradeDirection.input) {
+              setOutputValue(context.expectedConvertQuote);
+            } else {
+              setInputValue(context.expectedConvertQuote);
+            }
+          }
         }),
       );
+
+      subscriptions.push(sharedLogic.newPriceTradeContext$.subscribe((context) => {
+        setNewPriceTradeContext(context);
+      }));
 
       subscriptions.push(
         sharedLogic.tradeCompleted$.subscribe(
@@ -566,6 +578,7 @@ const UniswapReact = ({
           <ConfirmSwap
             uniswapDappSharedLogic={uniswapDappSharedLogic}
             tradeContext={tradeContext}
+            newPriceTradeContext={newPriceTradeContext}
           />
           <TransactionModal
             uniswapDappSharedLogic={uniswapDappSharedLogic}

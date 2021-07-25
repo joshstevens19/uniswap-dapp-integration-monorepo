@@ -10,9 +10,11 @@ import TokenIcon from './tokenIcon';
 const ConfirmSwap = ({
   uniswapDappSharedLogic,
   tradeContext,
+  newPriceTradeContext
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
   tradeContext: TradeContext | undefined;
+  newPriceTradeContext: TradeContext | undefined;
 }): JSX.Element => {
   const utils = UniswapUtils;
 
@@ -165,7 +167,7 @@ const ConfirmSwap = ({
                       </div>
                     </div>
                     <div className="uni-ic__modal-confirm-swap__info__item__value">
-                      {tradeContext.liquidityProviderFee}
+                      {tradeContext.liquidityProviderFee}{' '}
                       {tradeContext.fromToken.symbol}
                     </div>
                   </div>
@@ -187,7 +189,7 @@ const ConfirmSwap = ({
                         </div>
                       </div>
                       <div className="uni-ic__modal-confirm-swap__info__item__value">
-                        {tradeContext.minAmountConvertQuote}
+                        {tradeContext.minAmountConvertQuote}{' '}
                         {tradeContext.toToken.symbol}
                       </div>
                     </div>
@@ -200,7 +202,7 @@ const ConfirmSwap = ({
                         </div>
                       </div>
                       <div className="uni-ic__modal-confirm-swap__info__item__value">
-                        {tradeContext.maximumSent}
+                        {tradeContext.maximumSent}{' '}
                         {tradeContext.fromToken.symbol}
                       </div>
                     </div>
@@ -229,7 +231,7 @@ const ConfirmSwap = ({
                   </div>
                 </div>
               </div>
-              {uniswapDappSharedLogic.newPriceTradeContext && (
+              {newPriceTradeContext && (
                 <div className="uni-ic__modal-confirm-swap__price-updated-container">
                   <div className="uni-ic__modal-confirm-swap__price-updated">
                     <div className="uni-ic__modal-confirm-swap__price-updated__text">
@@ -295,7 +297,7 @@ const ConfirmSwap = ({
                   id="confirm-swap-or-send"
                   className="uni-ic__modal-confirm-swap__action__button uni-ic__theme-background-button"
                   disabled={
-                    uniswapDappSharedLogic.newPriceTradeContext !== undefined
+                    newPriceTradeContext !== undefined
                   }
                   onClick={() => uniswapDappSharedLogic!.swapTransaction()}
                 >
