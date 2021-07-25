@@ -744,6 +744,14 @@ export class UniswapDappSharedLogic {
 
       this._quoteSubscription = this.tradeContext.quoteChanged$.subscribe(
         (quote) => {
+          if (
+            this.miningTransaction?.miningAction === MiningAction.swap &&
+            (this.miningTransaction?.status === TransactionStatus.mining ||
+              this.miningTransaction?.status === TransactionStatus.completed)
+          ) {
+            this._quoteSubscription.unsubscribe();
+            return;
+          }
           console.log('price change', quote);
           const formattedQuote = this.formatTradeContext(quote);
           if (this._confirmSwapOpened) {
