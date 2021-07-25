@@ -36,8 +36,10 @@ export default defineComponent({
       loading: true,
       inputValue: '',
       inputToken: undefined,
+      inputBalance: undefined,
       outputValue: '',
       outputToken: undefined,
+      outputBalance: undefined,
       tradeContext: undefined,
       subscriptions: [],
       miningTransaction: undefined,
@@ -61,6 +63,9 @@ export default defineComponent({
     },
     toPrecision(value) {
       return this.utils().toPrecision(value);
+    },
+    formatCurrency(value) {
+      return this.utils().formatCurrency(this.toPrecision(value));
     },
     async changeInputTradePrice() {
       if (!this.inputValue || new BigNumber(this.inputValue).isEqualTo(0)) {
@@ -94,17 +99,6 @@ export default defineComponent({
 
     await uniswapDappSharedLogic.init();
 
-    // this._newPriceTradeContextAvailableSubscription =
-    //   this.logic.newPriceTradeContextAvailable.subscribe(
-    //     (tradeContext) => {
-    //       if (tradeContext.quoteDirection === TradeDirection.input) {
-    //         this.outputValue = tradeContext.expectedConvertQuote;
-    //       } else {
-    //         this.inputValue = tradeContext.expectedConvertQuote;
-    //       }
-    //     },
-    //   );
-
     if (uniswapDappSharedLogic.tradeContext?.expectedConvertQuote) {
       this.outputValue =
         uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
@@ -114,6 +108,13 @@ export default defineComponent({
     this.subscriptions.push(
       uniswapDappSharedLogic.tradeContext$.subscribe(context => {
         this.tradeContext = context;
+        if (context) {
+          if (context.quoteDirection === TradeDirection.input) {
+            this.outputValue = context.expectedConvertQuote;
+          } else {
+            this.inputValue = context.expectedConvertQuote;
+          }
+        }
       }),
     );
 
@@ -151,40 +152,32 @@ export default defineComponent({
     );
 
     this.inputToken = uniswapDappSharedLogic.inputToken;
+    this.inputBalance = this.utils().toPrecision(
+      uniswapDappSharedLogic.inputToken.balance,
+    );
     this.subscriptions.push(
       uniswapDappSharedLogic.inputToken$.subscribe(token => {
         this.inputToken = token;
+        this.inputBalance = this.utils().toPrecision(token.balance);
       }),
     );
 
     this.outputToken = uniswapDappSharedLogic.outputToken;
+    this.outputBalance = this.utils().toPrecision(
+      uniswapDappSharedLogic.outputToken.balance,
+    );
     this.subscriptions.push(
       uniswapDappSharedLogic.outputToken$.subscribe(token => {
         this.outputToken = token;
+        this.outputBalance = this.utils().toPrecision(token.balance);
       }),
     );
 
     this.subscriptions.push(
-      uniswapDappSharedLogic.loading.subscribe(_loading => {
+      uniswapDappSharedLogic.loading$.subscribe(_loading => {
         this.loading = _loading;
       }),
     );
-
-    // if (this.accountChanged) {
-    //   this._accountChangedSubscription = this.accountChanged.subscribe(
-    //     (ethereumAddress: string) => {
-    //       this.logic.changeEthereumAddress(ethereumAddress);
-    //     },
-    //   );
-    // }
-
-    // if (this.chainChanged) {
-    //   this._chainChangedSubscription = this.chainChanged.subscribe(
-    //     (ethereumProvider: any) => {
-    //       this.logic.changeChain(ethereumProvider);
-    //     },
-    //   );
-    // }
 
     this.logic = uniswapDappSharedLogic;
 
@@ -197,7 +190,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div>
+  <div className="uniswap-vue-react" id="uniswap__716283642843643826">
     <Loading v-if="loading" />
     <div v-else>
       <div class="uni-ic uni-ic__theme-background">
@@ -261,7 +254,7 @@ export default defineComponent({
                         class="uni-ic__swap-content-balance-and-price__balance-text"
                       >
                         Balance:
-                        {{ toPrecision(inputToken.balance) }}
+                        {{ inputBalance }}
                         {{ inputToken.symbol }}
                       </div>
                     </div>
@@ -273,7 +266,7 @@ export default defineComponent({
                       <span
                         class="uni-ic__swap-content-balance-and-price__price-text"
                         >{{
-                          toPrecision(inputToken.fiatPrice.times(inputValue))
+                          formatCurrency(inputToken.fiatPrice.times(inputValue))
                         }}</span
                       >
                     </div>
@@ -385,7 +378,7 @@ export default defineComponent({
                         class="uni-ic__swap-content-balance-and-price__balance-text"
                       >
                         Balance:
-                        {{ toPrecision(outputToken.balance) }}
+                        {{ outputBalance }}
                         {{ outputToken.symbol }}
                       </div>
                     </div>
@@ -398,7 +391,9 @@ export default defineComponent({
                         class="uni-ic__swap-content-balance-and-price__price-text"
                       >
                         {{
-                          toPrecision(outputToken.fiatPrice.times(outputValue))
+                          formatCurrency(
+                            outputToken.fiatPrice.times(outputValue),
+                          )
                         }}</span
                       >
                     </div>
