@@ -477,7 +477,10 @@ export class UniswapDappSharedLogic {
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
+      false,
     );
+
+    await this.executeTradeAndHonourLastTradeDirection();
   }
 
   /**
@@ -502,7 +505,10 @@ export class UniswapDappSharedLogic {
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
+      false,
     );
+
+    await this.executeTradeAndHonourLastTradeDirection();
   }
 
   /**
@@ -525,7 +531,10 @@ export class UniswapDappSharedLogic {
     await this.buildFactory(
       this.inputToken.contractAddress,
       this.outputToken!.contractAddress,
+      false,
     );
+
+    await this.executeTradeAndHonourLastTradeDirection();
   }
 
   /**
@@ -560,6 +569,20 @@ export class UniswapDappSharedLogic {
   public viewOnEtherscan(): void {
     if (this.miningTransaction?.blockExplorerLink) {
       window.open(this.miningTransaction.blockExplorerLink, '_blank');
+    }
+  }
+
+  /**
+   * Execute the trade but honour the last trade direction
+   */
+  private async executeTradeAndHonourLastTradeDirection(): Promise<void> {
+    if (this.tradeContext?.quoteDirection === TradeDirection.output) {
+      await this.trade(
+        new BigNumber(Utils.deepClone(this.tradeContext.baseConvertRequest)),
+        TradeDirection.output,
+      );
+    } else {
+      await this.trade(this._inputAmount, TradeDirection.input);
     }
   }
 
@@ -646,14 +669,7 @@ export class UniswapDappSharedLogic {
   ): Promise<void> {
     this.hideTokenSelector();
     await this.buildFactory(inputToken, outputToken, false);
-    if (this.tradeContext?.quoteDirection === TradeDirection.output) {
-      await this.trade(
-        new BigNumber(Utils.deepClone(this.tradeContext.baseConvertRequest)),
-        TradeDirection.output,
-      );
-    } else {
-      await this.trade(this._inputAmount, TradeDirection.input);
-    }
+    await this.executeTradeAndHonourLastTradeDirection();
   }
 
   /**
