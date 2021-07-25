@@ -1,26 +1,18 @@
 import React from 'react';
 import {
-  MiningTransaction,
   TransactionStatus,
   UniswapDappSharedLogic
 } from 'uniswap-dapp-integration-shared';
 
 const TransactionModal = ({
   uniswapDappSharedLogic,
-  miningTransaction,
   miningTransactionStatus,
 
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
-  miningTransaction: MiningTransaction | undefined;
   miningTransactionStatus: TransactionStatus | undefined;
 }): JSX.Element => {
   const transactionStatus = TransactionStatus;
-  const viewOnEtherscan = () => {
-    if (miningTransaction?.blockExplorerLink) {
-      window.open(miningTransaction.blockExplorerLink, '_blank');
-    }
-  };
 
   return (
     <div id="uni-ic__modal-transaction" className="uni-ic__modal">
@@ -102,7 +94,7 @@ const TransactionModal = ({
                 {(miningTransactionStatus === transactionStatus.mining ||
                   miningTransactionStatus === transactionStatus.completed) && (
                   <button
-                    onClick={() => viewOnEtherscan()}
+                    onClick={() => uniswapDappSharedLogic.viewOnEtherscan()}
                     className="uni-ic__theme-background-button"
                   >
                     View tx on etherscan
