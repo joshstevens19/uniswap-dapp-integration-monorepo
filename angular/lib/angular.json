@@ -36,9 +36,7 @@
               "projects/uniswap-angular/tsconfig.lib.json",
               "projects/uniswap-angular/tsconfig.spec.json"
             ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         }
       }
@@ -57,6 +55,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": ["uniswap-dapp-integration-shared"],
             "outputPath": "dist/uniswap-angular-showcase",
             "index": "projects/uniswap-angular-showcase/src/index.html",
             "main": "projects/uniswap-angular-showcase/src/main.ts",
@@ -67,9 +66,7 @@
               "projects/uniswap-angular-showcase/src/favicon.ico",
               "projects/uniswap-angular-showcase/src/assets"
             ],
-            "styles": [
-              "projects/uniswap-angular-showcase/src/styles.scss"
-            ],
+            "styles": ["projects/uniswap-angular-showcase/src/styles.scss"],
             "scripts": []
           },
           "configurations": {
@@ -130,9 +127,7 @@
               "projects/uniswap-angular-showcase/src/favicon.ico",
               "projects/uniswap-angular-showcase/src/assets"
             ],
-            "styles": [
-              "projects/uniswap-angular-showcase/src/styles.scss"
-            ],
+            "styles": ["projects/uniswap-angular-showcase/src/styles.scss"],
             "scripts": []
           }
         },
@@ -144,9 +139,7 @@
               "projects/uniswap-angular-showcase/tsconfig.spec.json",
               "projects/uniswap-angular-showcase/e2e/tsconfig.json"
             ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         },
         "e2e": {

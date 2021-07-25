@@ -37,6 +37,26 @@ $ npm install uniswap-dapp-integration-shared
 $ yarn add uniswap-dapp-integration-shared
 ```
 
+## Warnings on builds on angular 10 +
+
+Starting with version 10, Angular now warns you when your build pulls in a CommonJS package. `uniswap-dapp-integration-shared` and `@ethersproject` (which we use internally in `uniswap-dapp-integration-shared`) are CommonJS packages. As they are shared with react and vue packages. You can safely ignore the warnings in your angular.json.
+
+To do this in your angular.json file look for the build object and add `allowedCommonJsDependencies`:
+
+```json
+"build": {
+  "builder": "@angular-devkit/build-angular:browser",
+  "options": {
+     "allowedCommonJsDependencies": [
+        "uniswap-dapp-integration-shared",
+         "@ethersproject"
+     ]
+     ...
+   }
+   ...
+},
+```
+
 # Usage
 
 It very simple to get uniswap angular up and running below is a simple example in how to get it working, this example assumes the ethereum provider is injected in the window but can be configured any way you like. we shall talk about the config later in the documentation.
