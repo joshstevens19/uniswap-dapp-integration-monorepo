@@ -347,6 +347,7 @@ export class UniswapDappSharedLogic {
     this._theming.hideTransaction();
     this.miningTransaction = undefined;
     this.miningTransaction$.next(this.miningTransaction);
+    this.tradeContext?.destroy();
     this.tradeContext = undefined;
     this.tradeContext$.next(undefined);
     this._inputAmount = new BigNumber(0);
