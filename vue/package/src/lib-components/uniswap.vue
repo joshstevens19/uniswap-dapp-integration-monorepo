@@ -118,6 +118,16 @@ export default defineComponent({
       }),
     );
 
+    this.subscriptions.push(
+      uniswapDappSharedLogic.tradeCompleted$.subscribe(completed => {
+        if (completed) {
+          // setNoLiquidityFound(false);
+          this.inputValue = '';
+          this.outputValue = '';
+        }
+      }),
+    );
+
     this.supportedNetwork = uniswapDappSharedLogic.supportedNetwork;
     this.subscriptions.push(
       uniswapDappSharedLogic.supportedNetwork$.subscribe(supported => {
@@ -405,14 +415,16 @@ export default defineComponent({
             </div>
           </div>
 
-          <SwapQuoteInfo :logic="logic" :tradeContext="tradeContext" />
+          <template v-if="tradeContext">
+            <SwapQuoteInfo :logic="logic" :tradeContext="tradeContext" />
 
-          <Approval
-            :logic="logic"
-            :tradeContext="tradeContext"
-            :miningTransaction="miningTransaction"
-            :miningTransactionStatus="miningTransactionStatus"
-          />
+            <Approval
+              :logic="logic"
+              :tradeContext="tradeContext"
+              :miningTransaction="miningTransaction"
+              :miningTransactionStatus="miningTransactionStatus"
+            />
+          </template>
 
           <div class="uni-ic__swap-button-container">
             <button
