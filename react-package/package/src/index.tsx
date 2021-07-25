@@ -226,23 +226,23 @@ const UniswapReact = ({
     // console.log(amount);
     // useCallback(debounce(hey, 200), []);
 
-    // if (isValidDecimalLength(amount, outputToken!)) {
-    setOutputValue(amount);
-    if (!amount || new BigNumber(amount).isEqualTo(0)) {
-      setInputValue('');
-      return;
+    if (isValidDecimalLength(amount, outputToken!)) {
+      setOutputValue(amount);
+      if (!amount || new BigNumber(amount).isEqualTo(0)) {
+        setInputValue('');
+        return;
+      }
+      const success = await changeTradePrice(
+        amount,
+        TradeDirection.output,
+      );
+      
+      if (success) {
+        setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
+      } else {
+        setInputValue('');
+      }
     }
-    const success = await changeTradePrice(
-      amount,
-      TradeDirection.output,
-    );
-    
-    if (success) {
-      setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
-    } else {
-       setInputValue('');
-    }
-    // }
   };
 
   const isValidDecimalLength = (value: string, token: ExtendedToken) => {

@@ -30,7 +30,6 @@ const Approval = ({
             disabled={uniswapDappSharedLogic.transactionInProcess()}
           >
             <div className="uni-ic__swap-allow-container">
-              <span>
                 <TokenIcon
                   classes="uni-ic__swap-allow-icon"
                   tokenImageContext={
@@ -65,7 +64,6 @@ const Approval = ({
                       </u>
                   </span>
                 )}
-              </span>
             </div>
           </button>
         )}

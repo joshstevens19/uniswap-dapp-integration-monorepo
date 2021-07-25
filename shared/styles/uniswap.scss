@@ -222,6 +222,8 @@
             height: 24px;
             box-shadow: RGB(0 0 0 / 8%) 0px 6px 10px;
             border-radius: 24px;
+            display: flex;
+            align-items: center;
           }
 
           &-symbol {
@@ -551,7 +553,6 @@
         align-items: center;
         flex-wrap: wrap;
         -webkit-box-pack: justify;
-        justify-content: space-between;
       }
 
       &-icon {
@@ -560,6 +561,8 @@
         box-shadow: RGB(0 0 0 / 8%) 0px 6px 10px;
         border-radius: 24px;
         margin-right: 10px;
+        display: flex;
+        align-items: center;
       }
 
       &-info {
@@ -1013,6 +1016,8 @@
           height: 24px;
           box-shadow: RGB(0 0 0 / 8%) 0px 6px 10px;
           border-radius: 24px;
+          display: flex;
+          align-items: center;
         }
 
         &-content {

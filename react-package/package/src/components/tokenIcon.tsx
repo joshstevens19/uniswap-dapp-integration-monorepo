@@ -8,7 +8,7 @@ const TokenIcon = ({
   classes: string;
   tokenImageContext: TokenImage;
 }): JSX.Element => (
-  <span>
+  <React.Fragment>
     {!tokenImageContext.isSvg && (
       <img src={tokenImageContext.image} className={classes} />
     )}
@@ -21,7 +21,7 @@ const TokenIcon = ({
         ></span>
       </span>
     )}
-  </span>
+  </React.Fragment>
 );
 
 export default TokenIcon;
