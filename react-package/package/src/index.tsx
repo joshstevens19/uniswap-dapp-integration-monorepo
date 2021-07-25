@@ -25,6 +25,7 @@ import TransactionModal from './components/transactionModal';
 
 let uniswapDappSharedLogic: undefined | UniswapDappSharedLogic;
 const subscriptions: any[] = [];
+const DEBOUNCE_DELAY = 250;
 
 const UniswapReact = ({
   uniswapDappSharedLogicContext,
@@ -59,6 +60,9 @@ const UniswapReact = ({
    const [noLiquidityFound, setNoLiquidityFound] = React.useState<
     boolean
   >(false);
+  const [debounceTimeout, setDebounceTimeout] =  React.useState<
+    NodeJS.Timeout | undefined
+  >();
 
   const utils = UniswapUtils;
 
@@ -188,62 +192,65 @@ const UniswapReact = ({
       setInputValue(amount);
       if (!amount || new BigNumber(amount).isEqualTo(0)) {
         setOutputValue('');
+        if(debounceTimeout) {
+          clearTimeout(debounceTimeout);
+        }
         return;
       }
 
-      const success = await changeTradePrice(
-        amount,
-        TradeDirection.input,
-      );
-      if (success) {
-        setOutputValue(
-          uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
-        );
-      } else {
-        setOutputValue('');
+      if(debounceTimeout) {
+        clearTimeout(debounceTimeout);
       }
+
+      setDebounceTimeout(setTimeout(() => _changeInputTradePrice(amount), DEBOUNCE_DELAY));
     }
   };
 
+  const _changeInputTradePrice = async (amount: string) => {
+    const success = await changeTradePrice(
+      amount,
+      TradeDirection.input,
+    );
+    if (success) {
+      setOutputValue(
+        uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
+      );
+    } else {
+      setOutputValue('');
+    }
+  };
+  
   const changeOutputTradePrice = async (amount: string) => {
-    // debounce(async () => {
-    //   console.log('here');
-    //   if (isValidDecimalLength(amount, outputToken!)) {
-    //     setOutputValue(amount);
-    //     if (!amount || new BigNumber(amount).isEqualTo(0)) {
-    //       setInputValue('');
-    //       return;
-    //     }
-    //     await uniswapDappSharedLogic!.changeTradePrice(
-    //       amount,
-    //       TradeDirection.output,
-    //     );
-    //     setInputValue(
-    //       uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
-    //     );
-    //   }
-    // }, 200);
-    // console.log(amount);
-    // useCallback(debounce(hey, 200), []);
-
     if (isValidDecimalLength(amount, outputToken!)) {
       setOutputValue(amount);
       if (!amount || new BigNumber(amount).isEqualTo(0)) {
         setInputValue('');
+        if(debounceTimeout) {
+          clearTimeout(debounceTimeout);
+        }
         return;
       }
-      const success = await changeTradePrice(
-        amount,
-        TradeDirection.output,
-      );
-      
-      if (success) {
-        setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
-      } else {
-        setInputValue('');
+
+      if(debounceTimeout) {
+        clearTimeout(debounceTimeout);
       }
+
+      setDebounceTimeout(setTimeout(() => _changeOutputTradePrice(amount), DEBOUNCE_DELAY));
     }
   };
+
+  const _changeOutputTradePrice = async (amount: string) => {
+    const success = await changeTradePrice(
+      amount,
+      TradeDirection.output,
+    );
+    
+    if (success) {
+      setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
+    } else {
+      setInputValue('');
+    }
+  }
 
   const isValidDecimalLength = (value: string, token: ExtendedToken) => {
     const decimals = value.split('.');
