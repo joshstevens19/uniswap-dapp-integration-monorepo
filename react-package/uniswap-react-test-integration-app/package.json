@@ -14,15 +14,14 @@
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "typescript": "^4.1.2",
-    "uniswap-dapp-integration-shared": "link:../../shared",
-    "uniswap-react": "link:../package",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "postinstall": "npm link ../../shared && npm link ../package"
   },
   "eslintConfig": {
     "extends": [

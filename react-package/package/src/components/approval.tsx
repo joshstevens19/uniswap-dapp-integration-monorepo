@@ -3,13 +3,13 @@ import {
   MiningTransaction,
   TradeContext,
   TransactionStatus,
-  UniswapDappSharedLogic,
+  UniswapDappSharedLogic
 } from 'uniswap-dapp-integration-shared';
 import TokenIcon from './tokenIcon';
 
 const Approval = ({
   uniswapDappSharedLogic,
-  tradeContext,
+  tradeContext, 
   miningTransaction,
   miningTransactionStatus,
 }: {

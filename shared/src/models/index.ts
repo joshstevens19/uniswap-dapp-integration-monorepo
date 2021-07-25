@@ -1,6 +1,7 @@
 import { UniswapPairSettings } from 'simple-uniswap-sdk';
 import { UniswapTheming } from '../theming/models/uniswap-theming';
 import { SupportedNetworkTokens } from '../token/models/supported-network-token';
+export { ExtendedToken } from '../token/models/extended-token';
 export { SupportedTokenResult } from '../token/models/supported-token-result';
 export { TokenImage } from '../token/models/token-image';
 export interface UniswapDappSharedLogicContext {

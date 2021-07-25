@@ -9,7 +9,7 @@ import {
   TransactionStatus,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
-  Utils as UniswapUtils,
+  Utils as UniswapUtils
 } from 'uniswap-dapp-integration-shared';
 import { ExtendedToken } from 'uniswap-dapp-integration-shared/dist/token/models/extended-token';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
@@ -120,18 +120,6 @@ const UniswapReact = ({
         }),
       );
 
-      // subscriptions.push(
-      //   uniswapDappSharedLogic.newPriceTradeContextAvailable.subscribe(
-      //     (tradeContext) => {
-      //       if (tradeContext.quoteDirection === TradeDirection.input) {
-      //         setOutputValue(tradeContext.expectedConvertQuote);
-      //       } else {
-      //         setInputValue(tradeContext.expectedConvertQuote);
-      //       }
-      //     },
-      //   ),
-      // );
-
       setSelectorOpenFrom(uniswapDappSharedLogic.selectorOpenFrom);
       subscriptions.push(
         uniswapDappSharedLogic.selectorOpenFrom$.subscribe((openFrom) => {
@@ -239,7 +227,7 @@ const UniswapReact = ({
   };
 
   return (
-    <div className="uniswap-dapp-react">
+    <div className="uniswap-dapp-react" id="uniswap__716283642843643826">
       {loading && <Loading />}
 
       {!loading && uniswapDappSharedLogic && (
