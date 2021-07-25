@@ -3,7 +3,7 @@ import {
   TradeContext,
   TradeDirection,
   UniswapDappSharedLogic,
-  Utils as UniswapUtils,
+  Utils as UniswapUtils
 } from 'uniswap-dapp-integration-shared';
 import TokenIcon from './tokenIcon';
 
@@ -40,11 +40,11 @@ const ConfirmSwap = ({
                       <div className="uni-ic__modal-confirm-swap__input-header__price-container">
                         ~$
                         <span className="uni-ic__modal-confirm-swap__input-header__price">
-                          {utils.toPrecision(
+                          {utils.formatCurrency(utils.toPrecision(
                             uniswapDappSharedLogic.inputToken!.fiatPrice.times(
                               tradeContext.baseConvertRequest,
                             ),
-                          )}
+                          ))}
                         </span>
                       </div>
                     )}
@@ -104,11 +104,11 @@ const ConfirmSwap = ({
                       <div className="uni-ic__modal-confirm-swap__output-header__price-container">
                         ~$
                         <span className="uni-ic__modal-confirm-swap__output-header__price">
-                          {utils.toPrecision(
+                          {utils.formatCurrency(utils.toPrecision(
                             uniswapDappSharedLogic.outputToken!.fiatPrice!.times(
                               tradeContext.expectedConvertQuote,
                             ),
-                          )}
+                          ))}
                         </span>
                       </div>
                     )}

@@ -349,9 +349,9 @@ const UniswapReact = ({
                               <div className="uni-ic__swap-content-balance-and-price__price">
                                 ~$
                                 <span className="uni-ic__swap-content-balance-and-price__price-text">
-                                  {utils.toPrecision(
+                                  {utils.formatCurrency(utils.toPrecision(
                                     inputToken!.fiatPrice.times(inputValue),
-                                  )}
+                                  ))}
                                 </span>
                               </div>
                             )}
@@ -466,9 +466,9 @@ const UniswapReact = ({
                                 <div className="uni-ic__swap-content-balance-and-price__price">
                                   ~$
                                   <span className="uni-ic__swap-content-balance-and-price__price-text">
-                                    {utils.toPrecision(
+                                    {utils.formatCurrency(utils.toPrecision(
                                       outputToken.fiatPrice.times(outputValue),
-                                    )}
+                                    ))}
                                   </span>
                                 </div>
                               )}
@@ -567,7 +567,6 @@ const UniswapReact = ({
           />
           <TransactionModal
             uniswapDappSharedLogic={uniswapDappSharedLogic}
-            miningTransaction={miningTransaction}
             miningTransactionStatus={miningTransactionStatus}
           />
         </div>
