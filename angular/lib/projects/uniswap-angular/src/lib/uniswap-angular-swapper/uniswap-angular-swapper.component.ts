@@ -99,11 +99,6 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
         this.uniswapDappSharedLogic.tradeContext.expectedConvertQuote;
     }
 
-    this._loadingUniswapSubscription =
-      this.uniswapDappSharedLogic.loading$.subscribe((_loading: boolean) => {
-        this.loading = _loading;
-      });
-
     if (this.accountChanged) {
       this._accountChangedSubscription = this.accountChanged.subscribe(
         (ethereumAddress: string) => {
@@ -130,6 +125,11 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(this.DEBOUNCE_DELAY), distinctUntilChanged())
       .subscribe((amount) => {
         this.changeOutputTradePrice(amount);
+      });
+
+    this._loadingUniswapSubscription =
+      this.uniswapDappSharedLogic.loading$.subscribe((_loading: boolean) => {
+        this.loading = _loading;
       });
 
     this.loading = false;
