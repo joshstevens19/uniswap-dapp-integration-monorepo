@@ -54,7 +54,16 @@ const Approval = ({
                 )}
 
                 {miningTransaction?.status === transactionStatus.mining && (
-                  <span>Waiting for your transaction to be mined...</span>
+                  <span>Waiting for your transaction to be mined... 
+                       <u
+                        ><a
+                          className="uni-ic__swap-allow-etherscan"
+                          onClick={() => uniswapDappSharedLogic.viewOnEtherscan()}
+                        >
+                          View tx on etherscan
+                        </a>
+                      </u>
+                  </span>
                 )}
               </span>
             </div>
