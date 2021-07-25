@@ -55,8 +55,16 @@ export default {
         >Waiting for confirmation....</span
       >
       <span v-if="miningTransactionStatus === TransactionStatus.mining"
-        >Waiting for your transaction to be mined...</span
-      >
+        >Waiting for your transaction to be mined...
+        <u
+          ><a
+            class="uni-ic__swap-allow-etherscan"
+            v-on:click="logic.viewOnEtherscan()"
+          >
+            View tx on etherscan
+          </a>
+        </u>
+      </span>
     </div>
   </button>
 </template>
