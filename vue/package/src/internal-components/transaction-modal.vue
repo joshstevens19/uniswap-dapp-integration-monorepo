@@ -92,7 +92,7 @@
                 miningTransactionStatus === TransactionStatus.mining ||
                   miningTransactionStatus === TransactionStatus.completed
               "
-              v-on:click="viewOnEtherscan()"
+              v-on:click="logic.viewOnEtherscan()()"
               class="uni-ic__theme-background-button"
             >
               View tx on etherscan
@@ -154,13 +154,6 @@ export default {
     return {
       TransactionStatus,
     };
-  },
-  methods: {
-    viewOnEtherscan() {
-      if (this.miningTransaction?.blockExplorerLink) {
-        window.open(this.miningTransaction?.blockExplorerLink, '_blank');
-      }
-    },
   },
 };
 </script>
