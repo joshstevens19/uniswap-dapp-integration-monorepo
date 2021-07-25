@@ -136,7 +136,7 @@ export interface UniswapDappSharedLogicContext {
     supportedTokens: {
       tokenImageContext?: {
         image: string;
-        isSvg: boolean;
+        isSvg?: boolean | undefined;
       };
       contractAddress: string;
     }[];
@@ -200,11 +200,11 @@ supportedNetworkTokens: {
         // if not supplied it try to get the image from trust
         // wallet github assets `https://github.com/trustwallet/assets`
         // image accepts a svg string or url for the image, if you pass in a
-        // svg make sure you set `isSvg` to true. If you pass in a image url even
+        // svg html string make sure you set `isSvg` to true. If you pass in a image url even
         // if that is a `.svg` pass in `isSvg` as false
         tokenImageContext?: {
           image: string;
-          isSvg: boolean;
+          isSvg?: boolean | undefined;
         },
         // the contract address for the token
         contractAddress: string;
