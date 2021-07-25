@@ -2,13 +2,14 @@ import React from 'react';
 import {
   MiningTransaction,
   TransactionStatus,
-  UniswapDappSharedLogic,
+  UniswapDappSharedLogic
 } from 'uniswap-dapp-integration-shared';
 
 const TransactionModal = ({
   uniswapDappSharedLogic,
   miningTransaction,
   miningTransactionStatus,
+
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
   miningTransaction: MiningTransaction | undefined;

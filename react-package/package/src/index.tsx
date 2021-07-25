@@ -495,7 +495,8 @@ const UniswapReact = ({
               setOutputValue(swapCompleted.outputValue);
             }}
             selectorOpenFrom={selectorOpenFrom!}
-            tradeContext={tradeContext}
+            inputToken={inputToken!}
+            outputToken={outputToken}
           />
 
           <ConfirmSwap
