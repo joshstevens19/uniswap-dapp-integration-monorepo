@@ -67,16 +67,32 @@
                     TransactionStatus.waitingForConfirmation ||
                     miningTransactionStatus === TransactionStatus.mining
                 "
-                >Swapping</span
-              >
+                >Swapping
+              </span>
               <span
                 v-if="miningTransactionStatus === TransactionStatus.completed"
-                >Swapped</span
+                >Swapped
+              </span>
+              <span
+                v-if="
+                  logic.tradeContext?.quoteDirection === TradeDirection.input
+                "
               >
-              {{ logic.tradeContext?.baseConvertRequest }}
-              {{ logic.tradeContext?.fromToken?.symbol }} for
-              {{ logic.tradeContext?.expectedConvertQuote }}
-              {{ logic.tradeContext?.toToken?.symbol }}
+                {{ logic.tradeContext?.baseConvertRequest }}
+                {{ logic.tradeContext?.fromToken?.symbol }} for
+                {{ logic.tradeContext?.expectedConvertQuote }}
+                {{ logic.tradeContext?.toToken?.symbol }}
+              </span>
+              <span
+                v-if="
+                  logic.tradeContext?.quoteDirection === TradeDirection.output
+                "
+              >
+                {{ logic.tradeContext?.expectedConvertQuote }}
+                {{ logic.tradeContext?.fromToken?.symbol }} for
+                {{ logic.tradeContext?.baseConvertRequest }}
+                {{ logic.tradeContext?.toToken?.symbol }}
+              </span>
             </div>
           </div>
           <div class="uni-ic__modal-transaction__state__action">
@@ -145,7 +161,10 @@
 </template>
 
 <script>
-import { TransactionStatus } from 'uniswap-dapp-integration-shared';
+import {
+  TransactionStatus,
+  TradeDirection,
+} from 'uniswap-dapp-integration-shared';
 
 export default {
   name: 'TransactionModal',
@@ -153,6 +172,7 @@ export default {
   data() {
     return {
       TransactionStatus,
+      TradeDirection,
     };
   },
 };
