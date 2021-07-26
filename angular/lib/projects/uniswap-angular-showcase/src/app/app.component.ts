@@ -28,6 +28,7 @@ export class AppComponent implements OnInit {
       supportedNetworkTokens: [
         {
           chainId: ChainId.MAINNET,
+          defaultInputValue: '0.000001',
           defaultInputToken: ETH.MAINNET().contractAddress,
           defaultOutputToken: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
           supportedTokens: [

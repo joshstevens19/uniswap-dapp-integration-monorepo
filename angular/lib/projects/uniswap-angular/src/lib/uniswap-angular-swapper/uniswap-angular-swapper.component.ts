@@ -64,11 +64,17 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
     this.uniswapDappSharedLogic = new UniswapDappSharedLogic(
       this.uniswapDappSharedLogicContext,
     );
-    if (this.uniswapDappSharedLogicContext.defaultInputValue) {
-      this.inputValue = this.uniswapDappSharedLogicContext.defaultInputValue;
-    }
 
     await this.uniswapDappSharedLogic.init();
+
+    const supportedNetworkTokens =
+      this.uniswapDappSharedLogicContext.supportedNetworkTokens.find(
+        (t) => t.chainId === this.uniswapDappSharedLogic.chainId,
+      );
+
+    if (supportedNetworkTokens?.defaultInputValue) {
+      this.inputValue = supportedNetworkTokens.defaultInputValue;
+    }
 
     this._tradeContextSubscription =
       this.uniswapDappSharedLogic.tradeContext$.subscribe(
