@@ -23,10 +23,10 @@ export default defineComponent({
           defaultOutputToken: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
           supportedTokens: [
             {
-              contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b',
+              contractAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
             },
             { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
-            { contractAddress: '0x5EeAA2DCb23056F4E8654a349E57eBE5e76b5e6e' },
+            { contractAddress: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
             { contractAddress: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f' },
           ],
         },

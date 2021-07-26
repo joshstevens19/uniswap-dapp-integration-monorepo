@@ -39,7 +39,7 @@ $ yarn add uniswap-dapp-integration-shared
 
 # Usage
 
-It very simple to get uniswap vue up and running below is a simple example in how to get it working, this example assumes the ethereum provider is injected in the window but can be configured any way you like. we shall talk about the config later in the documentation.
+It very simple to get uniswap angular up and running below is a simple example in how to get it working, this example assumes the ethereum provider is injected in the window (MetaMask) but can be configured any way you like. This example does not show the logging out handling or a user without MetaMask installed, its purely to showing you how you would get this lib up and running. We shall talk about the config later in the documentation.
 
 ## your.vue.js
 
@@ -71,9 +71,9 @@ export default defineComponent({
           defaultInputToken: ETH.MAINNET().contractAddress,
           defaultOutputToken: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
           supportedTokens: [
-            { contractAddress: '0x419D0d8BdD9aF5e606Ae2232ed285Aff190E711b' },
+            { contractAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
             { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
-            { contractAddress: '0x5EeAA2DCb23056F4E8654a349E57eBE5e76b5e6e' },
+            { contractAddress: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
             { contractAddress: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f' },
           ],
         },
