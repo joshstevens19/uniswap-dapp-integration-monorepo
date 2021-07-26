@@ -10,7 +10,7 @@
     "copy-readme": "cp ../README.md ./lib/cjs && cp ../README.md ./lib/esm",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs",
-    "postinstall": "npm link ../../shared"
+    "link": "npm link ../../shared"
   },
   "author": "",
   "license": "ISC",

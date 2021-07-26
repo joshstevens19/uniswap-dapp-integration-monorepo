@@ -17,7 +17,7 @@
     "build:ssr": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format cjs",
     "build:es": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format es",
     "build:unpkg": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format iife",
-    "postinstall": "npm link ../../shared"
+    "link": "npm link ../../shared"
   },
   "dependencies": {
     "bignumber.js": "^9.0.1",

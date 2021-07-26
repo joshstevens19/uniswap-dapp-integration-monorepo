@@ -4,7 +4,7 @@
   "scripts": {
     "build": "ng build",
     "publish-angular-uniswap": "cd ./projects/uniswap-angular && npm run publish",
-    "postinstall": "npm link ../../shared"
+    "link": "npm link ../../shared"
   },
   "private": true,
   "dependencies": {
