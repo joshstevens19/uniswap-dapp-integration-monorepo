@@ -75,7 +75,7 @@
               <div class="uni-ic__settings-transaction-slippage-options">
                 <button
                   class="uni-ic__settings-transaction-slippage-option"
-                  (click)="uniswapDappSharedLogic.setSlippage(0.1)"
+                  (click)="setSlippage(0.1)"
                   [ngClass]="{
                     selected:
                       uniswapDappSharedLogic.uniswapPairSettings.slippage ===
@@ -85,7 +85,7 @@
                   0.1%</button
                 ><button
                   class="uni-ic__settings-transaction-slippage-option"
-                  (click)="uniswapDappSharedLogic.setSlippage(0.5)"
+                  (click)="setSlippage(0.5)"
                   [ngClass]="{
                     selected:
                       uniswapDappSharedLogic.uniswapPairSettings.slippage ===
@@ -95,7 +95,7 @@
                   0.5%</button
                 ><button
                   class="uni-ic__settings-transaction-slippage-option"
-                  (click)="uniswapDappSharedLogic.setSlippage(1)"
+                  (click)="setSlippage(1)"
                   [ngClass]="{
                     selected:
                       uniswapDappSharedLogic.uniswapPairSettings.slippage ===
@@ -124,7 +124,7 @@
                       type="number"
                       step="any"
                       class="uni-ic__settings-transaction-slippage-manual-input"
-                      [ngModel]="slippageCustom"
+                      [(ngModel)]="slippageCustom"
                       (ngModelChange)="setCustomSlippage($event)"
                     />%
                   </div>

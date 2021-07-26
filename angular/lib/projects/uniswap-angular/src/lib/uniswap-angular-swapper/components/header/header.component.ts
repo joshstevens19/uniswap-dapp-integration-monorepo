@@ -16,13 +16,21 @@ export class HeaderComponent {
   constructor() {}
 
   /**
+   * Set slippage from the choosen options
+   */
+  public async setSlippage(value: number): Promise<void> {
+    this.slippageCustom = undefined;
+    await this.uniswapDappSharedLogic.setSlippage(value);
+  }
+
+  /**
    * Set custom slippage
    */
-  public setCustomSlippage(value: number): void {
+  public async setCustomSlippage(value: number): Promise<void> {
     if (!value) {
-      this.uniswapDappSharedLogic.setSlippage(0.5);
+      await this.uniswapDappSharedLogic.setSlippage(0.5);
     } else {
-      this.uniswapDappSharedLogic.setSlippage(value);
+      await this.uniswapDappSharedLogic.setSlippage(value);
     }
   }
 
