@@ -192,11 +192,15 @@ export default defineComponent({
       this.uniswapDappSharedLogicContext,
     );
 
-    if (this.uniswapDappSharedLogicContext.defaultInputValue) {
-      this.inputValue = this.uniswapDappSharedLogicContext.defaultInputValue;
-    }
-
     await uniswapDappSharedLogic.init();
+
+    const supportedNetworkTokens = this.uniswapDappSharedLogicContext.supportedNetworkTokens.find(
+      t => t.chainId === uniswapDappSharedLogic.chainId,
+    );
+
+    if (supportedNetworkTokens?.defaultInputValue) {
+      this.inputValue = supportedNetworkTokens.defaultInputValue;
+    }
 
     if (uniswapDappSharedLogic.tradeContext?.expectedConvertQuote) {
       this.outputValue =
