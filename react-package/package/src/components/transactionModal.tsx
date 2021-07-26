@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  TradeDirection,
   TransactionStatus,
   UniswapDappSharedLogic
 } from 'uniswap-dapp-integration-shared';
@@ -79,10 +80,22 @@ const TransactionModal = ({
                   {miningTransactionStatus === transactionStatus.completed && (
                     <span>Swapped</span>
                   )}{' '}
-                  {uniswapDappSharedLogic.tradeContext?.baseConvertRequest}{' '}
-                  {uniswapDappSharedLogic.tradeContext?.fromToken?.symbol} for{' '}
-                  {uniswapDappSharedLogic.tradeContext?.expectedConvertQuote}{' '}
-                  {uniswapDappSharedLogic.tradeContext?.toToken?.symbol}
+                  {uniswapDappSharedLogic.tradeContext?.quoteDirection === TradeDirection.input && (
+                    <span>
+                    {uniswapDappSharedLogic.tradeContext?.baseConvertRequest}{' '}
+                    {uniswapDappSharedLogic.tradeContext?.fromToken?.symbol} for{' '}
+                    {uniswapDappSharedLogic.tradeContext?.expectedConvertQuote}{' '}
+                    {uniswapDappSharedLogic.tradeContext?.toToken?.symbol}
+                    </span>
+                  )}
+                   {uniswapDappSharedLogic.tradeContext?.quoteDirection === TradeDirection.output && (
+                    <span>
+                    {uniswapDappSharedLogic.tradeContext?.expectedConvertQuote}{' '}
+                    {uniswapDappSharedLogic.tradeContext?.fromToken?.symbol} for{' '}
+                    {uniswapDappSharedLogic.tradeContext?.baseConvertRequest}{' '}
+                    {uniswapDappSharedLogic.tradeContext?.toToken?.symbol}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="uni-ic__modal-transaction__state__action">
