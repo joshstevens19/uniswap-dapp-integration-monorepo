@@ -153,6 +153,7 @@ export default {
       } catch (error) {
         if (error?.code === ErrorCodes.noRoutesFound) {
           this.$emit('changeTokenCompleted', true);
+          return;
         } else {
           throw error;
         }
