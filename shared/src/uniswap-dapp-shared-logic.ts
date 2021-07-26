@@ -872,7 +872,7 @@ export class UniswapDappSharedLogic {
               fiatPrice: token.fiatPrice,
               balance: token.balance,
               canShow,
-              tokenImageContext: await this._tokenService.getTokenImageUrl(
+              tokenImageContext: await this._tokenService.getTokenImage(
                 token.contractAddress,
                 token.chainId,
               ),

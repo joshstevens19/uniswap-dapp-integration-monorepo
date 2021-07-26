@@ -27,7 +27,7 @@ export class TokenService {
    * @param contractAddress The contract address
    * @param chainId The chain id
    */
-  public async getTokenImageUrl(
+  public async getTokenImage(
     contractAddress: string,
     chainId: number,
   ): Promise<TokenImage> {
@@ -45,7 +45,7 @@ export class TokenService {
 
     if (supportedTokensForNetwork) {
       const token = supportedTokensForNetwork.supportedTokens.find(
-        (c) => c.contractAddress === contractAddress,
+        (c) => getAddress(c.contractAddress, true) === contractAddress,
       );
       if (token?.tokenImageContext) {
         this._tokensCachedImages.push({
@@ -133,7 +133,7 @@ export class TokenService {
       name: token.name,
       fiatPrice: fiatPrice !== undefined ? new BigNumber(fiatPrice) : undefined,
       balance: new BigNumber(balance),
-      tokenImageContext: await this.getTokenImageUrl(
+      tokenImageContext: await this.getTokenImage(
         token.contractAddress,
         token.chainId,
       ),
