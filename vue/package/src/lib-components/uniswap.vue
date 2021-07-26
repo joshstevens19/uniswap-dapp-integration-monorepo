@@ -47,6 +47,7 @@ export default defineComponent({
       selectorOpenFrom: undefined,
       supportedNetwork: false,
       chainId: undefined,
+      noLiquidityFound: false,
     };
   },
   methods: {
@@ -54,18 +55,32 @@ export default defineComponent({
       return UniswapUtils;
     },
     async switchSwap() {
+      if (noLiquidityFound) {
+        return;
+      }
       const swapState = await this.logic.swapSwitch();
       this.switchSwapCompleted(swapState);
     },
-    switchSwapCompleted(response) {
-      this.inputValue = response.inputValue;
-      this.outputValue = response.outputValue;
-    },
+
     toPrecision(value) {
       return this.utils().toPrecision(value);
     },
     formatCurrency(value) {
       return this.utils().formatCurrency(this.toPrecision(value));
+    },
+    async changeTradePrice(amount, tradeDirection) {
+      try {
+        await this.logic.changeTradePrice(amount, tradeDirection);
+      } catch (error) {
+        if (error.code === ErrorCodes.noRoutesFound) {
+          this.handleNoLiquidityFound(true, tradeDirection);
+          return false;
+        }
+      }
+
+      this.handleNoLiquidityFound(false, tradeDirection);
+
+      return true;
     },
     async changeInputTradePrice() {
       if (!this.inputValue || new BigNumber(this.inputValue).isEqualTo(0)) {
@@ -73,7 +88,7 @@ export default defineComponent({
         return;
       }
 
-      await this.logic.changeTradePrice(this.inputValue, TradeDirection.input);
+      await this.changeTradePrice(this.inputValue, TradeDirection.input);
       this.outputValue = this.logic.tradeContext.expectedConvertQuote;
     },
     async changeOutputTradePrice() {
@@ -81,14 +96,47 @@ export default defineComponent({
         this.inputValue = '';
         return;
       }
-      await this.logic.changeTradePrice(
-        this.outputValue,
-        TradeDirection.output,
-      );
+      await this.changeTradePrice(this.outputValue, TradeDirection.output);
       this.inputValue = this.logic.tradeContext.expectedConvertQuote;
+    },
+    registerEventListeners() {
+      this.$el.addEventListener('switchSwapCompleted', swapSwitchResponse =>
+        this.switchSwapCompleted(swapSwitchResponse),
+      );
+      this.$el.addEventListener('changeTokenCompleted', noLiquidityFound =>
+        this.changeTokenCompleted(noLiquidityFound),
+      );
+    },
+    switchSwapCompleted(response) {
+      this.inputValue = response.inputValue;
+      this.outputValue = response.outputValue;
+    },
+    changeTokenCompleted(noLiquidityFound) {
+      this.handleNoLiquidityFound(
+        noLiquidityFound,
+        this.logic.tradeContext?.quoteDirection,
+      );
+    },
+    disableMultihopsCompleted(noLiquidityFound) {
+      this.handleNoLiquidityFound(
+        noLiquidityFound,
+        this.logic.tradeContext?.quoteDirection,
+      );
+    },
+    handleNoLiquidityFound(noLiquidityFound, tradeDirection) {
+      this.noLiquidityFound = noLiquidityFound;
+      if (noLiquidityFound && tradeDirection) {
+        if (tradeDirection === TradeDirection.input) {
+          this.outputValue = '';
+        } else {
+          this.inputValue = '';
+        }
+      }
     },
   },
   async mounted() {
+    this.registerEventListeners();
+
     const uniswapDappSharedLogic = new UniswapDappSharedLogic(
       this.uniswapDappSharedLogicContext,
     );
@@ -121,7 +169,7 @@ export default defineComponent({
     this.subscriptions.push(
       uniswapDappSharedLogic.tradeCompleted$.subscribe(completed => {
         if (completed) {
-          // setNoLiquidityFound(false);
+          this.noLiquidityFound = false;
           this.inputValue = '';
           this.outputValue = '';
         }
@@ -204,7 +252,11 @@ export default defineComponent({
     <Loading v-if="loading" />
     <div v-else>
       <div class="uni-ic uni-ic__theme-background">
-        <Header v-if="logic && supportedNetwork && inputToken" :logic="logic" />
+        <Header
+          v-if="logic && supportedNetwork && inputToken"
+          :logic="logic"
+          @disableMultihopsCompleted="disableMultihopsCompleted"
+        />
 
         <div
           class="uni-ic__swap-container"
@@ -415,7 +467,7 @@ export default defineComponent({
             </div>
           </div>
 
-          <template v-if="tradeContext">
+          <template v-if="tradeContext && !noLiquidityFound">
             <SwapQuoteInfo :logic="logic" :tradeContext="tradeContext" />
 
             <Approval
@@ -433,14 +485,18 @@ export default defineComponent({
               :disabled="
                 utils().isZero(outputValue) ||
                   tradeContext?.hasEnoughAllowance === false ||
-                  tradeContext?.fromBalance?.hasEnough === false
+                  tradeContext?.fromBalance?.hasEnough === false ||
+                  noLiquidityFound
               "
             >
               <div class="uni-ic__swap-button-text">
-                <span v-if="utils().isZero(outputValue)">Enter an amount</span>
+                <span v-if="utils().isZero(outputValue) && !noLiquidityFound"
+                  >Enter an amount</span
+                >
                 <span
                   v-if="
                     !utils().isZero(outputValue) &&
+                      !noLiquidityFound &&
                       tradeContext?.fromBalance?.hasEnough
                   "
                   >Swap</span
@@ -448,11 +504,18 @@ export default defineComponent({
                 <span
                   v-if="
                     !utils().isZero(outputValue) &&
+                      !noLiquidityFound &&
                       !tradeContext?.fromBalance?.hasEnough
                   "
                   >Insufficient
                   {{ tradeContext?.fromToken?.symbol }}
                   balance</span
+                >
+                <span v-if="noLiquidityFound"
+                  >Insufficient liquidity for this trade.
+                  <span v-if="logic.uniswapPairSettings.disableMultihops">
+                    Try enabling multi-hop trades.</span
+                  ></span
                 >
               </div>
             </button>
@@ -466,25 +529,24 @@ export default defineComponent({
         </div>
       </div>
 
-      <TokenModal
-        v-if="logic && supportedNetwork"
-        :logic="logic"
-        :tradeContext="tradeContext"
-        :selectorOpenFrom="selectorOpenFrom"
-      />
+      <template v-if="logic && supportedNetwork">
+        <TokenModal
+          :logic="logic"
+          :selectorOpenFrom="selectorOpenFrom"
+          :inputToken="inputToken"
+          :outputToken="outputToken"
+          @switchSwapCompleted="switchSwapCompleted"
+          @changeTokenCompleted="changeTokenCompleted"
+        />
 
-      <ConfirmSwap
-        v-if="logic && supportedNetwork"
-        :logic="logic"
-        :tradeContext="tradeContext"
-      />
+        <ConfirmSwap :logic="logic" :tradeContext="tradeContext" />
 
-      <TransactionModal
-        v-if="logic && supportedNetwork"
-        :logic="logic"
-        :miningTransaction="miningTransaction"
-        :miningTransactionStatus="miningTransactionStatus"
-      />
+        <TransactionModal
+          :logic="logic"
+          :miningTransaction="miningTransaction"
+          :miningTransactionStatus="miningTransactionStatus"
+        />
+      </template>
     </div>
   </div>
 </template>

@@ -98,7 +98,7 @@ export default {
   components: {
     TokenIcon,
   },
-  props: ['logic', 'tradeContext', 'selectorOpenFrom'],
+  props: ['logic', 'selectorOpenFrom', 'inputToken', 'outputToken'],
   data() {
     return {
       searchToken: '',
@@ -112,36 +112,47 @@ export default {
     async changeSelectToken(contractAddress) {
       switch (this.selectorOpenFrom) {
         case this.SelectTokenActionFrom.input:
-          if (
-            this.tradeContext?.fromToken.contractAddress === contractAddress
-          ) {
+          if (this.inputToken.contractAddress === contractAddress) {
             this.logic.hideTokenSelector();
             return;
           }
 
-          if (this.tradeContext?.toToken.contractAddress === contractAddress) {
-            await this.logic.swapSwitch();
+          if (this.outputToken?.contractAddress === contractAddress) {
+            const swapResponse = await this.logic.swapSwitch();
+            this.$emit('switchSwapCompleted', swapResponse);
             this.logic.hideTokenSelector();
             return;
           }
 
-          await this.logic.changeToken(contractAddress);
+          try {
+            await this.logic.changeToken(contractAddress);
+          } catch (error) {
+            console.log(error);
+            this.$emit('changeTokenCompleted', true);
+            return;
+          }
+          this.$emit('changeTokenCompleted', false);
           return;
         case this.SelectTokenActionFrom.output:
-          if (this.tradeContext?.toToken.contractAddress === contractAddress) {
+          if (this.outputToken?.contractAddress === contractAddress) {
             this.logic.hideTokenSelector();
             return;
           }
 
-          if (
-            this.tradeContext?.fromToken.contractAddress === contractAddress
-          ) {
-            await this.logic.swapSwitch();
+          if (this.inputToken.contractAddress === contractAddress) {
+            const swapResponse = await this.logic.swapSwitch();
+            this.$emit('switchSwapCompleted', swapResponse);
             this.logic.hideTokenSelector();
             return;
           }
 
-          await this.logic.changeToken(contractAddress);
+          try {
+            await this.logic.changeToken(contractAddress);
+          } catch (error) {
+            this.$emit('changeTokenCompleted', true);
+            return;
+          }
+          this.$emit('changeTokenCompleted', false);
       }
     },
     utils() {

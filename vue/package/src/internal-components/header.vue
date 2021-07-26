@@ -1,7 +1,9 @@
 <template>
   <div class="uni-ic__header-container">
     <div class="uni-ic__header-content">
-      <div class="uni-ic__header-content-title">Swap</div>
+      <div class="uni-ic__header-content-title">
+        Swap
+      </div>
       <div class="uni-ic__header-content-settings">
         <button
           class="uni-ic__header-content-settings-button"
@@ -265,9 +267,16 @@ export default {
     };
   },
   methods: {
-    setDisableMultihops(value) {
-      this.logic.setDisableMultihops(value);
+    async setDisableMultihops(value) {
       this.disableMultihops = value;
+      let thrownError = false;
+      try {
+        await this.logic.setDisableMultihops(value);
+      } catch (error) {
+        thrownError = true;
+      }
+
+      this.$emit('disableMultihopsCompleted', thrownError);
     },
     async setUniswapSlippage(slippageAmount, isCustom) {
       if (slippageAmount === 0) {
