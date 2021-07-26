@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ErrorCodes,
   ExtendedToken,
   SelectTokenActionFrom,
   SwapSwitchResponse,
@@ -44,13 +45,8 @@ const TokensModal = ({
           uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
-        try {
-          await uniswapDappSharedLogic.changeToken(contractAddress);
-        } catch(error) {
-           changeTokenCompleted(true);
-           return;
-        }
-        changeTokenCompleted(false);
+        
+        await changeToken(contractAddress);
         return;
       case SelectTokenActionFrom.output:
         if (outputToken?.contractAddress === contractAddress) {
@@ -65,15 +61,24 @@ const TokensModal = ({
           return;
         }
 
-        try {
-          await uniswapDappSharedLogic.changeToken(contractAddress);
-        } catch(error) {
-           changeTokenCompleted(true);
-           return;
-        }
-        changeTokenCompleted(false);
+        await changeToken(contractAddress);
+        return;
     }
   };
+
+  const changeToken = async (contractAddress: string) => {
+    try {
+      await uniswapDappSharedLogic.changeToken(contractAddress);
+    } catch (error) {
+      if (error?.code === ErrorCodes.noRoutesFound) {
+        changeTokenCompleted(true);
+        return;
+      } else {
+        throw error;
+      }
+    }
+    changeTokenCompleted(false);
+  }
 
   const utils = UniswapUtils;
 

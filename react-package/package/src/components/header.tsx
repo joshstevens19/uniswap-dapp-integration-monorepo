@@ -1,5 +1,5 @@
 import React from 'react';
-import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
+import { ErrorCodes, UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
 
 const Header = ({
   uniswapDappSharedLogic,
@@ -43,15 +43,20 @@ const Header = ({
   };
 
   const setUniswapDisableMultihops = async (isDisabled: boolean) => {
-    let thrownError = false;
+    let noLiquidityFound = false;
     try {
       await uniswapDappSharedLogic.setDisableMultihops(isDisabled);
     } catch (error) {
-      thrownError = true;
+      if (error?.code === ErrorCodes.noRoutesFound) {
+      noLiquidityFound = true;
+      } else {
+        throw error;
+      }
     }
+    
     setDisableMultihops(isDisabled);
 
-    disableMultihopsCompleted(thrownError);
+    disableMultihopsCompleted(noLiquidityFound);
   };
 
   return (

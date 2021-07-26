@@ -279,7 +279,7 @@ const UniswapReact = ({
         tradeDirection,
       );
     } catch (error) {
-      if (error.code === ErrorCodes.noRoutesFound) {
+      if (error?.code === ErrorCodes.noRoutesFound) {
         handleNoLiquidityFound(true, tradeDirection);
         return false;
       }
