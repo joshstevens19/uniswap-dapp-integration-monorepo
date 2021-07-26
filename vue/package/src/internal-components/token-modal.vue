@@ -35,7 +35,7 @@
             <div style="height: 100%; width: 100%">
               <div
                 v-for="token in logic.supportedTokenBalances"
-                :key="token.contractAddress"
+                v-bind:key="token.contractAddress"
                 v-on:click="changeSelectToken(token.contractAddress)"
                 class="uni-ic__modal-tokens-item-container"
                 v-bind:class="{
@@ -107,7 +107,10 @@ export default {
   },
   methods: {
     searchForToken() {
-      this.logic.search(this.searchToken);
+      this.logic.searchToken(this.searchToken);
+      // vue updating of the array is a bit nuts so just force it!
+      // #notavuedev
+      this.$forceUpdate();
     },
     async changeSelectToken(contractAddress) {
       switch (this.selectorOpenFrom) {

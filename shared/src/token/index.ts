@@ -152,6 +152,8 @@ export class TokenService {
     for (let i = 0; i < supportedTokenBalances.length; i++) {
       const token = supportedTokenBalances[i];
       if (
+        search &&
+        search !== '' &&
         !token.symbol.toLowerCase().includes(noneCaseSearch) &&
         noneCaseSearch !== token.contractAddress.toLowerCase()
       ) {
