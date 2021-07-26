@@ -41,6 +41,7 @@ export default defineComponent({
       outputToken: undefined,
       outputBalance: undefined,
       tradeContext: undefined,
+      newPriceTradeContext: undefined,
       subscriptions: [],
       miningTransaction: undefined,
       miningTransactionStatus: undefined,
@@ -163,6 +164,12 @@ export default defineComponent({
             this.inputValue = context.expectedConvertQuote;
           }
         }
+      }),
+    );
+
+    this.subscriptions.push(
+      uniswapDappSharedLogic.newPriceTradeContext$.subscribe(context => {
+        this.newPriceTradeContext = context;
       }),
     );
 
@@ -539,7 +546,11 @@ export default defineComponent({
           @changeTokenCompleted="changeTokenCompleted"
         />
 
-        <ConfirmSwap :logic="logic" :tradeContext="tradeContext" />
+        <ConfirmSwap
+          :logic="logic"
+          :tradeContext="tradeContext"
+          :newPriceTradeContext="newPriceTradeContext"
+        />
 
         <TransactionModal
           :logic="logic"

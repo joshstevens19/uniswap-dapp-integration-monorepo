@@ -252,7 +252,7 @@
         </div>
         <div
           class="uni-ic__modal-confirm-swap__price-updated-container"
-          v-if="logic.newPriceTradeContext"
+          v-if="newPriceTradeContext"
         >
           <div class="uni-ic__modal-confirm-swap__price-updated">
             <div class="uni-ic__modal-confirm-swap__price-updated__text">
@@ -320,7 +320,7 @@
             uni-ic__modal-confirm-swap__action__button
             uni-ic__theme-background-button
           "
-            :disabled="logic.newPriceTradeContext"
+            :disabled="newPriceTradeContext"
             v-on:click="logic.swapTransaction()"
           >
             <div class="uni-ic__modal-confirm-swap__action__button-text">
@@ -342,7 +342,7 @@ export default {
   components: {
     TokenIcon,
   },
-  props: ['logic', 'tradeContext'],
+  props: ['logic', 'tradeContext', 'newPriceTradeContext'],
   methods: {
     utils() {
       return UniswapUtils;
