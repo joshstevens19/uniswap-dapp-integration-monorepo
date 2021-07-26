@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import {
+  TradeDirection,
   TransactionStatus,
   UniswapDappSharedLogic,
 } from 'uniswap-dapp-integration-shared';
@@ -13,5 +14,6 @@ export class TransactionModalComponent {
   @Input() public uniswapDappSharedLogic!: UniswapDappSharedLogic;
 
   public transactionStatus = TransactionStatus;
+  public tradeDirection = TradeDirection;
   constructor() {}
 }

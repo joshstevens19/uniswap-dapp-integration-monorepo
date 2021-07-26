@@ -92,10 +92,29 @@
               "
               >Swapped</span
             >
-            {{ uniswapDappSharedLogic.tradeContext?.baseConvertRequest }}
-            {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }} for
-            {{ uniswapDappSharedLogic.tradeContext?.expectedConvertQuote }}
-            {{ uniswapDappSharedLogic.tradeContext?.toToken?.symbol }}
+            <span
+              *ngIf="
+                uniswapDappSharedLogic.tradeContext?.quoteDirection ===
+                tradeDirection.input
+              "
+            >
+              {{ uniswapDappSharedLogic.tradeContext?.baseConvertRequest }}
+              {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }} for
+              {{ uniswapDappSharedLogic.tradeContext?.expectedConvertQuote }}
+              {{ uniswapDappSharedLogic.tradeContext?.toToken?.symbol }}
+            </span>
+
+            <span
+              *ngIf="
+                uniswapDappSharedLogic.tradeContext?.quoteDirection ===
+                tradeDirection.output
+              "
+            >
+              {{ uniswapDappSharedLogic.tradeContext?.expectedConvertQuote }}
+              {{ uniswapDappSharedLogic.tradeContext?.fromToken?.symbol }} for
+              {{ uniswapDappSharedLogic.tradeContext?.baseConvertRequest }}
+              {{ uniswapDappSharedLogic.tradeContext?.toToken?.symbol }}
+            </span>
           </div>
         </div>
         <div class="uni-ic__modal-transaction__state__action">
