@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
+  ErrorCodes,
   SelectTokenActionFrom,
   SwapSwitchResponse,
   UniswapDappSharedLogic,
@@ -44,15 +45,8 @@ export class TokensModalComponent {
           this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
-        try {
-          await this.uniswapDappSharedLogic.changeToken(contractAddress);
-        } catch (e) {
-          this.changedTokenCompleted.emit(true);
-          return;
-        }
 
-        this.changedTokenCompleted.emit(false);
-
+        await this.changeToken(contractAddress);
         return;
       case SelectTokenActionFrom.output:
         if (
@@ -72,14 +66,28 @@ export class TokensModalComponent {
           this.uniswapDappSharedLogic.hideTokenSelector();
           return;
         }
-        try {
-          await this.uniswapDappSharedLogic.changeToken(contractAddress);
-        } catch (e) {
-          this.changedTokenCompleted.emit(true);
-          return;
-        }
 
-        this.changedTokenCompleted.emit(false);
+        await this.changeToken(contractAddress);
+        return;
     }
+  }
+
+  /**
+   * Change token handler
+   * @param contractAddress The contractAddress
+   */
+  private async changeToken(contractAddress: string): Promise<void> {
+    try {
+      await this.uniswapDappSharedLogic.changeToken(contractAddress);
+    } catch (error) {
+      if (error?.code === ErrorCodes.noRoutesFound) {
+        this.changedTokenCompleted.emit(true);
+        return;
+      } else {
+        throw error;
+      }
+    }
+
+    this.changedTokenCompleted.emit(false);
   }
 }

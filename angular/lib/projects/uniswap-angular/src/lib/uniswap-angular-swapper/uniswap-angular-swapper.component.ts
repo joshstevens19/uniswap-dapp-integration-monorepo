@@ -264,12 +264,12 @@ export class UniswapAngularSwapperComponent implements OnInit, OnDestroy {
       );
     } catch (error) {
       if (error.code === ErrorCodes.noRoutesFound) {
-        this.noLiquidityFound = true;
+        this.handleNoLiquidityFound(true, tradeDirection);
         return false;
       }
     }
 
-    this.noLiquidityFound = false;
+    this.handleNoLiquidityFound(false, tradeDirection);
 
     return true;
   }

@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
+import {
+  ErrorCodes,
+  UniswapDappSharedLogic,
+} from 'uniswap-dapp-integration-shared';
 
 @Component({
   selector: 'lib-header',
@@ -39,13 +42,17 @@ export class HeaderComponent {
    * @params isDisabled - true or false
    */
   public async setDisableMultihops(isDisabled: boolean): Promise<void> {
-    let thrownError = false;
+    let noLiquidityFound = false;
     try {
       await this.uniswapDappSharedLogic.setDisableMultihops(isDisabled);
     } catch (error) {
-      thrownError = true;
+      if (error?.code === ErrorCodes.noRoutesFound) {
+        noLiquidityFound = true;
+      } else {
+        throw error;
+      }
     }
 
-    this.disableMultihopsCompleted.emit(thrownError);
+    this.disableMultihopsCompleted.emit(noLiquidityFound);
   }
 }
