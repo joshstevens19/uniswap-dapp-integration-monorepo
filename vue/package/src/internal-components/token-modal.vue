@@ -90,6 +90,7 @@
 import {
   SelectTokenActionFrom,
   Utils as UniswapUtils,
+  ErrorCodes,
 } from 'uniswap-dapp-integration-shared';
 import { default as TokenIcon } from './token-icon.vue';
 
@@ -127,14 +128,7 @@ export default {
             return;
           }
 
-          try {
-            await this.logic.changeToken(contractAddress);
-          } catch (error) {
-            console.log(error);
-            this.$emit('changeTokenCompleted', true);
-            return;
-          }
-          this.$emit('changeTokenCompleted', false);
+          await this.changeToken(contractAddress);
           return;
         case this.SelectTokenActionFrom.output:
           if (this.outputToken?.contractAddress === contractAddress) {
@@ -149,14 +143,21 @@ export default {
             return;
           }
 
-          try {
-            await this.logic.changeToken(contractAddress);
-          } catch (error) {
-            this.$emit('changeTokenCompleted', true);
-            return;
-          }
-          this.$emit('changeTokenCompleted', false);
+          await this.changeToken(contractAddress);
+          return;
       }
+    },
+    async changeToken(contractAddress) {
+      try {
+        await this.logic.changeToken(contractAddress);
+      } catch (error) {
+        if (error?.code === ErrorCodes.noRoutesFound) {
+          this.$emit('changeTokenCompleted', true);
+        } else {
+          throw error;
+        }
+      }
+      this.$emit('changeTokenCompleted', false);
     },
     utils() {
       return UniswapUtils;

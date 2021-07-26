@@ -255,6 +255,8 @@
 </template>
 
 <script>
+import { ErrorCodes } from 'uniswap-dapp-integration-shared';
+
 export default {
   name: 'Header',
   props: ['logic'],
@@ -269,14 +271,18 @@ export default {
   methods: {
     async setDisableMultihops(value) {
       this.disableMultihops = value;
-      let thrownError = false;
+      let noLiquidityFound = false;
       try {
         await this.logic.setDisableMultihops(value);
       } catch (error) {
-        thrownError = true;
+        if (error?.code === ErrorCodes.noRoutesFound) {
+          noLiquidityFound = true;
+        } else {
+          throw error;
+        }
       }
 
-      this.$emit('disableMultihopsCompleted', thrownError);
+      this.$emit('disableMultihopsCompleted', noLiquidityFound);
     },
     async setUniswapSlippage(slippageAmount, isCustom) {
       if (slippageAmount === 0) {

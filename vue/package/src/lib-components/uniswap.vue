@@ -15,6 +15,7 @@ import {
   UniswapDappSharedLogic,
   Utils as UniswapUtils,
   TradeDirection,
+  ErrorCodes,
 } from 'uniswap-dapp-integration-shared';
 import BigNumber from 'bignumber.js';
 
@@ -59,7 +60,7 @@ export default defineComponent({
       return UniswapUtils;
     },
     async switchSwap() {
-      if (noLiquidityFound) {
+      if (this.noLiquidityFound) {
         return;
       }
       const swapState = await this.logic.swapSwitch();
@@ -76,9 +77,11 @@ export default defineComponent({
       try {
         await this.logic.changeTradePrice(amount, tradeDirection);
       } catch (error) {
-        if (error.code === ErrorCodes.noRoutesFound) {
+        if (error?.code === ErrorCodes.noRoutesFound) {
           this.handleNoLiquidityFound(true, tradeDirection);
           return false;
+        } else {
+          throw error;
         }
       }
 
