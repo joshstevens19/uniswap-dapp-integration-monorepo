@@ -1,13 +1,10 @@
 <script>
 import { defineComponent } from 'vue';
-import { UniswapVueSample } from '@/entry.esm';
 import { ChainId, ETH } from 'uniswap-dapp-integration-shared';
 
 export default defineComponent({
   name: 'ServeDev',
-  components: {
-    UniswapVueSample,
-  },
+  components: {},
   data() {
     return {
       uniswapDappSharedLogicContext: undefined,
