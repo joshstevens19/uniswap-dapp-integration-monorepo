@@ -10,7 +10,6 @@ export interface UniswapDappSharedLogicContext {
   ethereumProvider: any;
   settings?: UniswapPairSettings | undefined;
   theming?: UniswapTheming;
-  defaultInputValue?: string | undefined;
 }
 
 export enum SelectTokenActionFrom {

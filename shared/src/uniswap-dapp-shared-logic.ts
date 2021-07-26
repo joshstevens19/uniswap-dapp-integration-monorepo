@@ -80,9 +80,6 @@ export class UniswapDappSharedLogic {
   private _blockStream = Subscription.EMPTY;
 
   constructor(private _context: UniswapDappSharedLogicContext) {
-    if (this._context.defaultInputValue) {
-      this._inputAmount = new BigNumber(this._context.defaultInputValue);
-    }
     if (this._context.settings) {
       this.uniswapPairSettings = this._context.settings;
     }
@@ -110,6 +107,12 @@ export class UniswapDappSharedLogic {
     const supportedNetworkTokens = this._context.supportedNetworkTokens.find(
       (t) => t.chainId === this.chainId,
     )!;
+
+    if (supportedNetworkTokens.defaultInputValue) {
+      this._inputAmount = new BigNumber(
+        supportedNetworkTokens.defaultInputValue,
+      );
+    }
 
     if (
       !supportedNetworkTokens.supportedTokens.find(
@@ -146,6 +149,13 @@ export class UniswapDappSharedLogic {
         this._context.ethereumProvider,
       );
       this.inputToken$.next(this.inputToken);
+    }
+
+    if (this._inputAmount && this.inputToken && this.outputToken) {
+      this.buildFactory(
+        this.inputToken.contractAddress,
+        this.outputToken.contractAddress,
+      );
     }
 
     // resync once got context so ordering of tokens

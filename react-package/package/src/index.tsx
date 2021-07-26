@@ -74,11 +74,15 @@ const UniswapReact = ({
         uniswapDappSharedLogicContext,
       );
 
-      if (uniswapDappSharedLogicContext.defaultInputValue) {
-        setInputValue(uniswapDappSharedLogicContext.defaultInputValue);
-      }
-
       await sharedLogic!.init();
+
+      const supportedNetworkTokens = uniswapDappSharedLogicContext.supportedNetworkTokens.find(
+        (t) => t.chainId === sharedLogic.chainId,
+      );
+
+      if (supportedNetworkTokens?.defaultInputValue) {
+        setInputValue(supportedNetworkTokens.defaultInputValue);
+      }
 
       setTradeContext(sharedLogic!.tradeContext);
       subscriptions.push( 

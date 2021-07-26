@@ -44,6 +44,9 @@ function App() {
                 contractAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
               },
               {
+                contractAddress: ETH.MAINNET().contractAddress,
+              },
+              {
                 contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
               },
               {
@@ -71,7 +74,7 @@ function App() {
           },
         ],
         ethereumAddress: accounts[0],
-        ethereumProvider: (window as any).ethereum,
+        ethereumProvider: ethereum,
       };
 
       setUniswapDappSharedLogicContext(uniswapDappSharedLogicContext);

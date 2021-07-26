@@ -131,6 +131,7 @@ If your ethereum provider follows `https://eips.ethereum.org/EIPS/eip-1193` spec
 export interface UniswapDappSharedLogicContext {
   supportedNetworkTokens: {
     chainId: ChainId;
+    defaultInputValue?: string | undefined;
     defaultInputToken?: string | undefined;
     defaultOutputToken?: string | undefined;
     supportedTokens: {
@@ -156,7 +157,6 @@ export interface UniswapDappSharedLogicContext {
       backgroundColor?: string | undefined;
     };
   };
-  defaultInputValue?: string | undefined;
 }
 
 export declare class UniswapPairSettings {
@@ -187,6 +187,12 @@ supportedNetworkTokens: {
     // the chain this mapping is for so if this was MAINNET you would import the `ChainId`
     // enum from `uniswap-dapp-integration-shared` and do `ChainId.MAINNET`
     chainId: ChainId;
+    // the deep linked input amount
+    // if not passed input will have nothing deep linked in
+    // it should always be the formatted string aka 0.0001 ETH
+    // you pass ether value ('0.0001'). Same with tokens you pass in
+    // the formatted value
+    defaultInputValue?: string | undefined;
     // the default input token you want to show
     // if nothing is passed in it will use WETH
     defaultInputToken?: string | undefined;
@@ -276,7 +282,3 @@ This allows you to theme the component which matches your dApp.
     };
   };
 ```
-
-### defaultInputValue
-
-The default input value you want it to start on, say you wanted to deep link 1 WETH > AAVE you can pass in 1 here. It should be the formatted value so what you would render on the UI. If nothing is supplied it won't have anything defined in the input.
