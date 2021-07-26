@@ -73,7 +73,7 @@ export default defineComponent({
       return this.utils().toPrecision(value);
     },
     formatCurrency(value) {
-      return this.utils().formatCurrency(this.toPrecision(value));
+      return this.utils().formatCurrency(value.toFixed());
     },
     async changeTradePrice(amount, tradeDirection) {
       try {
@@ -283,7 +283,7 @@ export default defineComponent({
     this.outputBalance = this.utils().toPrecision(
       uniswapDappSharedLogic.outputToken.balance,
     );
-    this.outputFiatPrice = uniswapDappSharedLogic.outputToken.fiatPrice;
+    this.outputFiatPrice = uniswapDappSharedLogic.outputToken?.fiatPrice;
     this.subscriptions.push(
       uniswapDappSharedLogic.outputToken$.subscribe(token => {
         this.outputToken = token;

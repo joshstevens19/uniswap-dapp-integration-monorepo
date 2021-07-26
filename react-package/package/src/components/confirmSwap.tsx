@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import React from 'react';
 import {
   TradeContext,
@@ -10,11 +11,15 @@ import TokenIcon from './tokenIcon';
 const ConfirmSwap = ({
   uniswapDappSharedLogic,
   tradeContext,
-  newPriceTradeContext
+  newPriceTradeContext,
+  inputFiatPrice,
+  outputFiatPrice
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
   tradeContext: TradeContext | undefined;
   newPriceTradeContext: TradeContext | undefined;
+  inputFiatPrice: BigNumber | undefined;
+  outputFiatPrice: BigNumber | undefined;
 }): JSX.Element => {
   const utils = UniswapUtils;
 
@@ -38,15 +43,15 @@ const ConfirmSwap = ({
                     <div className="uni-ic__modal-confirm-swap__input-header__text">
                       From
                     </div>
-                    {uniswapDappSharedLogic.inputToken!.fiatPrice && (
+                    {inputFiatPrice && (
                       <div className="uni-ic__modal-confirm-swap__input-header__price-container">
                         ~$
                         <span className="uni-ic__modal-confirm-swap__input-header__price">
-                          {utils.formatCurrency(utils.toPrecision(
-                            uniswapDappSharedLogic.inputToken!.fiatPrice.times(
+                          {utils.formatCurrency(
+                            inputFiatPrice.times(
                               tradeContext.baseConvertRequest,
-                            ),
-                          ))}
+                            ).toFixed(),
+                          )}
                         </span>
                       </div>
                     )}
@@ -102,15 +107,15 @@ const ConfirmSwap = ({
                     <div className="uni-ic__modal-confirm-swap__output-header__text">
                       To
                     </div>
-                    {uniswapDappSharedLogic.outputToken?.fiatPrice && (
+                    {outputFiatPrice && (
                       <div className="uni-ic__modal-confirm-swap__output-header__price-container">
                         ~$
                         <span className="uni-ic__modal-confirm-swap__output-header__price">
-                          {utils.formatCurrency(utils.toPrecision(
-                            uniswapDappSharedLogic.outputToken!.fiatPrice!.times(
+                          {utils.formatCurrency(
+                            outputFiatPrice.times(
                               tradeContext.expectedConvertQuote,
-                            ),
-                          ))}
+                            ).toFixed(),
+                          )}
                         </span>
                       </div>
                     )}

@@ -36,11 +36,13 @@ const UniswapReact = ({
   const [inputToken, setInputToken] = React.useState<ExtendedToken>();
   const [inputBalance, setInputBalance] = React.useState<string | undefined>();
   const [inputValue, setInputValue] = React.useState('');
+  const [inputFiatPrice, setInputFiatPrice] = React.useState<BigNumber | undefined>();
   const [outputToken, setOutputToken] = React.useState<ExtendedToken>();
   const [outputBalance, setOutputBalance] = React.useState<
     string | undefined
   >();
   const [outputValue, setOutputValue] = React.useState('');
+  const [outputFiatPrice, setOutputFiatPrice] = React.useState<BigNumber | undefined>();
   const [supportedNetwork, setSupportedNetwork] = React.useState(false);
   const [chainId, setChainId] = React.useState<number | undefined>();
   const [selectorOpenFrom, setSelectorOpenFrom] = React.useState<
@@ -132,23 +134,28 @@ const UniswapReact = ({
       setInputBalance(
         utils.toPrecision(uniswapDappSharedLogic.inputToken.balance),
       );
+      setInputFiatPrice(uniswapDappSharedLogic.inputToken.fiatPrice);
       subscriptions.push(
         uniswapDappSharedLogic.inputToken$.subscribe((token) => {
           setInputToken(token);
           setInputBalance(utils.toPrecision(token.balance));
+          setInputFiatPrice(token.fiatPrice);
         }),
       );
 
       setOutputToken(uniswapDappSharedLogic.outputToken);
+     
       if (uniswapDappSharedLogic.outputToken) {
         setOutputBalance(
           utils.toPrecision(uniswapDappSharedLogic.outputToken.balance),
         );
+         setOutputFiatPrice(uniswapDappSharedLogic.outputToken.fiatPrice);
       }
       subscriptions.push(
         uniswapDappSharedLogic.outputToken$.subscribe((token) => {
           setOutputToken(token);
           setOutputBalance(utils.toPrecision(token.balance));
+          setOutputFiatPrice(token.fiatPrice);
         }),
       );
 
@@ -385,13 +392,13 @@ const UniswapReact = ({
                                 </span>
                               </div>
                             </div>
-                            {inputValue && inputToken!.fiatPrice && (
+                            {inputValue && inputFiatPrice && (
                               <div className="uni-ic__swap-content-balance-and-price__price">
                                 ~$
                                 <span className="uni-ic__swap-content-balance-and-price__price-text">
-                                  {utils.formatCurrency(utils.toPrecision(
-                                    inputToken!.fiatPrice.times(inputValue),
-                                  ))}
+                                  {utils.formatCurrency(
+                                    inputFiatPrice.times(inputValue).toFixed(),
+                                  )}
                                 </span>
                               </div>
                             )}
@@ -503,13 +510,13 @@ const UniswapReact = ({
                                   </span>
                                 </div>
                               </div>
-                              {outputValue && outputToken!.fiatPrice && (
+                              {outputValue && outputFiatPrice && (
                                 <div className="uni-ic__swap-content-balance-and-price__price">
                                   ~$
                                   <span className="uni-ic__swap-content-balance-and-price__price-text">
-                                    {utils.formatCurrency(utils.toPrecision(
-                                      outputToken.fiatPrice.times(outputValue),
-                                    ))}
+                                    {utils.formatCurrency(
+                                      outputFiatPrice.times(outputValue).toFixed(),
+                                    )}
                                   </span>
                                 </div>
                               )}
@@ -608,6 +615,8 @@ const UniswapReact = ({
             uniswapDappSharedLogic={uniswapDappSharedLogic}
             tradeContext={tradeContext}
             newPriceTradeContext={newPriceTradeContext}
+            inputFiatPrice={inputFiatPrice}
+            outputFiatPrice={outputFiatPrice}
           />
           <TransactionModal
             uniswapDappSharedLogic={uniswapDappSharedLogic}
