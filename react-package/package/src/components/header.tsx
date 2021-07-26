@@ -3,7 +3,7 @@ import { UniswapDappSharedLogic } from 'uniswap-dapp-integration-shared';
 
 const Header = ({
   uniswapDappSharedLogic,
-  disableMultihopsCompleted
+  disableMultihopsCompleted,
 }: {
   uniswapDappSharedLogic: UniswapDappSharedLogic;
   disableMultihopsCompleted: (noLiquidityFound: boolean) => void;
@@ -32,6 +32,8 @@ const Header = ({
     setSlippage(slippageAmount / 100);
     if (isCustom) {
       setSlippageCustom(slippage);
+    } else {
+      setSlippageCustom(undefined);
     }
   };
 
@@ -44,7 +46,7 @@ const Header = ({
     let thrownError = false;
     try {
       await uniswapDappSharedLogic.setDisableMultihops(isDisabled);
-    } catch(error) {
+    } catch (error) {
       thrownError = true;
     }
     setDisableMultihops(isDisabled);

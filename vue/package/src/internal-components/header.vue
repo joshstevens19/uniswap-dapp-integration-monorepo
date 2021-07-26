@@ -286,6 +286,8 @@ export default {
       this.slippage = slippageAmount / 100;
       if (isCustom) {
         this.slippageCustom = slippageAmount;
+      } else {
+        this.slippageCustom = undefined;
       }
     },
     async setCustomSlippage() {
