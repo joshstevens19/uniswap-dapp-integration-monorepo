@@ -26,16 +26,12 @@
               </div>
               <div
                 class="uni-ic__modal-confirm-swap__input-header__price-container"
-                v-if="logic.inputToken.fiatPrice"
+                v-if="inputFiatPrice"
               >
                 ~$
                 <span class="uni-ic__modal-confirm-swap__input-header__price">{{
                   utils().formatCurrency(
-                    utils().toPrecision(
-                      logic.inputToken.fiatPrice.times(
-                        tradeContext.baseConvertRequest,
-                      ),
-                    ),
+                    inputFiatPrice.times(tradeContext.baseConvertRequest),
                   )
                 }}</span>
               </div>
@@ -94,18 +90,14 @@
               </div>
               <div
                 class="uni-ic__modal-confirm-swap__output-header__price-container"
-                v-if="logic.outputToken?.fiatPrice"
+                v-if="outputFiatPrice"
               >
                 ~$
                 <span
                   class="uni-ic__modal-confirm-swap__output-header__price"
                   >{{
                     utils().formatCurrency(
-                      utils().toPrecision(
-                        logic.outputToken.fiatPrice.times(
-                          tradeContext.expectedConvertQuote,
-                        ),
-                      ),
+                      outputFiatPrice.times(tradeContext.expectedConvertQuote),
                     )
                   }}</span
                 >
@@ -342,7 +334,13 @@ export default {
   components: {
     TokenIcon,
   },
-  props: ['logic', 'tradeContext', 'newPriceTradeContext'],
+  props: [
+    'logic',
+    'tradeContext',
+    'newPriceTradeContext',
+    'inputFiatPrice',
+    'outputFiatPrice',
+  ],
   methods: {
     utils() {
       return UniswapUtils;

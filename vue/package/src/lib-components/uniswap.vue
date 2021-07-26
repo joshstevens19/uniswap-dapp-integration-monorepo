@@ -40,9 +40,11 @@ export default defineComponent({
       inputValue: '',
       inputToken: undefined,
       inputBalance: undefined,
+      inputFiatPrice: undefined,
       outputValue: '',
       outputToken: undefined,
       outputBalance: undefined,
+      outputFiatPrice: undefined,
       tradeContext: undefined,
       newPriceTradeContext: undefined,
       subscriptions: [],
@@ -268,10 +270,12 @@ export default defineComponent({
     this.inputBalance = this.utils().toPrecision(
       uniswapDappSharedLogic.inputToken.balance,
     );
+    this.inputFiatPrice = uniswapDappSharedLogic.inputToken.fiatPrice;
     this.subscriptions.push(
       uniswapDappSharedLogic.inputToken$.subscribe(token => {
         this.inputToken = token;
         this.inputBalance = this.utils().toPrecision(token.balance);
+        this.inputFiatPrice = token.fiatPrice;
       }),
     );
 
@@ -279,10 +283,12 @@ export default defineComponent({
     this.outputBalance = this.utils().toPrecision(
       uniswapDappSharedLogic.outputToken.balance,
     );
+    this.outputFiatPrice = uniswapDappSharedLogic.outputToken.fiatPrice;
     this.subscriptions.push(
       uniswapDappSharedLogic.outputToken$.subscribe(token => {
         this.outputToken = token;
         this.outputBalance = this.utils().toPrecision(token.balance);
+        this.outputFiatPrice = token.fiatPrice;
       }),
     );
 
@@ -378,13 +384,13 @@ export default defineComponent({
                     </div>
                     <div
                       class="uni-ic__swap-content-balance-and-price__price"
-                      v-if="inputValue && inputToken.fiatPrice"
+                      v-if="inputValue && inputFiatPrice"
                     >
                       ~$
                       <span
                         class="uni-ic__swap-content-balance-and-price__price-text"
                         >{{
-                          formatCurrency(inputToken.fiatPrice.times(inputValue))
+                          formatCurrency(inputFiatPrice.times(inputValue))
                         }}</span
                       >
                     </div>
@@ -503,16 +509,14 @@ export default defineComponent({
                     </div>
                     <div
                       class="uni-ic__swap-content-balance-and-price__price"
-                      v-if="outputValue && outputToken.fiatPrice"
+                      v-if="outputValue && outputFiatPrice"
                     >
                       ~$
                       <span
                         class="uni-ic__swap-content-balance-and-price__price-text"
                       >
                         {{
-                          formatCurrency(
-                            outputToken.fiatPrice.times(outputValue),
-                          )
+                          formatCurrency(outputFiatPrice.times(outputValue))
                         }}</span
                       >
                     </div>
@@ -598,6 +602,8 @@ export default defineComponent({
           :logic="logic"
           :tradeContext="tradeContext"
           :newPriceTradeContext="newPriceTradeContext"
+          :inputFiatPrice="inputFiatPrice"
+          :outputFiatPrice="outputFiatPrice"
         />
 
         <TransactionModal

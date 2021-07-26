@@ -910,29 +910,42 @@ export class UniswapDappSharedLogic {
           return 0;
         });
 
-      const newInputBalance = this.supportedTokenBalances.find(
+      const inputToken = this.supportedTokenBalances.find(
         (c) => c.contractAddress === this.inputToken.contractAddress,
-      )?.balance;
-      if (
-        newInputBalance &&
-        !this.inputToken.balance.isEqualTo(newInputBalance)
-      ) {
-        this.inputToken.balance = newInputBalance;
-        this.inputToken$.next(this.inputToken);
+      );
+      if (inputToken) {
+        const newInputBalance = inputToken.balance;
+        const newInputFiatPrice = inputToken.fiatPrice;
+        if (
+          !this.inputToken.balance.isEqualTo(newInputBalance) ||
+          (newInputFiatPrice &&
+            this.inputToken.fiatPrice &&
+            !this.inputToken.fiatPrice.isEqualTo(newInputFiatPrice))
+        ) {
+          this.inputToken.balance = newInputBalance;
+          this.inputToken.fiatPrice = newInputFiatPrice;
+          this.inputToken$.next(this.inputToken);
+        }
       }
 
       if (this.outputToken) {
-        const newOutputBalance = this.supportedTokenBalances.find(
+        const outputToken = this.supportedTokenBalances.find(
           (c) => c.contractAddress === this.outputToken!.contractAddress,
-        )?.balance;
-
-        if (
-          newOutputBalance &&
-          !this.outputToken.balance.isEqualTo(newOutputBalance)
-        ) {
-          this.outputToken.balance = newOutputBalance;
-          console.log('here output', newOutputBalance.toFixed());
-          this.outputToken$.next(this.outputToken);
+        );
+        if (outputToken) {
+          const newOutputBalance = outputToken.balance;
+          const newOutputFiatPrice = outputToken.fiatPrice;
+          if (
+            !this.outputToken.balance.isEqualTo(newOutputBalance) ||
+            (newOutputFiatPrice &&
+              this.outputToken.fiatPrice &&
+              !this.outputToken.fiatPrice.isEqualTo(newOutputFiatPrice))
+          ) {
+            this.outputToken.balance = newOutputBalance;
+            this.outputToken.fiatPrice = newOutputFiatPrice;
+            console.log('here output', newOutputBalance.toFixed());
+            this.outputToken$.next(this.outputToken);
+          }
         }
       }
     } else {
