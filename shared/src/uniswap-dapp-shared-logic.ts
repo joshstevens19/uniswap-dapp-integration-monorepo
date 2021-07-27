@@ -779,7 +779,6 @@ export class UniswapDappSharedLogic {
             this._quoteSubscription.unsubscribe();
             return;
           }
-          console.log('price change', quote);
           const formattedQuote = this.formatTradeContext(quote);
           if (this._confirmSwapOpened) {
             this.newPriceTradeContext = formattedQuote;
@@ -790,8 +789,6 @@ export class UniswapDappSharedLogic {
           }
         },
       );
-
-      console.log('first quote', this.tradeContext);
 
       if (this.tradeContext.quoteDirection === TradeDirection.output) {
         this._inputAmount = new BigNumber(
@@ -953,7 +950,6 @@ export class UniswapDappSharedLogic {
           ) {
             this.outputToken.balance = newOutputBalance;
             this.outputToken.fiatPrice = newOutputFiatPrice;
-            console.log('here output', newOutputBalance.toFixed());
             this.outputToken$.next(this.outputToken);
           }
         }
