@@ -6,7 +6,8 @@
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
   "scripts": {
-    "build": "rm -r ./dist && npm run build:esm && npm run build:cjs && npm run copy-readme",
+    "build": "rm -rf ./dist && npm run compile-scss && npm run build:esm && npm run build:cjs && npm run copy-readme",
+    "compile-scss": "cd ./styles && node ./compile-scss",
     "copy-readme": "cp ../README.md ./dist",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir dist/cjs"
@@ -17,7 +18,7 @@
     "bignumber.js": "^9.0.1",
     "ethers": "^5.4.0",
     "rxjs": "^7.1.0",
-    "simple-uniswap-sdk": "file:simple-uniswap-sdk-3.3.2.tgz"
+    "simple-uniswap-sdk": "^3.3.2"
   },
   "files": [
     "dist",
@@ -28,6 +29,6 @@
     "styles/uniswap.css"
   ],
   "devDependencies": {
-    "node-sass": "^4.11.0"
+    "node-sass": "^4.14.1"
   }
 }

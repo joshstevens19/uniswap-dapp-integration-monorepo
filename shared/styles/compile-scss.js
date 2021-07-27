@@ -7,3 +7,4 @@ const result = nodeSass.renderSync({
 });
 
 fs.writeFileSync('./uniswap.css', result.css);
+console.log('Generated uniswap css');
