@@ -63,6 +63,24 @@ To do this in your angular.json file look for the build object and add `allowedC
 
 It very simple to get uniswap angular up and running below is a simple example in how to get it working, this example assumes the ethereum provider is injected in the window (MetaMask) but can be configured any way you like. This example does not show the logging out handling or a user without MetaMask installed, its purely to showing you how you would get this lib up and running. We shall talk about the config later in the documentation.
 
+## your.module.ts
+
+You need to import the `UniswapModule` into your module file, example is just using a standard module example all you need to do is insert `UniswapModule` into your `imports` array.
+
+```ts
+import { UniswapModule } from 'uniswap-angular';
+import { AppComponent } from './app.component';
+import { YourComponent } from './your.component';
+
+@NgModule({
+  declarations: [YourComponent],
+  imports: [UniswapModule],
+  providers: [],
+  bootstrap: [AppComponent],
+})
+export class YourModule {}
+```
+
 ## your.component.ts
 
 ```ts
