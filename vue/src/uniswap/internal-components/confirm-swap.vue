@@ -325,11 +325,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { default as TokenIcon } from './token-icon.vue';
 import { Utils as UniswapUtils } from 'uniswap-dapp-integration-shared';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'ConfirmSwap',
   components: {
     TokenIcon,
@@ -346,5 +347,5 @@ export default {
       return UniswapUtils;
     },
   },
-};
+});
 </script>

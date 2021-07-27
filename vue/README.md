@@ -7,6 +7,10 @@
 
 Integrating uniswap within your dApp should be a simple thing but with all the complex stuff that goes into making it work, managing transaction status, calling the correct methods on the swap, maintaining the users balances, syncing the fiat prices, producing the token icons, handling all the UI making it work on every browser, i could keep going. On top of this you don't really want to pop a window for the user to swap using the uniswap widget, you want to keep the user experience consistent with your dApp. The idea of this library is to give you a really easy but fully flexible way you can integrate with uniswap with only a few lines of code. You can customise mostly everything from what tokens you support to what colour you want it to be themed as! This will turn integrating uniswap into a few lines of code task.
 
+# Supports
+
+This package will only work with vue3 it has not been tested on vue2 and due to the big difference in the versions we will not be supporting it with this package.
+
 # Installing
 
 ## npm
@@ -41,60 +45,24 @@ $ yarn add uniswap-dapp-integration-shared
 
 It very simple to get uniswap angular up and running below is a simple example in how to get it working, this example assumes the ethereum provider is injected in the window (MetaMask) but can be configured any way you like. This example does not show the logging out handling or a user without MetaMask installed, its purely to showing you how you would get this lib up and running. We shall talk about the config later in the documentation.
 
-## your.vue.js
+## Registering the plugin
+
+First you have to register the plugin which you do within the `main.js` using `app.use(UniswapVue)`. Example on a basic `main.js` file:
+
+```ts
+import UniswapVue from 'uniswap-vue';
+import { createApp } from 'vue';
+import App from './App.vue';
+
+const app = createApp(App);
+app.use(UniswapVue);
+
+app.mount('#app');
+```
+
+## YourComponent.vue
 
 ```vue
-<script>
-import { defineComponent } from 'vue';
-import { UniswapVueSample } from './YOUR_COMPONENT_LOCATION';
-import { ChainId, ETH } from 'uniswap-dapp-integration-shared';
-
-export default defineComponent({
-  name: 'ServeDev',
-  components: {
-    UniswapVueSample,
-  },
-  data() {
-    return {
-      uniswapDappSharedLogicContext: undefined,
-    };
-  },
-  async mounted() {
-    const addresses = await window.ethereum.request({
-      method: 'eth_requestAccounts',
-    });
-
-    this.uniswapDappSharedLogicContext = {
-      supportedNetworkTokens: [
-        {
-          chainId: ChainId.MAINNET,
-          defaultInputToken: ETH.MAINNET().contractAddress,
-          defaultOutputToken: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
-          supportedTokens: [
-            { contractAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
-            { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
-            { contractAddress: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
-            { contractAddress: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f' },
-          ],
-        },
-        {
-          chainId: ChainId.RINKEBY,
-          defaultInputToken: ETH.RINKEBY().contractAddress,
-          defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
-          supportedTokens: [
-            {
-              contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
-            },
-          ],
-        },
-      ],
-      ethereumAddress: addresses[0],
-      ethereumProvider: window.ethereum,
-    };
-  },
-});
-</script>
-
 <template>
   <div id="app">
     <uniswap-vue
@@ -103,6 +71,53 @@ export default defineComponent({
     />
   </div>
 </template>
+
+<script>
+import { ChainId, ETH } from 'uniswap-dapp-integration-shared'
+
+export default {
+  name: 'App',
+  data () {
+    return {
+      uniswapDappSharedLogicContext: undefined
+    }
+  },
+  async mounted () {
+    const addresses = await window.ethereum.request({
+      method: 'eth_requestAccounts'
+    })
+
+    this.uniswapDappSharedLogicContext = {
+      supportedNetworkTokens: [
+        {
+          chainId: ChainId.MAINNET,
+          defaultInputValue: '0.000001',
+          defaultInputToken: ETH.MAINNET().contractAddress,
+          defaultOutputToken: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
+          supportedTokens: [
+            { contractAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
+            { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
+            { contractAddress: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
+            { contractAddress: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f' }
+          ]
+        },
+        {
+          chainId: ChainId.RINKEBY,
+          defaultInputToken: ETH.RINKEBY().contractAddress,
+          defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
+          supportedTokens: [
+            {
+              contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf'
+            }
+          ]
+        }
+      ],
+      ethereumAddress: addresses[0],
+      ethereumProvider: window.ethereum
+    }
+  }
+}
+</script>
 ```
 
 ## Account changes and chain changes
@@ -268,7 +283,3 @@ This allows you to theme the component which matches your dApp.
     };
   };
 ```
-
-### defaultInputValue
-
-The default input value you want it to start on, say you wanted to deep link 1 WETH > AAVE you can pass in 1 here. It should be the formatted value so what you would render on the UI. If nothing is supplied it won't have anything defined in the input.

@@ -43,8 +43,9 @@
                     (token.contractAddress ===
                       logic.inputToken.contractAddress &&
                       selectorOpenFrom === 'input') ||
-                    (token.contractAddress ===
-                      logic.outputToken?.contractAddress &&
+                    (logic.outputToken &&
+                      token.contractAddress ===
+                        logic.outputToken.contractAddress &&
                       selectorOpenFrom === 'output'),
                 }"
               >
@@ -86,15 +87,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import {
   SelectTokenActionFrom,
   Utils as UniswapUtils,
   ErrorCodes,
 } from 'uniswap-dapp-integration-shared';
 import { default as TokenIcon } from './token-icon.vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'TokenModal',
   components: {
     TokenIcon,
@@ -164,5 +166,5 @@ export default {
       return UniswapUtils;
     },
   },
-};
+});
 </script>

@@ -254,10 +254,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { ErrorCodes } from 'uniswap-dapp-integration-shared';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'Header',
   props: ['logic'],
   data() {
@@ -275,7 +276,7 @@ export default {
       try {
         await this.logic.setDisableMultihops(value);
       } catch (error) {
-        if (error?.code === ErrorCodes.noRoutesFound) {
+        if (error && error.code === ErrorCodes.noRoutesFound) {
           noLiquidityFound = true;
         } else {
           throw error;
@@ -284,7 +285,7 @@ export default {
 
       this.$emit('disableMultihopsCompleted', noLiquidityFound);
     },
-    async setUniswapSlippage(slippageAmount, isCustom) {
+    async setUniswapSlippage(slippageAmount: number, isCustom: boolean) {
       if (slippageAmount === 0) {
         slippageAmount = 0.5;
       }
@@ -300,8 +301,8 @@ export default {
       await this.setUniswapSlippage(Number(this.slippageCustom), true);
     },
     async setTransactionDeadline() {
-      await this.logic.setTransactionDeadline(deadline);
+      await this.logic.setTransactionDeadline(this.deadline);
     },
   },
-};
+});
 </script>

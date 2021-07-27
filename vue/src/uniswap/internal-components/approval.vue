@@ -1,33 +1,11 @@
-<script>
-import { default as TokenIcon } from './token-icon.vue';
-import { TransactionStatus } from 'uniswap-dapp-integration-shared';
-
-export default {
-  name: 'Approval',
-  components: {
-    TokenIcon,
-  },
-  props: [
-    'logic',
-    'tradeContext',
-    'miningTransaction',
-    'miningTransactionStatus',
-  ],
-  data() {
-    return {
-      TransactionStatus,
-    };
-  },
-};
-</script>
-
 <template>
   <button
     class="uni-ic__swap-allow uni-ic__theme-background-button"
     v-if="
       tradeContext &&
         tradeContext.approvalTransaction &&
-        tradeContext.fromBalance?.hasEnough
+        tradeContext.fromBalance &&
+        tradeContext.fromBalance.hasEnough
     "
     :disabled="logic.transactionInProcess()"
     v-on:click="logic.approveAllowance()"
@@ -68,3 +46,27 @@ export default {
     </div>
   </button>
 </template>
+
+<script lang="ts">
+import { default as TokenIcon } from './token-icon.vue';
+import { TransactionStatus } from 'uniswap-dapp-integration-shared';
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  name: 'Approval',
+  components: {
+    TokenIcon,
+  },
+  props: [
+    'logic',
+    'tradeContext',
+    'miningTransaction',
+    'miningTransactionStatus',
+  ],
+  data() {
+    return {
+      TransactionStatus,
+    };
+  },
+});
+</script>

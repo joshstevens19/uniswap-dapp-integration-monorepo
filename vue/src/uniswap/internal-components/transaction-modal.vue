@@ -75,23 +75,23 @@
               </span>
               <span
                 v-if="
-                  logic.tradeContext?.quoteDirection === TradeDirection.input
+                  logic.tradeContext.quoteDirection === TradeDirection.input
                 "
               >
-                {{ logic.tradeContext?.baseConvertRequest }}
-                {{ logic.tradeContext?.fromToken?.symbol }} for
-                {{ logic.tradeContext?.expectedConvertQuote }}
-                {{ logic.tradeContext?.toToken?.symbol }}
+                {{ logic.tradeContext.baseConvertRequest }}
+                {{ logic.tradeContext.fromToken.symbol }} for
+                {{ logic.tradeContext.expectedConvertQuote }}
+                {{ logic.tradeContext.toToken.symbol }}
               </span>
               <span
                 v-if="
-                  logic.tradeContext?.quoteDirection === TradeDirection.output
+                  logic.tradeContext.quoteDirection === TradeDirection.output
                 "
               >
-                {{ logic.tradeContext?.expectedConvertQuote }}
-                {{ logic.tradeContext?.fromToken?.symbol }} for
-                {{ logic.tradeContext?.baseConvertRequest }}
-                {{ logic.tradeContext?.toToken?.symbol }}
+                {{ logic.tradeContext.expectedConvertQuote }}
+                {{ logic.tradeContext.fromToken.symbol }} for
+                {{ logic.tradeContext.baseConvertRequest }}
+                {{ logic.tradeContext.toToken.symbol }}
               </span>
             </div>
           </div>
@@ -160,13 +160,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import {
   TransactionStatus,
   TradeDirection,
 } from 'uniswap-dapp-integration-shared';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'TransactionModal',
   props: ['logic', 'miningTransaction', 'miningTransactionStatus'],
   data() {
@@ -175,5 +176,5 @@ export default {
       TradeDirection,
     };
   },
-};
+});
 </script>

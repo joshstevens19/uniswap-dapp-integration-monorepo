@@ -3,3 +3,4 @@ wallet-app/src/libs/**
 wallet-app/src/json/**
 wallet-app/ABI/*.json
 integration-apps/uniswap-vue-test-integration-app/*
+vue/README.md

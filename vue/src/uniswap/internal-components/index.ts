@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 export { default as Approval } from './approval.vue';
 export { default as ConfirmSwap } from './confirm-swap.vue';
 export { default as Header } from './header.vue';
