@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "eslint-loader": "^2.1.2",
+    "uniswap-dapp-integration-shared": "file:uniswap-dapp-integration-shared-1.0.0.tgz",
+    "uniswap-vue": "file:uniswap-vue-1.0.0.tgz",
     "vue": "^2.6.11"
   },
   "devDependencies": {
