@@ -326,7 +326,7 @@ const UniswapReact = ({
   };
 
   return (
-    <div className="uniswap-dapp-react" id="uniswap__716283642843643826">
+    <div id="uniswap__716283642843643826">
       {loading && <Loading />}
 
       {!loading && uniswapDappSharedLogic && (
