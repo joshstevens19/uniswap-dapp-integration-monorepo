@@ -21,7 +21,7 @@
     "@angular/router": "~11.2.11",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
-    "uniswap-angular": "file:uniswap-angular-0.0.1.tgz",
+    "uniswap-angular": "file:uniswap-angular-1.0.0.tgz",
     "uniswap-dapp-integration-shared": "file:uniswap-dapp-integration-shared-1.0.0.tgz",
     "zone.js": "~0.11.3"
   },

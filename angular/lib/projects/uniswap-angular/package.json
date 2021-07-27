@@ -9,7 +9,7 @@
   "scripts": {
     "build": "ng build --prod",
     "copy-readme": "cp ../../../README.md ../../dist/uniswap-angular",
-    "publish": "npm run build && npm run copy-readme && cd ../../dist/dist/uniswap-angular && npm publish --access public"
+    "publish": "npm run build && npm run copy-readme && cd ../../dist/uniswap-angular && npm publish --access public"
   },
   "dependencies": {
     "tslib": "^2.0.0"
