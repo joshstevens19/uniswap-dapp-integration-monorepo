@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import {
   ETH,

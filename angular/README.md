@@ -39,7 +39,9 @@ $ yarn add uniswap-dapp-integration-shared
 
 ## Warnings on builds on angular 10 +
 
-Starting with version 10, Angular now warns you when your build pulls in a CommonJS package. `uniswap-dapp-integration-shared` and `@ethersproject` (which we use internally in `uniswap-dapp-integration-shared`) are CommonJS packages. As they are shared with react and vue packages. You can safely ignore the warnings in your angular.json.
+Starting with version 10, Angular now warns you when your build pulls in a CommonJS package. `uniswap-dapp-integration-shared` uses `@ethersproject`internally which is a CommonJS package. Also the `uniswap-angular` uses `bignumber.js` which again is a CommonJS package. You can safely ignore the warnings in your angular.json.
+
+TODO!!!!!!!!!!!
 
 To do this in your angular.json file look for the build object and add `allowedCommonJsDependencies`:
 

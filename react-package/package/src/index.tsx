@@ -1,7 +1,9 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import React, { useEffect } from 'react';
 import {
-  ErrorCodes, ExtendedToken, MiningTransaction,
+  ErrorCodes,
+  ExtendedToken,
+  MiningTransaction,
   SelectTokenActionFrom,
   SwapSwitchResponse,
   TradeContext,
@@ -9,7 +11,7 @@ import {
   TransactionStatus,
   UniswapDappSharedLogic,
   UniswapDappSharedLogicContext,
-  Utils as UniswapUtils
+  Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import Approval from './components/approval';
@@ -34,13 +36,17 @@ const UniswapReact = ({
   const [inputToken, setInputToken] = React.useState<ExtendedToken>();
   const [inputBalance, setInputBalance] = React.useState<string | undefined>();
   const [inputValue, setInputValue] = React.useState('');
-  const [inputFiatPrice, setInputFiatPrice] = React.useState<BigNumber | undefined>();
+  const [inputFiatPrice, setInputFiatPrice] = React.useState<
+    BigNumber | undefined
+  >();
   const [outputToken, setOutputToken] = React.useState<ExtendedToken>();
   const [outputBalance, setOutputBalance] = React.useState<
     string | undefined
   >();
   const [outputValue, setOutputValue] = React.useState('');
-  const [outputFiatPrice, setOutputFiatPrice] = React.useState<BigNumber | undefined>();
+  const [outputFiatPrice, setOutputFiatPrice] = React.useState<
+    BigNumber | undefined
+  >();
   const [supportedNetwork, setSupportedNetwork] = React.useState(false);
   const [chainId, setChainId] = React.useState<number | undefined>();
   const [selectorOpenFrom, setSelectorOpenFrom] = React.useState<
@@ -49,7 +55,9 @@ const UniswapReact = ({
   const [tradeContext, setTradeContext] = React.useState<
     TradeContext | undefined
   >();
-  const [newPriceTradeContext, setNewPriceTradeContext] = React.useState<TradeContext | undefined>();
+  const [newPriceTradeContext, setNewPriceTradeContext] = React.useState<
+    TradeContext | undefined
+  >();
   const [miningTransaction, setMiningTransaction] = React.useState<
     MiningTransaction | undefined
   >();
@@ -57,10 +65,9 @@ const UniswapReact = ({
   const [miningTransactionStatus, setMiningTransactionStatus] = React.useState<
     TransactionStatus | undefined
   >();
-   const [noLiquidityFound, setNoLiquidityFound] = React.useState<
-    boolean
-  >(false);
-  const [debounceTimeout, setDebounceTimeout] =  React.useState<
+  const [noLiquidityFound, setNoLiquidityFound] =
+    React.useState<boolean>(false);
+  const [debounceTimeout, setDebounceTimeout] = React.useState<
     NodeJS.Timeout | undefined
   >();
 
@@ -74,19 +81,20 @@ const UniswapReact = ({
 
       await sharedLogic!.init();
 
-      const supportedNetworkTokens = uniswapDappSharedLogicContext.supportedNetworkTokens.find(
-        (t) => t.chainId === sharedLogic.chainId,
-      );
+      const supportedNetworkTokens =
+        uniswapDappSharedLogicContext.supportedNetworkTokens.find(
+          (t) => t.chainId === sharedLogic.chainId,
+        );
 
       if (supportedNetworkTokens?.defaultInputValue) {
         setInputValue(supportedNetworkTokens.defaultInputValue);
       }
 
       setTradeContext(sharedLogic!.tradeContext);
-      subscriptions.push( 
+      subscriptions.push(
         sharedLogic.tradeContext$.subscribe((context) => {
           setTradeContext(context);
-           if (context) {
+          if (context) {
             if (context.quoteDirection === TradeDirection.input) {
               setOutputValue(context.expectedConvertQuote);
             } else {
@@ -96,21 +104,21 @@ const UniswapReact = ({
         }),
       );
 
-      subscriptions.push(sharedLogic.newPriceTradeContext$.subscribe((context) => {
-        setNewPriceTradeContext(context);
-      }));
+      subscriptions.push(
+        sharedLogic.newPriceTradeContext$.subscribe((context) => {
+          setNewPriceTradeContext(context);
+        }),
+      );
 
       subscriptions.push(
-        sharedLogic.tradeCompleted$.subscribe(
-          (completed: boolean) => {
-            if (completed) {
-              setNoLiquidityFound(false);
-              setInputValue('');
-              setOutputValue('');
-            }
-          },
-      ));
-
+        sharedLogic.tradeCompleted$.subscribe((completed: boolean) => {
+          if (completed) {
+            setNoLiquidityFound(false);
+            setInputValue('');
+            setOutputValue('');
+          }
+        }),
+      );
 
       if (tradeContext?.expectedConvertQuote) {
         setOutputValue(tradeContext.expectedConvertQuote);
@@ -146,12 +154,12 @@ const UniswapReact = ({
       );
 
       setOutputToken(uniswapDappSharedLogic.outputToken);
-     
+
       if (uniswapDappSharedLogic.outputToken) {
         setOutputBalance(
           utils.toPrecision(uniswapDappSharedLogic.outputToken.balance),
         );
-         setOutputFiatPrice(uniswapDappSharedLogic.outputToken.fiatPrice);
+        setOutputFiatPrice(uniswapDappSharedLogic.outputToken.fiatPrice);
       }
       subscriptions.push(
         uniswapDappSharedLogic.outputToken$.subscribe((token) => {
@@ -201,25 +209,24 @@ const UniswapReact = ({
       setInputValue(amount);
       if (!amount || new BigNumber(amount).isEqualTo(0)) {
         setOutputValue('');
-        if(debounceTimeout) {
+        if (debounceTimeout) {
           clearTimeout(debounceTimeout);
         }
         return;
       }
 
-      if(debounceTimeout) {
+      if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }
 
-      setDebounceTimeout(setTimeout(() => _changeInputTradePrice(amount), DEBOUNCE_DELAY));
+      setDebounceTimeout(
+        setTimeout(() => _changeInputTradePrice(amount), DEBOUNCE_DELAY),
+      );
     }
   };
 
   const _changeInputTradePrice = async (amount: string) => {
-    const success = await changeTradePrice(
-      amount,
-      TradeDirection.input,
-    );
+    const success = await changeTradePrice(amount, TradeDirection.input);
     if (success) {
       setOutputValue(
         uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote,
@@ -228,38 +235,37 @@ const UniswapReact = ({
       setOutputValue('');
     }
   };
-  
+
   const changeOutputTradePrice = async (amount: string) => {
     if (isValidDecimalLength(amount, outputToken!)) {
       setOutputValue(amount);
       if (!amount || new BigNumber(amount).isEqualTo(0)) {
         setInputValue('');
-        if(debounceTimeout) {
+        if (debounceTimeout) {
           clearTimeout(debounceTimeout);
         }
         return;
       }
 
-      if(debounceTimeout) {
+      if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }
 
-      setDebounceTimeout(setTimeout(() => _changeOutputTradePrice(amount), DEBOUNCE_DELAY));
+      setDebounceTimeout(
+        setTimeout(() => _changeOutputTradePrice(amount), DEBOUNCE_DELAY),
+      );
     }
   };
 
   const _changeOutputTradePrice = async (amount: string) => {
-    const success = await changeTradePrice(
-      amount,
-      TradeDirection.output,
-    );
-    
+    const success = await changeTradePrice(amount, TradeDirection.output);
+
     if (success) {
       setInputValue(uniswapDappSharedLogic!.tradeContext!.expectedConvertQuote);
     } else {
       setInputValue('');
     }
-  }
+  };
 
   const isValidDecimalLength = (value: string, token: ExtendedToken) => {
     const decimals = value.split('.');
@@ -273,7 +279,7 @@ const UniswapReact = ({
     return true;
   };
 
-    /**
+  /**
    * Change trade price
    * @param amount The amount
    * @param tradeDirection The trade direction
@@ -283,10 +289,7 @@ const UniswapReact = ({
     tradeDirection: TradeDirection,
   ) => {
     try {
-      await uniswapDappSharedLogic!.changeTradePrice(
-        amount,
-        tradeDirection,
-      );
+      await uniswapDappSharedLogic!.changeTradePrice(amount, tradeDirection);
     } catch (error) {
       if (error?.code === ErrorCodes.noRoutesFound) {
         handleNoLiquidityFound(true, tradeDirection);
@@ -297,10 +300,10 @@ const UniswapReact = ({
     handleNoLiquidityFound(false, tradeDirection);
 
     return true;
-  }
+  };
 
   const switchSwap = async () => {
-     if (noLiquidityFound) {
+    if (noLiquidityFound) {
       return;
     }
     const swapState = await uniswapDappSharedLogic!.swapSwitch();
@@ -308,7 +311,10 @@ const UniswapReact = ({
     setOutputValue(swapState.outputValue);
   };
 
-  const handleNoLiquidityFound = (noLiquidityFound: boolean, tradeDirection: TradeDirection | undefined) => { 
+  const handleNoLiquidityFound = (
+    noLiquidityFound: boolean,
+    tradeDirection: TradeDirection | undefined,
+  ) => {
     setNoLiquidityFound(noLiquidityFound);
     if (noLiquidityFound && tradeDirection) {
       if (tradeDirection === TradeDirection.input) {
@@ -328,12 +334,14 @@ const UniswapReact = ({
           <div className="uni-ic uni-ic__theme-background">
             {supportedNetwork && inputToken && (
               <div>
-                <Header 
-                  uniswapDappSharedLogic={uniswapDappSharedLogic} 
-                  disableMultihopsCompleted={(noLiquidityFound: boolean) => { 
-                    handleNoLiquidityFound(noLiquidityFound, tradeContext?.quoteDirection);
+                <Header
+                  uniswapDappSharedLogic={uniswapDappSharedLogic}
+                  disableMultihopsCompleted={(noLiquidityFound: boolean) => {
+                    handleNoLiquidityFound(
+                      noLiquidityFound,
+                      tradeContext?.quoteDirection,
+                    );
                   }}
-                
                 />
                 <div className="uni-ic__swap-container">
                   <div className="uni-ic__swap-content">
@@ -517,7 +525,9 @@ const UniswapReact = ({
                                   ~$
                                   <span className="uni-ic__swap-content-balance-and-price__price-text">
                                     {utils.formatCurrency(
-                                      outputFiatPrice.times(outputValue).toFixed(),
+                                      outputFiatPrice
+                                        .times(outputValue)
+                                        .toFixed(),
                                     )}
                                   </span>
                                 </div>
@@ -528,21 +538,21 @@ const UniswapReact = ({
                       </div>
                     </div>
                   </div>
-                  {tradeContext && !noLiquidityFound && (      
-                   <React.Fragment>       
-                    <SwapQuoteInfo
-                      uniswapDappSharedLogic={uniswapDappSharedLogic}
-                      tradeContext={tradeContext}
-                    />
-                   
-                    <Approval
-                      uniswapDappSharedLogic={uniswapDappSharedLogic}
-                      tradeContext={tradeContext}
-                      miningTransaction={miningTransaction}
-                      miningTransactionStatus={miningTransactionStatus}
-                    />
-                  </React.Fragment>
-                  )}  
+                  {tradeContext && !noLiquidityFound && (
+                    <React.Fragment>
+                      <SwapQuoteInfo
+                        uniswapDappSharedLogic={uniswapDappSharedLogic}
+                        tradeContext={tradeContext}
+                      />
+
+                      <Approval
+                        uniswapDappSharedLogic={uniswapDappSharedLogic}
+                        tradeContext={tradeContext}
+                        miningTransaction={miningTransaction}
+                        miningTransactionStatus={miningTransactionStatus}
+                      />
+                    </React.Fragment>
+                  )}
                   <div className="uni-ic__swap-button-container">
                     <button
                       className="uni-ic__swap-button uni-ic__theme-background-button"
@@ -562,12 +572,12 @@ const UniswapReact = ({
                         )}
 
                         {!utils.isZero(outputValue) &&
-                         !noLiquidityFound &&
+                          !noLiquidityFound &&
                           uniswapDappSharedLogic.tradeContext?.fromBalance
                             ?.hasEnough && <span>Swap</span>}
 
                         {!utils.isZero(outputValue) &&
-                         !noLiquidityFound &&
+                          !noLiquidityFound &&
                           !uniswapDappSharedLogic.tradeContext?.fromBalance
                             ?.hasEnough && (
                             <span>
@@ -580,9 +590,9 @@ const UniswapReact = ({
                             </span>
                           )}
 
-                          {noLiquidityFound && (
-                            <span>Insufficient liquidity for this trade</span>
-                          )}
+                        {noLiquidityFound && (
+                          <span>Insufficient liquidity for this trade</span>
+                        )}
                       </div>
                     </button>
                   </div>
@@ -605,8 +615,11 @@ const UniswapReact = ({
               setInputValue(swapCompleted.inputValue);
               setOutputValue(swapCompleted.outputValue);
             }}
-            changeTokenCompleted={(noLiquidityFound: boolean) => { 
-              handleNoLiquidityFound(noLiquidityFound, tradeContext?.quoteDirection);
+            changeTokenCompleted={(noLiquidityFound: boolean) => {
+              handleNoLiquidityFound(
+                noLiquidityFound,
+                tradeContext?.quoteDirection,
+              );
             }}
             selectorOpenFrom={selectorOpenFrom!}
             inputToken={inputToken!}

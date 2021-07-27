@@ -17,7 +17,7 @@ import {
   TradeDirection,
   ErrorCodes,
 } from 'uniswap-dapp-integration-shared';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 
 const DEBOUNCE_DELAY = 250;
 
