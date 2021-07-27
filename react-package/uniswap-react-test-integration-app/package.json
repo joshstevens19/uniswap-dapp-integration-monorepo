@@ -21,7 +21,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "postinstall": "npm link ../../shared && npm link ../package"
+    "link": "npm link ../../shared && npm link ../package"
   },
   "eslintConfig": {
     "extends": [

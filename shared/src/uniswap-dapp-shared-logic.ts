@@ -908,7 +908,7 @@ export class UniswapDappSharedLogic {
           }
           return 0;
         })
-        .sort((a, b) => {
+        .sort((a, _b) => {
           if (a.contractAddress === this.inputToken.contractAddress) {
             return -1;
           }

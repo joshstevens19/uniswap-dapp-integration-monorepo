@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { TokenImage } from 'uniswap-dapp-integration-shared/dist/token/models/token-image';
+import { TokenImage } from 'uniswap-dapp-integration-shared';
 
 @Component({
   selector: 'lib-token-icon',

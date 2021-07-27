@@ -8,14 +8,18 @@
   "unpkg": "dist/uniswap-vue.min.js",
   "files": [
     "dist/*",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "package.json",
+    "package-lock.json",
+    "README.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "scripts": {
     "serve": "vue-cli-service serve dev/serve.js",
-    "build": "cross-env NODE_ENV=production rollup --config build/rollup.config.js",
-    "build:ssr": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format cjs",
-    "build:es": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format es",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format cjs",
+    "build:esm": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format es",
     "build:unpkg": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format iife",
     "link": "npm link ../../shared"
   },

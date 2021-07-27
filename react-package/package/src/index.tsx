@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js';
 import React, { useEffect } from 'react';
 import {
-  ErrorCodes,
-  MiningTransaction,
+  ErrorCodes, ExtendedToken, MiningTransaction,
   SelectTokenActionFrom,
   SwapSwitchResponse,
   TradeContext,
@@ -12,7 +11,6 @@ import {
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils
 } from 'uniswap-dapp-integration-shared';
-import { ExtendedToken } from 'uniswap-dapp-integration-shared/dist/token/models/extended-token';
 import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import Approval from './components/approval';
 import ConfirmSwap from './components/confirmSwap';
