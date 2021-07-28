@@ -1,6 +1,6 @@
 {
   "name": "uniswap-vue",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Integrating uniswap within your vue dApp with a couple of lines of code.",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",

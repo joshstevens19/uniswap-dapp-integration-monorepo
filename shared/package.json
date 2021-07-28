@@ -1,6 +1,6 @@
 {
   "name": "uniswap-dapp-integration-shared",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "This is the shared lib which `uniswap-angular`, `uniswap-react` and `uniswap-vue` uses to do all its shared logic. Even though this is used on the client interfaces it does expose nice easy to understand calls for you to build your own interface if you wish to.",
   "main": "dist/cjs/index.js",
   "module": "./dist/esm/index.js",
