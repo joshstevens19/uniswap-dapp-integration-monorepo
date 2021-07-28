@@ -1,10 +1,12 @@
 
 <template>
-  <div id="app">
-    <uniswap-vue
-      :uniswapDappSharedLogicContext="uniswapDappSharedLogicContext"
-      v-if="uniswapDappSharedLogicContext"
-    />
+   <div id="app">
+      <div class="uniswap-container">
+      <uniswap-vue
+        :uniswapDappSharedLogicContext="uniswapDappSharedLogicContext"
+        v-if="uniswapDappSharedLogicContext"
+      />
+    </div>
   </div>
 </template>
 
@@ -56,3 +58,26 @@ export default {
   }
 }
 </script>
+
+<style>
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  -webkit-box-align: center;
+  align-items: center;
+  flex: 1 1 0%;
+  z-index: 1;
+}
+
+.uniswap-container {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  background: rgb(255, 255, 255);
+  box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px,
+    rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
+  border-radius: 24px;
+  margin-top: 1rem;
+}
+</style>

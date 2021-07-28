@@ -67,11 +67,13 @@ function App() {
 
   return (
     <div className="App">
-      {uniswapDappSharedLogicContext !== undefined && (
-        <UniswapReact
-          uniswapDappSharedLogicContext={uniswapDappSharedLogicContext}
-        />
-      )}
+      <div className="uniswap-container">
+        {uniswapDappSharedLogicContext !== undefined && (
+          <UniswapReact
+            uniswapDappSharedLogicContext={uniswapDappSharedLogicContext}
+          />
+        )}
+      </div>
     </div>
   );
 }
