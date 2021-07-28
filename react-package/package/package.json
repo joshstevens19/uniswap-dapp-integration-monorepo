@@ -7,7 +7,7 @@
   "types": "./lib/esm/index.d.ts",
   "scripts": {
     "build": "npm run build:esm && npm run build:cjs && npm run copy-readme && npm run copy-readme",
-    "copy-readme": "cp ../README.md ./",
+    "copy-readme": "cp ../README.md ./lib",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs",
     "link": "npm link ../../shared"
