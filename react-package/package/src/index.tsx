@@ -142,9 +142,9 @@ const UniswapReact = ({
 
       setInputToken(uniswapDappSharedLogic.inputToken);
       setInputBalance(
-        utils.toPrecision(uniswapDappSharedLogic.inputToken.balance),
+        utils.toPrecision(uniswapDappSharedLogic.inputToken?.balance),
       );
-      setInputFiatPrice(uniswapDappSharedLogic.inputToken.fiatPrice);
+      setInputFiatPrice(uniswapDappSharedLogic.inputToken?.fiatPrice);
       subscriptions.push(
         uniswapDappSharedLogic.inputToken$.subscribe((token) => {
           setInputToken(token);

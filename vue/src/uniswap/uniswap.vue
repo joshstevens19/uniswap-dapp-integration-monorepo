@@ -625,9 +625,9 @@ export default defineComponent({
 
     this.inputToken = uniswapDappSharedLogic.inputToken;
     this.inputBalance = this.utils().toPrecision(
-      uniswapDappSharedLogic.inputToken.balance,
+      uniswapDappSharedLogic.inputToken?.balance,
     );
-    this.inputFiatPrice = uniswapDappSharedLogic.inputToken.fiatPrice;
+    this.inputFiatPrice = uniswapDappSharedLogic.inputToken?.fiatPrice;
     this.subscriptions.push(
       uniswapDappSharedLogic.inputToken$.subscribe(token => {
         this.inputToken = token;
@@ -638,7 +638,7 @@ export default defineComponent({
 
     this.outputToken = uniswapDappSharedLogic.outputToken;
     this.outputBalance = this.utils().toPrecision(
-      uniswapDappSharedLogic.outputToken.balance,
+      uniswapDappSharedLogic.outputToken?.balance,
     );
     this.outputFiatPrice = uniswapDappSharedLogic.outputToken?.fiatPrice;
     this.subscriptions.push(
