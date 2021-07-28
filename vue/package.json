@@ -1,21 +1,17 @@
 {
   "name": "uniswap-vue",
   "version": "1.0.0",
-  "description": "",
+  "description": "Integrating uniswap within your vue dApp with a couple of lines of code.",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
-  "files": [
-    "lib",
-    "package.json",
-    "package-lock.json",
-    "README.md"
-  ],
   "scripts": {
     "start": "vue-cli-service serve dev/serve.js",
     "build": "rollup -c",
     "prepublishOnly": "npm run build",
     "link": "npm link ../shared"
   },
+  "author": "joshstevens19@hotmail.co.uk",
+  "license": "MIT",
   "peerDependencies": {
     "vue": "^3.0.0",
     "uniswap-dapp-integration-shared": "^1.0.0"
@@ -54,6 +50,21 @@
     "vue-jest": "^5.0.0-0",
     "vue-loader": "^16.2.0"
   },
-  "author": "joshstevens19@hotmail.co.uk",
-  "license": "MIT"
+  "files": [
+    "lib",
+    "package.json",
+    "package-lock.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "ethereum",
+    "blockchain",
+    "uniswap",
+    "vue"
+  ],
+  "bugs": {
+    "url": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo/issues"
+  },
+  "homepage": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo"
 }
