@@ -95,6 +95,7 @@ export default {
           defaultInputToken: ETH.MAINNET().contractAddress,
           defaultOutputToken: '0xde30da39c46104798bb5aa3fe8b9e0e1f348163f',
           supportedTokens: [
+            { contractAddress: ETH.MAINNET().contractAddress },
             { contractAddress: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
             { contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
             { contractAddress: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
@@ -106,9 +107,8 @@ export default {
           defaultInputToken: ETH.RINKEBY().contractAddress,
           defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
           supportedTokens: [
-            {
-              contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf'
-            }
+            { contractAddress: ETH.RINKEBY().contractAddress },
+            { contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf' }
           ]
         }
       ],

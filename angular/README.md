@@ -39,25 +39,7 @@ $ yarn add uniswap-dapp-integration-shared
 
 ## Warnings on builds on angular 10 +
 
-Starting with version 10, Angular now warns you when your build pulls in a CommonJS package. `uniswap-dapp-integration-shared` uses `@ethersproject`internally which is a CommonJS package. Also the `uniswap-angular` uses `bignumber.js` which again is a CommonJS package. You can safely ignore the warnings in your angular.json.
-
-TODO!!!!!!!!!!!
-
-To do this in your angular.json file look for the build object and add `allowedCommonJsDependencies`:
-
-```json
-"build": {
-  "builder": "@angular-devkit/build-angular:browser",
-  "options": {
-     "allowedCommonJsDependencies": [
-        "uniswap-dapp-integration-shared",
-         "@ethersproject"
-     ]
-     ...
-   }
-   ...
-},
-```
+Starting with version 10, Angular now warns you when your build pulls in a CommonJS package. `uniswap-dapp-integration-shared` uses `@ethersproject`internally which uses `bn.js` and `sha2.js` which are CommonJS packages. Also the `uniswap-angular` uses `bignumber.js` which again is a CommonJS package. You can safely ignore the warnings in your angular.json. instructions on how angular.json allows you to do this is [here](https://angular.io/guide/build#configuring-commonjs-dependencies).
 
 # Usage
 
@@ -130,9 +112,7 @@ export class YourComponent implements OnInit {
           defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
           supportedTokens: [
             { contractAddress: ETH.RINKEBY().contractAddress },
-            {
-              contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
-            },
+            { contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf' },
           ],
         },
       ],
