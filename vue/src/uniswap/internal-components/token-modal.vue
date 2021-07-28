@@ -115,7 +115,7 @@ export default defineComponent({
       // #notavuedev
       this.$forceUpdate();
     },
-    async changeSelectToken(contractAddress) {
+    async changeSelectToken(contractAddress: string) {
       switch (this.selectorOpenFrom) {
         case this.SelectTokenActionFrom.input:
           if (this.inputToken.contractAddress === contractAddress) {
@@ -149,7 +149,7 @@ export default defineComponent({
           return;
       }
     },
-    async changeToken(contractAddress) {
+    async changeToken(contractAddress: string) {
       try {
         await this.logic.changeToken(contractAddress);
       } catch (error) {

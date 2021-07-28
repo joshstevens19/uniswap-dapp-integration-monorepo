@@ -335,6 +335,7 @@ import {
   MiningTransaction,
   TransactionStatus,
   SelectTokenActionFrom,
+  SwapSwitchResponse,
 } from 'uniswap-dapp-integration-shared';
 import { BigNumber } from 'bignumber.js';
 
@@ -409,14 +410,13 @@ export default defineComponent({
       const swapState = await this.logic.swapSwitch();
       this.switchSwapCompleted(swapState);
     },
-
-    toPrecision(value) {
-      return this.utils().toPrecision(value);
-    },
-    formatCurrency(value) {
+    formatCurrency(value: BigNumber): string {
       return this.utils().formatCurrency(value.toFixed());
     },
-    async changeTradePrice(amount, tradeDirection) {
+    async changeTradePrice(
+      amount: string,
+      tradeDirection: TradeDirection,
+    ): Promise<boolean> {
       try {
         await this.logic.changeTradePrice(amount, tradeDirection);
       } catch (error) {
@@ -432,7 +432,7 @@ export default defineComponent({
 
       return true;
     },
-    async changeInputTradePrice() {
+    async changeInputTradePrice(): Promise<void> {
       if (!this.inputValue || new BigNumber(this.inputValue).isEqualTo(0)) {
         this.outputValue = '';
         if (this.debounceTimeout) {
@@ -450,7 +450,7 @@ export default defineComponent({
         DEBOUNCE_DELAY,
       );
     },
-    async _changeInputTradePrice() {
+    async _changeInputTradePrice(): Promise<void> {
       const success = await this.changeTradePrice(
         this.inputValue,
         TradeDirection.input,
@@ -461,7 +461,7 @@ export default defineComponent({
         this.outputValue = '';
       }
     },
-    async changeOutputTradePrice() {
+    async changeOutputTradePrice(): Promise<void> {
       if (!this.outputValue || new BigNumber(this.outputValue).isEqualTo(0)) {
         this.inputValue = '';
         if (this.debounceTimeout) {
@@ -479,7 +479,7 @@ export default defineComponent({
         DEBOUNCE_DELAY,
       );
     },
-    async _changeOutputTradePrice() {
+    async _changeOutputTradePrice(): Promise<void> {
       const success = await this.changeTradePrice(
         this.outputValue,
         TradeDirection.output,
@@ -491,31 +491,38 @@ export default defineComponent({
       }
     },
 
-    registerEventListeners() {
-      this.$el.addEventListener('switchSwapCompleted', swapSwitchResponse =>
-        this.switchSwapCompleted(swapSwitchResponse),
+    registerEventListeners(): void {
+      this.$el.addEventListener(
+        'switchSwapCompleted',
+        (swapSwitchResponse: SwapSwitchResponse) =>
+          this.switchSwapCompleted(swapSwitchResponse),
       );
-      this.$el.addEventListener('changeTokenCompleted', noLiquidityFound =>
-        this.changeTokenCompleted(noLiquidityFound),
+      this.$el.addEventListener(
+        'changeTokenCompleted',
+        (noLiquidityFound: boolean) =>
+          this.changeTokenCompleted(noLiquidityFound),
       );
     },
-    switchSwapCompleted(response) {
+    switchSwapCompleted(response: SwapSwitchResponse): void {
       this.inputValue = response.inputValue;
       this.outputValue = response.outputValue;
     },
-    changeTokenCompleted(noLiquidityFound) {
+    changeTokenCompleted(noLiquidityFound: boolean): void {
       this.handleNoLiquidityFound(
         noLiquidityFound,
         this.logic.tradeContext?.quoteDirection,
       );
     },
-    disableMultihopsCompleted(noLiquidityFound) {
+    disableMultihopsCompleted(noLiquidityFound): void {
       this.handleNoLiquidityFound(
         noLiquidityFound,
         this.logic.tradeContext?.quoteDirection,
       );
     },
-    handleNoLiquidityFound(noLiquidityFound, tradeDirection) {
+    handleNoLiquidityFound(
+      noLiquidityFound: boolean,
+      tradeDirection: TradeDirection,
+    ): void {
       this.noLiquidityFound = noLiquidityFound;
       if (noLiquidityFound && tradeDirection) {
         if (tradeDirection === TradeDirection.input) {
@@ -527,12 +534,12 @@ export default defineComponent({
     },
   },
   computed: {
-    outputMaxLength() {
+    outputMaxLength(): number {
       return this.outputToken?.decimals;
     },
   },
-  async mounted() {
-    // this.registerEventListeners();
+  async mounted(): Promise<void> {
+    this.registerEventListeners();
 
     const uniswapDappSharedLogic = new UniswapDappSharedLogic(
       this.uniswapDappSharedLogicContext,
@@ -652,8 +659,10 @@ export default defineComponent({
 
     this.loading = false;
   },
-  unmounted() {
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
+  unmounted(): void {
+    this.subscriptions.forEach((subscription: any) =>
+      subscription.unsubscribe(),
+    );
   },
 });
 </script>
