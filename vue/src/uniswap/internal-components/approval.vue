@@ -10,40 +10,38 @@
     :disabled="logic.transactionInProcess()"
     v-on:click="logic.approveAllowance()"
   >
-    <div class="uni-ic__swap-allow-container">
-      <TokenIcon
-        classes="uni-ic__swap-allow-icon"
-        :context="logic.inputToken.tokenImageContext"
-      />
+    <TokenIcon
+      classes="uni-ic__swap-allow-icon"
+      :context="logic.inputToken.tokenImageContext"
+    />
 
-      <span
-        v-if="
-          miningTransaction === undefined ||
-            miningTransactionStatus === TransactionStatus.rejected
-        "
-        >You must give the Uniswap smart contract permisson to use your
-        {{ tradeContext.fromToken.symbol }}. You only have to do this once per
-        token per uniswap version. Click here to approve the permissons.
-      </span>
+    <span
+      v-if="
+        miningTransaction === undefined ||
+          miningTransactionStatus === TransactionStatus.rejected
+      "
+      >You must give the Uniswap smart contract permisson to use your
+      {{ tradeContext.fromToken.symbol }}. You only have to do this once per
+      token per uniswap version. Click here to approve the permissons.
+    </span>
 
-      <span
-        v-if="
-          miningTransactionStatus === TransactionStatus.waitingForConfirmation
-        "
-        >Waiting for confirmation....</span
-      >
-      <span v-if="miningTransactionStatus === TransactionStatus.mining"
-        >Waiting for your transaction to be mined...
-        <u
-          ><a
-            class="uni-ic__swap-allow-etherscan"
-            v-on:click="logic.viewOnEtherscan()"
-          >
-            View tx on etherscan
-          </a>
-        </u>
-      </span>
-    </div>
+    <span
+      v-if="
+        miningTransactionStatus === TransactionStatus.waitingForConfirmation
+      "
+      >Waiting for confirmation....</span
+    >
+    <span v-if="miningTransactionStatus === TransactionStatus.mining"
+      >Waiting for your transaction to be mined...
+      <u
+        ><a
+          class="uni-ic__swap-allow-etherscan"
+          v-on:click="logic.viewOnEtherscan()"
+        >
+          View tx on etherscan
+        </a>
+      </u>
+    </span>
   </button>
 </template>
 

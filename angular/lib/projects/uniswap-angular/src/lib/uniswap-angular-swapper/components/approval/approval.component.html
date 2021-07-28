@@ -7,45 +7,43 @@
   (click)="uniswapDappSharedLogic.approveAllowance()"
   [disabled]="uniswapDappSharedLogic.transactionInProcess()"
 >
-  <div class="uni-ic__swap-allow-container">
-    <lib-token-icon
-      classes="uni-ic__swap-allow-icon"
-      [tokenImageContext]="uniswapDappSharedLogic.inputToken.tokenImageContext"
-    ></lib-token-icon>
+  <lib-token-icon
+    classes="uni-ic__swap-allow-icon"
+    [tokenImageContext]="uniswapDappSharedLogic.inputToken.tokenImageContext"
+  ></lib-token-icon>
 
-    <span
-      *ngIf="
-        uniswapDappSharedLogic.miningTransaction === undefined ||
-        uniswapDappSharedLogic.miningTransaction?.status ===
-          transactionStatus.rejected
-      "
-      >You must give the Uniswap smart contract permisson to use your
-      {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}. You only have
-      to do this once per token per uniswap version. Click here to approve the
-      permissons.
-    </span>
+  <span
+    *ngIf="
+      uniswapDappSharedLogic.miningTransaction === undefined ||
+      uniswapDappSharedLogic.miningTransaction?.status ===
+        transactionStatus.rejected
+    "
+    >You must give the Uniswap smart contract permisson to use your
+    {{ uniswapDappSharedLogic.tradeContext!.fromToken.symbol }}. You only have
+    to do this once per token per uniswap version. Click here to approve the
+    permissons.
+  </span>
 
-    <span
-      *ngIf="
-        uniswapDappSharedLogic.miningTransaction?.status ===
-        transactionStatus.waitingForConfirmation
-      "
-      >Waiting for confirmation....</span
-    >
-    <span
-      *ngIf="
-        uniswapDappSharedLogic.miningTransaction?.status ===
-        transactionStatus.mining
-      "
-      >Waiting for your transaction to be mined...
-      <u
-        ><a
-          class="uni-ic__swap-allow-etherscan"
-          (click)="uniswapDappSharedLogic.viewOnEtherscan()"
-        >
-          View tx on etherscan
-        </a>
-      </u>
-    </span>
-  </div>
+  <span
+    *ngIf="
+      uniswapDappSharedLogic.miningTransaction?.status ===
+      transactionStatus.waitingForConfirmation
+    "
+    >Waiting for confirmation....</span
+  >
+  <span
+    *ngIf="
+      uniswapDappSharedLogic.miningTransaction?.status ===
+      transactionStatus.mining
+    "
+    >Waiting for your transaction to be mined...
+    <u
+      ><a
+        class="uni-ic__swap-allow-etherscan"
+        (click)="uniswapDappSharedLogic.viewOnEtherscan()"
+      >
+        View tx on etherscan
+      </a>
+    </u>
+  </span>
 </button>
