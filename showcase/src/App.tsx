@@ -19,6 +19,18 @@ function App() {
 
   useEffect(() => {
     (async () => {
+      async function getMetaMaskAccount(): Promise<string[]> {
+        try {
+          const accounts = await (window as any).ethereum.request({
+            method: 'eth_requestAccounts',
+          });
+          return accounts;
+        } catch (error) {
+          // keep trying if they reject the request!
+          return getMetaMaskAccount();
+        }
+      }
+
       const ethereum = (window as any).ethereum;
       if (!ethereum) {
         setMetamaskInstalled(false);
@@ -29,9 +41,7 @@ function App() {
       setMetamaskInstalled(true);
 
       // MetaMask
-      const accounts = await (window as any).ethereum.request({
-        method: 'eth_requestAccounts',
-      });
+      const accounts = await getMetaMaskAccount();
 
       const uniswapDappSharedLogicContext: UniswapDappSharedLogicContext = {
         supportedNetworkTokens: [
@@ -95,26 +105,32 @@ function App() {
   return (
     <div className="App">
       {loading && (
-        <div className="uni-ic__loading">
-          <svg
-            className="uni-ic__loading__svg-container"
-            height="100"
-            width="100"
-            viewBox="0 0 100 100"
-          >
-            <circle
-              className="uni-ic__loading__svg bg"
-              cx="50"
-              cy="50"
-              r="45"
-            ></circle>
-            <circle
-              className="uni-ic__loading__svg animate"
-              cx="50"
-              cy="50"
-              r="45"
-            ></circle>
-          </svg>
+        <div>
+          {metamaskInstalled && (
+            <p>Please approve account or login to MetaMask</p>
+          )}
+
+          <div className="uni-ic__loading">
+            <svg
+              className="uni-ic__loading__svg-container"
+              height="100"
+              width="100"
+              viewBox="0 0 100 100"
+            >
+              <circle
+                className="uni-ic__loading__svg bg"
+                cx="50"
+                cy="50"
+                r="45"
+              ></circle>
+              <circle
+                className="uni-ic__loading__svg animate"
+                cx="50"
+                cy="50"
+                r="45"
+              ></circle>
+            </svg>
+          </div>
         </div>
       )}
 
