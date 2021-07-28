@@ -108,7 +108,10 @@ export class UniswapDappSharedLogic {
       (t) => t.chainId === this.chainId,
     )!;
 
-    if (supportedNetworkTokens.defaultInputValue) {
+    if (
+      supportedNetworkTokens.defaultInputValue &&
+      this._inputAmount.isZero()
+    ) {
       this._inputAmount = new BigNumber(
         supportedNetworkTokens.defaultInputValue,
       );
