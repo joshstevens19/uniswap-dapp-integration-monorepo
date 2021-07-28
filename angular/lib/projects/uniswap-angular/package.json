@@ -1,6 +1,6 @@
 {
   "name": "uniswap-angular",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Integrating uniswap within your angular dApp with a couple of lines of code.",
   "peerDependencies": {
     "@angular/common": "^11.2.11",

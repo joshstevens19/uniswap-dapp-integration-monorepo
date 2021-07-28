@@ -32,6 +32,7 @@ Integrating uniswap within your dApp should be a simple thing but with all the c
 🚀 Fully typescript supported with full generated typings
 <br/>
 🚀 and much more!!
+
 ## Live demo
 
 You can view a live demo [here](https://uniswap-dapp-integration.netlify.app). You will need MetaMask installed. It only uses a few tokens just to show the demo working.
