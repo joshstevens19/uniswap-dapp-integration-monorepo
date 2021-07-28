@@ -1,6 +1,6 @@
 {
   "name": "uniswap-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Integrating uniswap within your react dApp with a couple of lines of code.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
