@@ -6,7 +6,7 @@
 /out-tsc
 # Only exists if Bazel was run
 /bazel-out
-./README.md
+README.md
 
 # dependencies
 /node_modules

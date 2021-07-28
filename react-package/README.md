@@ -7,6 +7,10 @@
 
 Integrating uniswap within your dApp should be a simple thing but with all the complex stuff that goes into making it work, managing transaction status, calling the correct methods on the swap, maintaining the users balances, syncing the fiat prices, producing the token icons, handling all the UI making it work on every browser, i could keep going. On top of this you don't really want to pop a window for the user to swap using the uniswap widget, you want to keep the user experience consistent with your dApp. The idea of this library is to give you a really easy but fully flexible way you can integrate with uniswap with only a few lines of code. You can customise mostly everything from what tokens you support to what colour you want it to be themed as! This will turn integrating uniswap into a few lines of code task.
 
+## Live demo
+
+You can view a live demo [here](https://uniswap-dapp-integration.netlify.app). You will need MetaMask installed. It only uses a few tokens just to show the demo working.
+
 # Installing
 
 ## npm

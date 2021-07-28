@@ -1,21 +1,21 @@
 {
   "name": "uniswap-react",
   "version": "1.0.0",
-  "description": "",
+  "description": "Integrating uniswap within your react dApp with a couple of lines of code.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
   "types": "./lib/esm/index.d.ts",
   "scripts": {
-    "build": "npm run build:esm && npm run build:cjs && npm run copy-readme && npm run copy-readme",
-    "copy-readme": "cp ../README.md ./lib",
+    "build": "npm run build:esm && npm run build:cjs && npm run copy-readme",
+    "copy-readme": "cp ../README.md ./",
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs",
-    "link": "npm link ../../shared"
+    "link": "npm link ../../shared",
+    "prepublishOnly": "npm run build"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "joshstevens19@hotmail.co.uk",
+  "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.171",
     "@types/react": "^17.0.13",
     "@types/react-dom": "^17.0.8",
     "react": "^17.0.2",
@@ -29,12 +29,23 @@
   },
   "dependencies": {
     "bignumber.js": "^9.0.1",
-    "lodash": "^4.17.21",
     "rxjs": "~6.6.0"
   },
   "files": [
     "/lib",
     "package.json",
-    "package-lock.json"
-  ]
+    "package-lock.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "ethereum",
+    "blockchain",
+    "uniswap",
+    "react"
+  ],
+  "bugs": {
+    "url": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo/issues"
+  },
+  "homepage": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo"
 }
