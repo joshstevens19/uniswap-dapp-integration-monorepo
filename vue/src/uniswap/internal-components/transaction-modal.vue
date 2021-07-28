@@ -108,7 +108,7 @@
                 miningTransactionStatus === TransactionStatus.mining ||
                   miningTransactionStatus === TransactionStatus.completed
               "
-              v-on:click="logic.viewOnEtherscan()()"
+              v-on:click="logic.viewOnEtherscan()"
               class="uni-ic__theme-background-button"
             >
               View tx on etherscan
