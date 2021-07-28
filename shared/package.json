@@ -1,24 +1,27 @@
 {
   "name": "uniswap-dapp-integration-shared",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is the shared lib which `uniswap-angular`, `uniswap-react` and `uniswap-vue` uses to do all its shared logic. Even though this is used on the client interfaces it does expose nice easy to understand calls for you to build your own interface if you wish to.",
   "main": "dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./dist && npm run compile-scss && npm run build:esm && npm run build:cjs && npm run copy-readme",
+    "build": "rm -rf ./dist && npm run compile-scss && npm run build:esm && npm run build:cjs",
     "compile-scss": "cd ./styles && node ./compile-scss",
-    "copy-readme": "cp ../README.md ./dist",
     "build:esm": "tsc",
-    "build:cjs": "tsc --module commonjs --outDir dist/cjs"
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs",
+    "prepublishOnly": "npm run build"
   },
   "author": "joshstevens19@hotmail.co.uk",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bignumber.js": "^9.0.1",
     "ethers": "^5.4.0",
     "rxjs": "^7.1.0",
     "simple-uniswap-sdk": "^3.3.2"
+  },
+  "devDependencies": {
+    "node-sass": "^4.14.1"
   },
   "files": [
     "dist",
@@ -26,9 +29,16 @@
     "package-lock.json",
     "README.md",
     "styles/uniswap.scss",
-    "styles/uniswap.css"
+    "styles/uniswap.css",
+    "LICENSE"
   ],
-  "devDependencies": {
-    "node-sass": "^4.14.1"
-  }
+  "keywords": [
+    "ethereum",
+    "blockchain",
+    "uniswap"
+  ],
+  "bugs": {
+    "url": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo/issues"
+  },
+  "homepage": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo"
 }
