@@ -72,6 +72,16 @@ function App() {
               },
             ],
           },
+          {
+            chainId: ChainId.RINKEBY,
+            defaultInputToken: ETH.RINKEBY().contractAddress,
+            defaultOutputToken: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
+            supportedTokens: [
+              {
+                contractAddress: '0xef0e839cf88e47be676e72d5a9cb6ced99fad1cf',
+              },
+            ],
+          },
         ],
         ethereumAddress: accounts[0],
         ethereumProvider: ethereum,
@@ -109,7 +119,7 @@ function App() {
       )}
 
       {!loading && (
-        <div>
+        <div className="uniswap-container">
           {uniswapDappSharedLogicContext !== undefined && metamaskInstalled && (
             <UniswapReact
               uniswapDappSharedLogicContext={uniswapDappSharedLogicContext}
