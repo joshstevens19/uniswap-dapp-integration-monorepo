@@ -55,7 +55,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "allowedCommonJsDependencies": ["uniswap-dapp-integration-shared"],
             "outputPath": "dist/uniswap-angular-showcase",
             "index": "projects/uniswap-angular-showcase/src/index.html",
             "main": "projects/uniswap-angular-showcase/src/main.ts",
