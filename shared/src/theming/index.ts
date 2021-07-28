@@ -176,7 +176,7 @@ export class Theming {
       .getElementById(this.WIDGET_ID)!
       .getBoundingClientRect().top;
     let paddingNumber = topBoundingClientRect - minus;
-    if (paddingNumber < 0) {
+    if (paddingNumber < 20) {
       paddingNumber = 20;
     }
     const paddingTop = paddingNumber.toString() + 'px';
