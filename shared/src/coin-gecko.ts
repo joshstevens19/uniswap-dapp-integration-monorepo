@@ -35,18 +35,27 @@ export class CoinGecko {
         }
       }
 
-      const response = await (
-        await fetch(
-          `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAddresses.join()}&vs_currencies=usd`,
-        )
-      ).json();
+      try {
+        const response = await (
+          await fetch(
+            `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${contractAddresses.join()}&vs_currencies=usd`,
+          )
+        ).json();
 
-      this._fiatPriceCache = {
-        cachedResponse: response,
-        timestamp: Date.now(),
-      };
+        this._fiatPriceCache = {
+          cachedResponse: response,
+          timestamp: Date.now(),
+        };
 
-      return response;
+        return response;
+      } catch (e) {
+        // if coin gecko is down for any reason still allow the swapper to work
+        if (this._fiatPriceCache) {
+          return this._fiatPriceCache.cachedResponse;
+        }
+
+        return {};
+      }
     } else {
       return {};
     }
