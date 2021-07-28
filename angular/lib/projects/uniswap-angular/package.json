@@ -1,11 +1,14 @@
 {
   "name": "uniswap-angular",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "Integrating uniswap within your angular dApp with a couple of lines of code.",
   "peerDependencies": {
     "@angular/common": "^11.2.11",
     "@angular/core": "^11.2.11",
     "uniswap-dapp-integration-shared": "^1.0.0"
   },
+  "author": "joshstevens19@hotmail.co.uk",
+  "license": "MIT",
   "scripts": {
     "build": "ng build --prod",
     "copy-readme": "cp ../../../README.md ../../dist/uniswap-angular",
@@ -13,5 +16,15 @@
   },
   "dependencies": {
     "tslib": "^2.0.0"
-  }
+  },
+  "keywords": [
+    "ethereum",
+    "blockchain",
+    "uniswap",
+    "angular"
+  ],
+  "bugs": {
+    "url": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo/issues"
+  },
+  "homepage": "https://github.com/uniswap-integration/uniswap-dapp-integration-monorepo"
 }
