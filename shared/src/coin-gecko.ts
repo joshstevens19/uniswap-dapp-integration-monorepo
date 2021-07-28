@@ -8,8 +8,8 @@ export class CoinGecko {
         timestamp: number;
       }
     | undefined = undefined;
-  // 30 seconds cache
-  private _cacheMilliseconds = 30000;
+  // 90 seconds cache
+  private _cacheMilliseconds = 90000;
   constructor() {}
 
   /**
