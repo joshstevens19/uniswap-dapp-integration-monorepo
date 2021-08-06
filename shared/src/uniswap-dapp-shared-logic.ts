@@ -11,7 +11,6 @@ import {
   UniswapPairFactory,
   UniswapPairSettings,
   UniswapSubscription,
-  UniswapVersion,
 } from 'simple-uniswap-sdk';
 import { ChainService } from './chain';
 import { CoinGecko } from './coin-gecko';
@@ -841,8 +840,6 @@ export class UniswapDappSharedLogic {
     if (this.supportedNetwork) {
       const tokenWithAllowanceInfo =
         await this._tokensFactoryPublic.getAllowanceAndBalanceOfForContracts(
-          // dont care about allowance here so use v3 wont make a difference
-          UniswapVersion.v3,
           this._ethereumProvider.address,
           this._context.supportedNetworkTokens
             .find((t) => t.chainId === this.chainId)!
