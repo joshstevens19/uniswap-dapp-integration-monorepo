@@ -13,7 +13,6 @@ import {
   UniswapDappSharedLogicContext,
   Utils as UniswapUtils,
 } from 'uniswap-dapp-integration-shared';
-import 'uniswap-dapp-integration-shared/styles/uniswap.css';
 import Approval from './components/approval';
 import ConfirmSwap from './components/confirmSwap';
 import Header from './components/header';
@@ -22,6 +21,7 @@ import SwapQuoteInfo from './components/swapQuoteInfo';
 import TokenIcon from './components/tokenIcon';
 import TokensModal from './components/tokensModal';
 import TransactionModal from './components/transactionModal';
+import { UNISWAP_CSS } from './styles';
 
 let uniswapDappSharedLogic: undefined | UniswapDappSharedLogic;
 const subscriptions: any[] = [];
@@ -327,6 +327,9 @@ const UniswapReact = ({
 
   return (
     <div id="uniswap__716283642843643826">
+      <style>
+        {UNISWAP_CSS}
+      </style>
       {loading && <Loading />}
 
       {!loading && uniswapDappSharedLogic && (

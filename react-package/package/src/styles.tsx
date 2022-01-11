@@ -1,4 +1,6 @@
-.uni-ic {
+export const UNISWAP_CSS = `
+
+    .uni-ic {
   position: relative;
   width: 100%;
   background: RGB(255, 255, 255);
@@ -1625,3 +1627,6 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+
+`;
