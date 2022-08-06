@@ -51,7 +51,7 @@ export class EthereumProvider {
     supportedNetworkTokens: SupportedNetworkTokens[],
   ): boolean {
     try {
-      ETH.info(chainId);
+      ETH.info(chainId, supportedNetworkTokens);
 
       return (
         supportedNetworkTokens.find((t) => t.chainId === chainId) !== undefined
